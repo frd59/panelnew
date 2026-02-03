@@ -451,9 +451,10 @@ async function initFirebase() {
     _deleteDoc  = deleteDocFn;
     _getDocs    = getDocsFn;
 
-    const testRef = _doc(db, '__test__', 'ping');
-    await _setDoc(testRef, { t: Date.now() });
-    await _deleteDoc(testRef);
+useFirebase = true;
+setStatus('online', 'Çevrimiçi');
+await loadAllFromFirebase();
+
 
     useFirebase = true;
     setStatus('online', 'Çevrimiçi');
