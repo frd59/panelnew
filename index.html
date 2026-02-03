@@ -131,7 +131,11 @@ html,body{height:100%;font-family:var(--fn);background:var(--bg);color:var(--txt
 .b-todo{background:var(--pur-bg);color:var(--pur)}
 
 .stat-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:14px;margin-bottom:22px}
-.stat{padding:18px 19px;display:flex;align-items:center;gap:15px}
+.stat{padding:18px 19px;display:flex;align-items:center;gap:15px;cursor:default;}
+/* Stat card click effect for receivables */
+.stat.clickable { cursor:pointer; transition:transform 0.1s; }
+.stat.clickable:active { transform:scale(0.98); }
+
 .stat-ico{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .stat-lbl{font-size:11px;color:var(--txt3);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
 .stat-val{font-size:21px;font-weight:800;margin-top:2px}
@@ -300,7 +304,7 @@ tr:last-child td{border-bottom:none}
     </div>
   </nav>
   <div class="sb-footer">
-    <span>PASOVART v2.8</span>
+    <span>PASOVART v2.9</span>
     <div class="sb-status"><div class="status-dot connecting" id="statusDot"></div><span id="statusTxt">Bağlanıyor…</span></div>
   </div>
 </aside>
@@ -472,12 +476,15 @@ function render(k) {
 
 function rDash() {
   const inc=incomes.reduce((a,i)=>a+i.amt,0), exp=expenses.reduce((a,e)=>a+e.amt,0);
+  // Calculate Total Receivables (Remaining Balance)
+  const receivables = clients.reduce((acc, c) => acc + (c.total - c.paid), 0);
+
   const up=sessions.filter(s=>s.status==='upcoming').sort((a,b)=>new Date(a.date)-new Date(b.date));
   
   return `<div class="stat-grid">
-    <div class="card stat"><div class="stat-ico" style="background:#ecfdf5"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div><div><div class="stat-lbl">Toplam Gelir</div><div class="stat-val" style="color:#10b981">₺${fm(inc)}</div></div></div>
+    <div class="card stat"><div class="stat-ico" style="background:#ecfdf5"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div><div><div class="stat-lbl">Toplam Gelir (Kasa)</div><div class="stat-val" style="color:#10b981">₺${fm(inc)}</div></div></div>
     <div class="card stat"><div class="stat-ico" style="background:#fef2f2"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div><div><div class="stat-lbl">Toplam Gider</div><div class="stat-val" style="color:#ef4444">₺${fm(exp)}</div></div></div>
-    <div class="card stat"><div class="stat-ico" style="background:#eff6ff"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div><div class="stat-lbl">Net Kazanç</div><div class="stat-val" style="color:#3b82f6">₺${fm(inc-exp)}</div></div></div>
+    <div class="card stat clickable" onclick="openReceivablesList()" style="cursor:pointer"><div class="stat-ico" style="background:#eff6ff"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M12 2v20M2 12h20" stroke-opacity="0"/><path d="M17 9V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M9 9h.01"/><path d="M12 15v3m0 0l-3-3m3 3l3-3"/><path d="M22 17v2a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></div><div><div class="stat-lbl">Alınacak Ödemeler</div><div class="stat-val" style="color:#3b82f6">₺${fm(receivables)}</div></div></div>
   </div>
   <div class="card card-p"><div class="ph" style="margin-bottom:14px"><h3 style="font-size:16px;font-weight:700">📸 Yaklaşan Çekimler</h3></div>
   ${up.slice(0,5).map(s=>{
@@ -564,7 +571,7 @@ window.del = async function(type, id) {
 }
 
 // MODALS
-const moTitles={session:'Çekim Ekle',client:'Müşteri Ekle',task:'Görev Ekle',contract:'Sözleşme Ekle',expense:'Gider Ekle',income:'Gelir Ekle',auth:'Giriş Bilgileri', panelMgmt:'Panel Yönetimi', detail: 'Çekim Detayları'};
+const moTitles={session:'Çekim Ekle',client:'Müşteri Ekle',task:'Görev Ekle',contract:'Sözleşme Ekle',expense:'Gider Ekle',income:'Gelir Ekle',auth:'Giriş Bilgileri', panelMgmt:'Panel Yönetimi', detail: 'Çekim Detayları', receivables: 'Alacak Listesi'};
 let _moType='', _moId=null;
 window.openMo=function(type,editId){
   _moType=type; _moId=editId||null;
@@ -574,6 +581,45 @@ window.openMo=function(type,editId){
 }
 window.closeModal=function(){document.getElementById('mo').classList.remove('on')}
 const v=id=>(document.getElementById(id)||{}).value||'';
+
+// NEW: OPEN RECEIVABLES LIST
+window.openReceivablesList = function() {
+  const indebtedClients = clients.filter(c => (c.total - c.paid) > 0);
+  
+  if(indebtedClients.length === 0) {
+    showToast('Tüm ödemeler alınmış.', 'success');
+    return;
+  }
+
+  let html = `<div class="tbl-wrap"><table><thead><tr><th>Müşteri</th><th>Telefon</th><th>Hizmet/Etkinlik</th><th>Kalan Tutar</th></tr></thead><tbody>`;
+  
+  indebtedClients.forEach(c => {
+    // Find related session or package info if available
+    let pkgInfo = '-';
+    if(c.session && c.session.pkg) pkgInfo = c.session.pkg; 
+    // If no session attached to client directly, search in sessions array
+    else {
+      const s = sessions.find(sess => sess.cid === c.id);
+      if(s) pkgInfo = s.pkg;
+    }
+
+    const remaining = c.total - c.paid;
+    
+    html += `<tr>
+      <td style="font-weight:600">${c.name}</td>
+      <td>${c.phone}</td>
+      <td style="font-size:12px; color:var(--txt2)">${pkgInfo}</td>
+      <td style="font-weight:700; color:var(--red)">₺${fm(remaining)}</td>
+    </tr>`;
+  });
+
+  html += `</tbody></table></div>`;
+  
+  document.getElementById('moTitle').textContent = 'Alacak Listesi';
+  document.getElementById('moBody').innerHTML = html;
+  document.getElementById('mo').classList.add('on');
+}
+
 
 // NEW: FULL DETAIL VIEW FUNCTION
 window.openSessionDetail = function(id) {
