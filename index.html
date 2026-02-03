@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PASOVART Paneli</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap');
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0f4f8;--card:#fff;--sb:#1e293b;--sb2:#0f172a;
+  --acc:#3b82f6;--acc2:#60a5fa;
+  --txt:#1e293b;--txt2:#475569;--txt3:#94a3b8;
+  --bdr:#f1f5f9;--bdr2:#e2e8f0;
+  --grn:#10b981;--grn-bg:#ecfdf5;
+  --red:#ef4444;--red-bg:#fef2f2;--red-l:#fee2e2;
+  --amb:#f59e0b;--amb-bg:#fffbeb;
+  --pur:#7c3aed;--pur-bg:#ede9fe;
+  --blu:#0284c7;--blu-bg:#e0f2fe;
+  --sh:0 2px 14px rgba(0,0,0,.07);
+  --fn:'DM Sans',system-ui,sans-serif;
+}
+html,body{height:100%;overflow:hidden;font-family:var(--fn)}
+body{background:var(--bg);color:var(--txt)}
+
+/* ─── APP SHELL ─── */
+.app{display:flex;height:100vh}
+
+/* ═══════ SIDEBAR ═══════ */
+.sb{
+  width:232px;flex-shrink:0;
+  background:linear-gradient(180deg,var(--sb),var(--sb2));
+  color:#fff;display:flex;flex-direction:column;
+  box-shadow:2px 0 12px rgba(0,0,0,.12);
+  position:relative;z-index:10;
+}
+.sb-logo{
+  padding:24px 20px 20px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  display:flex;align-items:center;gap:12px;
+}
+.sb-logo-icon{
+  width:42px;height:42px;border-radius:12px;
+  background:linear-gradient(135deg,#2563eb,#60a5fa);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 3px 10px rgba(37,99,235,.35);
+}
+.sb-logo-txt strong{font-size:18px;font-weight:800;letter-spacing:-.4px;display:block}
+.sb-logo-txt em{font-size:10px;color:rgba(255,255,255,.4);font-style:normal;font-weight:500}
+
+/* nav items */
+.sb-nav{flex:1;padding:14px 12px;overflow-y:auto}
+.nav-item{
+  width:100%;display:flex;align-items:center;gap:11px;
+  padding:11px 14px;border-radius:10px;border:none;
+  background:transparent;color:rgba(255,255,255,.52);
+  font:500 14px/1 var(--fn);cursor:pointer;
+  transition:all .18s;margin-bottom:3px;position:relative;
+  text-align:left;
+}
+.nav-item:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.88)}
+.nav-item.active{
+  background:rgba(59,130,246,.2);
+  color:var(--acc2);font-weight:700;
+}
+.nav-item.active::after{
+  content:'';position:absolute;right:14px;top:50%;transform:translateY(-50%);
+  width:7px;height:7px;border-radius:50%;background:var(--acc2);
+}
+.nav-item svg{flex-shrink:0;width:19px;height:19px}
+
+.sb-footer{
+  padding:16px 20px;
+  border-top:1px solid rgba(255,255,255,.07);
+  font-size:11px;color:rgba(255,255,255,.25);
+}
+
+/* ═══════ MAIN ═══════ */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+
+/* header */
+.hdr{
+  background:var(--card);padding:12px 28px;
+  display:flex;justify-content:space-between;align-items:center;
+  border-bottom:1px solid var(--bdr);flex-shrink:0;
+  box-shadow:0 1px 4px rgba(0,0,0,.04);
+}
+.hdr-search{
+  display:flex;align-items:center;gap:8px;
+  background:#f8fafc;border-radius:10px;padding:9px 15px;
+}
+.hdr-search input{
+  border:none;outline:none;background:transparent;
+  font:400 14px var(--fn);color:var(--txt2);width:180px;
+}
+.hdr-right{display:flex;align-items:center;gap:14px}
+.hdr-greet{font-size:13px;color:var(--txt3)}
+.hdr-avatar{
+  width:38px;height:38px;border-radius:10px;
+  background:linear-gradient(135deg,#2563eb,#60a5fa);
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-weight:800;font-size:15px;
+}
+
+/* content scroll */
+.content{flex:1;overflow-y:auto;padding:26px 28px}
+
+/* ─── PAGES ─── */
+.pg{display:none}.pg.on{display:block}
+
+/* page header row */
+.ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.ph h2{font-size:21px;font-weight:800;color:var(--txt)}
+
+/* ─── BUTTONS ─── */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  border:none;border-radius:10px;padding:9px 18px;
+  font:600 14px var(--fn);cursor:pointer;
+  transition:transform .12s,box-shadow .12s;
+}
+.btn:active{transform:scale(.96)}
+.btn-p{background:linear-gradient(135deg,#1e40af,var(--acc));color:#fff;box-shadow:0 2px 8px rgba(59,130,246,.3)}
+.btn-p:hover{box-shadow:0 3px 14px rgba(59,130,246,.4)}
+.btn-g{background:#f1f5f9;color:var(--txt2)}.btn-g:hover{background:var(--bdr2)}
+.btn-d{background:var(--red-l);color:var(--red)}.btn-d:hover{background:#fecaca}
+.btn-sm{padding:5px 9px;font-size:12px;border-radius:8px}
+
+/* ─── CARDS ─── */
+.card{background:var(--card);border-radius:14px;box-shadow:var(--sh);border:1px solid var(--bdr)}
+.card-p{padding:22px}
+
+/* ─── BADGES ─── */
+.badge{display:inline-block;padding:3px 11px;border-radius:20px;font-size:12px;font-weight:600;white-space:nowrap}
+.b-upcoming{background:var(--blu-bg);color:var(--blu)}
+.b-done,.b-completed,.b-signed{background:var(--grn-bg);color:var(--grn)}
+.b-inprogress,.b-pending{background:var(--amb-bg);color:var(--amb)}
+.b-todo{background:var(--pur-bg);color:var(--pur)}
+
+/* ─── STAT GRID ─── */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.stat{padding:18px 19px;display:flex;align-items:center;gap:15px}
+.stat-ico{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.stat-lbl{font-size:11px;color:var(--txt3);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.stat-val{font-size:21px;font-weight:800;margin-top:2px}
+
+/* ─── DASH ROWS ─── */
+.dash-2{display:grid;grid-template-columns:1.4fr 1fr;gap:18px}
+
+/* upcoming item */
+.up-item{display:flex;align-items:center;gap:13px;padding:11px 0;border-bottom:1px solid var(--bdr)}
+.up-item:last-child{border-bottom:none}
+.daybox{
+  width:46px;height:46px;border-radius:11px;flex-shrink:0;
+  background:linear-gradient(135deg,#dbeafe,#bfdbfe);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+}
+.daybox .dn{font-size:16px;font-weight:800;color:#1e40af;line-height:1}
+.daybox .dm{font-size:9px;font-weight:700;color:var(--acc);text-transform:uppercase}
+.up-info{flex:1}.up-info .un{font:600 14px var(--fn);color:var(--txt)}
+.up-info .us{font-size:12px;color:var(--txt3);margin-top:2px}
+.up-price{text-align:right}
+.up-price .upm{font:700 14px var(--fn);color:#1e40af}
+.up-price .ups{font-size:11px;color:var(--txt3)}
+
+/* task dash */
+.td-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--bdr)}
+.td-item:last-child{border-bottom:none}
+.pdot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.td-info{flex:1}.td-info .tn{font:600 13px var(--fn);color:var(--txt)}
+.td-info .ts{font-size:11px;color:var(--txt3)}
+
+/* ─── TABLE ─── */
+.tbl-wrap{border-radius:14px;border:1px solid var(--bdr);box-shadow:var(--sh);overflow-x:auto}
+table{width:100%;border-collapse:collapse;background:var(--card)}
+thead tr{background:#f8fafc}
+th{padding:11px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--bdr);white-space:nowrap}
+td{padding:12px 14px;font-size:13px;color:var(--txt2);border-bottom:1px solid #fafafa;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+td.s{font-weight:600;color:var(--txt)}
+td.pr{font:700 14px var(--fn);color:#1e40af}
+td.pf{color:var(--grn);font-weight:600}
+td.pp{color:var(--amb);font-weight:600}
+.tda{display:flex;gap:5px;align-items:center}
+
+/* ─── CLIENT GRID ─── */
+.cl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
+.cl-card{padding:19px}
+.cl-head{display:flex;justify-content:space-between;align-items:flex-start}
+.cl-left{display:flex;align-items:center;gap:11px}
+.cl-ava{
+  width:43px;height:43px;border-radius:12px;
+  background:linear-gradient(135deg,#dbeafe,#bfdbfe);
+  display:flex;align-items:center;justify-content:center;
+}
+.cl-nm{font:700 15px var(--fn);color:var(--txt)}
+.cl-tp{font-size:12px;color:var(--txt3)}
+.cl-info{margin-top:12px;font-size:12px;color:var(--txt2);line-height:1.9}
+.cl-note{margin-top:7px;padding:6px 10px;background:#f8fafc;border-radius:8px;font-size:12px;color:var(--txt2)}
+.cl-foot{margin-top:10px;padding-top:10px;border-top:1px solid var(--bdr);font-size:11px;color:var(--txt3)}
+
+/* ─── KANBAN ─── */
+.kanban{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
+.kb-col{background:#f8fafc;border-radius:14px;padding:15px;border:1px solid var(--bdr)}
+.kb-head{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.kb-head .kbt{font:700 14px var(--fn)}
+.kb-head .kbc{font-size:11px;font-weight:700;padding:2px 8px;border-radius:12px;border:1px solid}
+.kb-cards{display:flex;flex-direction:column;gap:9px}
+.kb-card{background:var(--card);border-radius:11px;padding:13px;box-shadow:0 2px 8px rgba(0,0,0,.05);border:1px solid var(--bdr)}
+.kb-top{display:flex;justify-content:space-between;align-items:flex-start}
+.kb-ttl{font:600 13px var(--fn);color:var(--txt);flex:1;padding-right:6px}
+.kb-sub{font-size:11px;color:var(--txt3);margin-top:3px}
+.kb-note{font-size:11px;color:var(--txt2);margin-top:5px;font-style:italic}
+.kb-act{display:flex;gap:5px;margin-top:9px}
+
+/* ─── CONTRACT ─── */
+.ct-list{display:flex;flex-direction:column;gap:11px}
+.ct-item{
+  display:flex;align-items:center;gap:17px;padding:17px 20px;
+  border-radius:14px;background:var(--card);box-shadow:var(--sh);border:1px solid var(--bdr);
+}
+.ct-ico{
+  width:46px;height:46px;border-radius:12px;flex-shrink:0;
+  background:linear-gradient(135deg,#ede9fe,#ddd6fe);
+  display:flex;align-items:center;justify-content:center;
+}
+.ct-info{flex:1}
+.ct-info .ci-h{display:flex;align-items:center;gap:9px}
+.ct-info .ci-n{font:700 15px var(--fn);color:var(--txt)}
+.ct-info .ci-s{font-size:12px;color:var(--txt3);margin-top:2px}
+.ct-pr{text-align:right;flex-shrink:0}
+.ct-pr .cpm{font:700 16px var(--fn);color:#1e40af}
+.ct-pr .cps{font-size:12px;color:var(--txt3)}
+
+/* ─── FINANCE ─── */
+.fin-2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.fin-item{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #fafafa}
+.fin-item:last-child{border-bottom:none}
+.fin-item .fi-n{font:600 14px var(--fn);color:var(--txt)}
+.fin-item .fi-s{font-size:12px;color:var(--txt3)}
+.fv{font:700 15px var(--fn)}.fv.pos{color:var(--grn)}.fv.neg{color:var(--red)}
+.fin-sep{margin-top:16px;padding-top:13px;border-top:2px solid var(--bdr);font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px}
+.cat-tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+.cat-tag{background:var(--red-l);color:var(--red);padding:3px 10px;border-radius:14px;font-size:12px;font-weight:600}
+
+/* ─── MODAL ─── */
+.mo{
+  position:fixed;inset:0;background:rgba(0,0,0,.38);
+  backdrop-filter:blur(5px);z-index:999;
+  display:none;align-items:center;justify-content:center;
+}
+.mo.on{display:flex}
+.mo-box{
+  background:#fff;border-radius:16px;width:470px;
+  max-height:90vh;overflow-y:auto;padding:30px;
+  box-shadow:0 30px 70px rgba(0,0,0,.2);
+}
+.mo-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+.mo-hd h3{font-size:19px;font-weight:700;color:var(--txt);margin:0}
+.mo-cls{border:none;background:#f1f5f9;border-radius:8px;width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.mo-cls:hover{background:var(--bdr2)}
+
+/* form */
+.fg{margin-bottom:15px}
+.fg label{display:block;font-size:13px;font-weight:600;color:var(--txt2);margin-bottom:5px}
+.fg input,.fg select,.fg textarea{
+  width:100%;padding:9px 13px;border:1.5px solid var(--bdr2);
+  border-radius:10px;font:400 14px var(--fn);background:#fafafa;
+  color:var(--txt);outline:none;transition:border .2s;
+}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--acc);background:#fff}
+.fg textarea{resize:vertical;min-height:60px}
+.fr{display:flex;gap:11px}.fr .fg{flex:1}
+.f-sub{width:100%;padding:11px;margin-top:6px;font-size:15px}
+
+/* scrollbar */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:#94a3b8}
+
+/* anim */
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.pg.on{animation:fadeUp .28s ease}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ══════ SIDEBAR (statik) ══════ -->
+<aside class="sb">
+  <div class="sb-logo">
+    <div class="sb-logo-icon">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+    </div>
+    <div class="sb-logo-txt"><strong>PASOVART</strong><em>Fotoğrafçılık Paneli</em></div>
+  </div>
+
+  <nav class="sb-nav">
+    <button class="nav-item active" data-tab="dashboard" onclick="go('dashboard')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Ana Pane
+    </button>
+    <button class="nav-item" data-tab="sessions" onclick="go('sessions')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Çekimler
+    </button>
+    <button class="nav-item" data-tab="clients" onclick="go('clients')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><circle cx="17" cy="9" r="2.5"/><path d="M23 21v-1.5a3 3 0 0 0-3-3h-.5"/></svg>
+      Müşteriler
+    </button>
+    <button class="nav-item" data-tab="tasks" onclick="go('tasks')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Görevler
+    </button>
+    <button class="nav-item" data-tab="contracts" onclick="go('contracts')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Sözleşmeler
+    </button>
+    <button class="nav-item" data-tab="finance" onclick="go('finance')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      Gelir / Gider
+    </button>
+  </nav>
+
+  <div class="sb-footer">PASOVART v1.0</div>
+</aside>
+
+<!-- ══════ MAIN ══════ -->
+<div class="main">
+  <header class="hdr">
+    <div class="hdr-search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" placeholder="Arama…" />
+    </div>
+    <div class="hdr-right">
+      <span class="hdr-greet">Hoş geldin, PASOVART 👋</span>
+      <div class="hdr-avatar">F</div>
+    </div>
+  </header>
+
+  <div class="content">
+    <div class="pg on" id="pg-dashboard"></div>
+    <div class="pg"       id="pg-sessions"></div>
+    <div class="pg"       id="pg-clients"></div>
+    <div class="pg"       id="pg-tasks"></div>
+    <div class="pg"       id="pg-contracts"></div>
+    <div class="pg"       id="pg-finance"></div>
+  </div>
+</div>
+</div>
+
+<!-- ══════ MODAL ══════ -->
+<div class="mo" id="mo" onclick="if(event.target===this)closeModal()">
+  <div class="mo-box">
+    <div class="mo-hd">
+      <h3 id="moTitle">–</h3>
+      <button class="mo-cls" onclick="closeModal()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div id="moBody"></div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════
+   DATA  –  localStorage persist
+   ═══════════════════════════════════════════════ */
+const ld=(k,fb)=>{try{const v=localStorage.getItem('pf_'+k);return v?JSON.parse(v):fb}catch{return fb}};
+const sv=(k,v)=>{try{localStorage.setItem('pf_'+k,JSON.stringify(v))}catch{}};
+
+let clients=ld('clients',[
+  {id:1,name:"Ayşe & Mehmet",type:"Düğün",phone:"532 123 4567",email:"ayse@email.com",note:"Saç stilisti ile koordinasyon gerekli"},
+  {id:2,name:"Kerem Yılmaz",type:"Kurumsal",phone:"541 987 6543",email:"kerem@firma.com",note:"Logo ile uyumlu renk temaları"},
+  {id:3,name:"Elif Kaya",type:"Portföy",phone:"536 111 2222",email:"elif@email.com",note:"Studio çekimi"},
+  {id:4,name:"Can & Deniz",type:"Düğün",phone:"538 333 4444",email:"can@email.com",note:"Açık hava ceremony"},
+  {id:5,name:"Marta Firma",type:"Kurumsal",phone:"532 555 6666",email:"marta@corp.com",note:"Ekip fotoları + etkinlik"}
+]);
+let sessions=ld('sessions',[
+  {id:1,cid:1,date:"2026-02-10",time:"14:00",loc:"İstanbul – Topkapi Sarayı",dur:"5 saat",status:"upcoming",pkg:"Premium Düğün",total:18000,paid:9000},
+  {id:2,cid:2,date:"2026-02-08",time:"10:00",loc:"Ankara – Çağdaş Sanat Merkezi",dur:"3 saat",status:"upcoming",pkg:"Kurumsal Paket",total:8000,paid:4000},
+  {id:3,cid:3,date:"2026-02-05",time:"16:00",loc:"Studio – Karaköy",dur:"2 saat",status:"done",pkg:"Portföy Mini",total:4500,paid:4500},
+  {id:4,cid:4,date:"2026-02-18",time:"11:00",loc:"Antalya – Kaleiçi",dur:"6 saat",status:"upcoming",pkg:"Premium Düğün",total:20000,paid:5000},
+  {id:5,cid:5,date:"2026-01-28",time:"09:00",loc:"İstanbul – Levent",dur:"4 saat",status:"done",pkg:"Kurumsal Paket",total:10000,paid:10000}
+]);
+let contracts=ld('contracts',[
+  {id:1,cid:1,sid:1,created:"2026-01-15",status:"signed",terms:"Premium Düğün paketi. 5 saat çekim, 150 düzenleme. 2 hafta teslim.",total:18000,paid:9000},
+  {id:2,cid:2,sid:2,created:"2026-01-20",status:"signed",terms:"Kurumsal ekip fotoları. 3 saat çekim, 60 düzenleme. 1 hafta teslim.",total:8000,paid:4000},
+  {id:3,cid:3,sid:3,created:"2026-01-22",status:"completed",terms:"Portföy paketi. 2 saat çekim, 30 düzenleme. 5 gün teslim.",total:4500,paid:4500},
+  {id:4,cid:4,sid:4,created:"2026-01-25",status:"pending",terms:"Premium Düğün. 6 saat + etkinlik. 200 düzenleme. 3 hafta teslim.",total:20000,paid:5000},
+  {id:5,cid:5,sid:5,created:"2026-01-10",status:"completed",terms:"Kurumsal + etkinlik paketi. 4 saat, 80 düzenleme.",total:10000,paid:10000}
+]);
+let tasks=ld('tasks',[
+  {id:1,title:"Ayşe & Mehmet – Düzenleme",cat:"Düzenleme",status:"inprogress",pri:"high",due:"2026-02-17",sid:1,note:"150 fotoğraf seç ve düzenle"},
+  {id:2,title:"Kerem – Kurumsal Düzenleme",cat:"Düzenleme",status:"todo",pri:"medium",due:"2026-02-15",sid:2,note:"60 fotoğraf"},
+  {id:3,title:"Elif – Portföy Teslim",cat:"Teslim",status:"done",pri:"low",due:"2026-02-12",sid:3,note:"Google Drive ile teslim edildi"},
+  {id:4,title:"Can & Deniz – Ön Hazırlık",cat:"Hazırlık",status:"todo",pri:"high",due:"2026-02-16",sid:4,note:"Shot list hazırla, lokasyon kontrolü"},
+  {id:5,title:"Ekipman Bakım",cat:"Bakım",status:"inprogress",pri:"medium",due:"2026-02-06",sid:null,note:"Lens temizlik + flash kontrolü"},
+  {id:6,title:"Marta – Fatura Düzenleme",cat:"Mali",status:"done",pri:"low",due:"2026-02-02",sid:5,note:"KDV dahil fatura"}
+]);
+let expenses=ld('expenses',[
+  {id:1,date:"2026-01-28",desc:"Lens Tamiri – Sigma",amt:1200,cat:"Ekipman"},
+  {id:2,date:"2026-01-30",desc:"Lightroom Abonelik",amt:350,cat:"Yazılım"},
+  {id:3,date:"2026-02-01",desc:"Antalya Uçuş Bileti",amt:920,cat:"Ulaşım"},
+  {id:4,date:"2026-02-02",desc:"Antalya Otel (2 gece)",amt:1800,cat:"Konaklama"},
+  {id:5,date:"2026-01-25",desc:"Küçük Bellek Kartı x5",amt:450,cat:"Ekipman"}
+]);
+
+function persist(){sv('clients',clients);sv('sessions',sessions);sv('contracts',contracts);sv('tasks',tasks);sv('expenses',expenses)}
+
+/* ═══════ HELPERS ═══════ */
+const uid=()=>Date.now()+(Math.random()*9999|0);
+const cn=id=>(clients.find(c=>c.id==id)||{}).name||'–';
+const fm=n=>Number(n).toLocaleString('tr-TR');
+const bl={upcoming:'Yaklaşan',done:'Tamamlandı',inprogress:'Devam Ediyor',todo:'Yapılacak',signed:'Imzalandı',pending:'Beklemede',completed:'Tamamlandı'};
+const badge=s=>`<span class="badge b-${s}">${bl[s]||s}</span>`;
+const pc=p=>({high:'#ef4444',medium:'#f59e0b',low:'#10b981'}[p]||'#999');
+
+/* reusable SVG strings */
+const I={
+  plus:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+  trash:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>`,
+  chk:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+  bck:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>`,
+  fwd:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`,
+  usr:`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>`,
+  doc:`<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>`
+};
+
+/* ═══════ TAB SWITCH ═══════ */
+let cur='dashboard';
+function go(k){
+  cur=k;
+  document.querySelectorAll('.nav-item').forEach(b=>{b.classList.toggle('active',b.dataset.tab===k)});
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.getElementById('pg-'+k).classList.add('on');
+  render(k);
+}
+
+/* ═══════ RENDER ROUTER ═══════ */
+function render(k){document.getElementById('pg-'+k).innerHTML=({dashboard:rDash,sessions:rSess,clients:rCli,tasks:rTask,contracts:rCont,finance:rFin})[k]()}
+
+/* ═══════ DASHBOARD ═══════ */
+function rDash(){
+  const inc=sessions.filter(s=>s.status==='done').reduce((a,s)=>a+s.total,0);
+  const exp=expenses.reduce((a,e)=>a+e.amt,0);
+  const pend=sessions.filter(s=>s.status==='upcoming').reduce((a,s)=>a+(s.total-s.paid),0);
+  const up=sessions.filter(s=>s.status==='upcoming').sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const act=tasks.filter(t=>t.status!=='done');
+  return`
+  <div class="stat-grid">
+    <div class="card stat"><div class="stat-ico" style="background:#ecfdf5"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div><div><div class="stat-lbl">Toplam Gelir</div><div class="stat-val" style="color:#10b981">₺${fm(inc)}</div></div></div>
+    <div class="card stat"><div class="stat-ico" style="background:#fef2f2"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div><div><div class="stat-lbl">Toplam Gider</div><div class="stat-val" style="color:#ef4444">₺${fm(exp)}</div></div></div>
+    <div class="card stat"><div class="stat-ico" style="background:#eff6ff"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div><div class="stat-lbl">Net Kazanç</div><div class="stat-val" style="color:#3b82f6">₺${fm(inc-exp)}</div></div></div>
+    <div class="card stat"><div class="stat-ico" style="background:#fffbeb"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div><div class="stat-lbl">Bekleyen Ödemeler</div><div class="stat-val" style="color:#f59e0b">₺${fm(pend)}</div></div></div>
+  </div>
+  <div class="dash-2">
+    <div class="card card-p">
+      <div class="ph" style="margin-bottom:14px"><h3 style="font-size:16px;font-weight:700">📸 Yaklaşan Çekimler</h3><span class="badge b-upcoming">${up.length} adet</span></div>
+      ${up.map(s=>{const d=new Date(s.date);return`<div class="up-item">
+        <div class="daybox"><span class="dn">${d.getDate()}</span><span class="dm">${d.toLocaleDateString('tr',{month:'short'})}</span></div>
+        <div class="up-info"><div class="un">${cn(s.cid)}</div><div class="us">${s.pkg} · ${s.loc}</div></div>
+        <div class="up-price"><div class="upm">₺${fm(s.total)}</div><div class="ups">Ödenen: ₺${fm(s.paid)}</div></div>
+      </div>`}).join('')}
+    </div>
+    <div class="card card-p">
+      <div class="ph" style="margin-bottom:14px"><h3 style="font-size:16px;font-weight:700">✅ Aktif Görevler</h3><span class="badge b-todo">${act.length} bekliyor</span></div>
+      ${act.map(t=>`<div class="td-item">
+        <div class="pdot" style="background:${pc(t.pri)}"></div>
+        <div class="td-info"><div class="tn">${t.title}</div><div class="ts">${t.cat} · Son: ${t.due}</div></div>
+        ${badge(t.status)}
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+/* ═══════ SESSIONS ═══════ */
+function rSess(){return`
+  <div class="ph"><h2>📷 Çekimler</h2><button class="btn btn-p" onclick="openMo('session')">${I.plus} Yeni Çekim</button></div>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Müşteri</th><th>Tarih & Saat</th><th>Konum</th><th>Paket</th><th>Süre</th><th>Toplam</th><th>Ödenen</th><th>Durum</th><th></th></tr></thead>
+    <tbody>${sessions.map(s=>`<tr>
+      <td class="s">${cn(s.cid)}</td><td>${s.date} · ${s.time}</td><td>${s.loc}</td><td>${s.pkg}</td><td>${s.dur}</td>
+      <td class="pr">₺${fm(s.total)}</td><td class="${s.paid===s.total?'pf':'pp'}">₺${fm(s.paid)}</td>
+      <td>${badge(s.status)}</td>
+      <td class="tda">
+        ${s.status==='upcoming'?`<button class="btn btn-g btn-sm" onclick="markDone(${s.id})">${I.chk} Bitti</button>`:''}<button class="btn btn-d btn-sm" onclick="del('session',${s.id})">${I.trash}</button>
+      </td>
+    </tr>`).join('')}</tbody>
+  </table></div>`}
+
+/* ═══════ CLIENTS ═══════ */
+function rCli(){return`
+  <div class="ph"><h2>👤 Müşteriler</h2><button class="btn btn-p" onclick="openMo('client')">${I.plus} Yeni Müşteri</button></div>
+  <div class="cl-grid">${clients.map(c=>{const cnt=sessions.filter(s=>s.cid===c.id).length;return`<div class="card cl-card">
+    <div class="cl-head"><div class="cl-left"><div class="cl-ava">${I.usr}</div><div><div class="cl-nm">${c.name}</div><div class="cl-tp">${c.type}</div></div></div><button class="btn btn-d btn-sm" onclick="del('client',${c.id})">${I.trash}</button></div>
+    <div class="cl-info">📞 ${c.phone}<br>✉️ ${c.email}</div>
+    ${c.note?`<div class="cl-note">📝 ${c.note}</div>`:''}
+    ${cnt?`<div class="cl-foot">${cnt} çekim kayıtlı</div>`:''}
+  </div>`}).join('')}</div>`}
+
+/* ═══════ TASKS ═══════ */
+function rTask(){
+  const cols=[{k:'todo',l:'📋 Yapılacak',c:'#7c3aed'},{k:'inprogress',l:'🔄 Devam Ediyor',c:'#d97706'},{k:'done',l:'✅ Tamamlandı',c:'#16a34a'}];
+  return`
+  <div class="ph"><h2>📌 Görevler</h2><button class="btn btn-p" onclick="openMo('task')">${I.plus} Yeni Görev</button></div>
+  <div class="kanban">${cols.map(col=>{const its=tasks.filter(t=>t.status===col.k);return`<div class="kb-col">
+    <div class="kb-head"><span class="kbt" style="color:${col.c}">${col.l}</span><span class="kbc" style="color:${col.c};border-color:${col.c}44;background:${col.c}0d">${its.length}</span></div>
+    <div class="kb-cards">${its.map(t=>`<div class="kb-card">
+      <div class="kb-top"><span class="kb-ttl">${t.title}</span><div class="pdot" style="background:${pc(t.pri)};margin-top:3px" title="${{high:'Yüksek',medium:'Orta',low:'Düşük'}[t.pri]}"></div></div>
+      <div class="kb-sub">${t.cat} · Son: ${t.due}</div>
+      ${t.note?`<div class="kb-note">${t.note}</div>`:''}
+      <div class="kb-act">
+        ${col.k!=='todo'?`<button class="btn btn-g btn-sm" onclick="mvTask(${t.id},'todo')">${I.bck} Geri</button>`:''}
+        ${col.k!=='done'?`<button class="btn btn-g btn-sm" onclick="mvTask(${t.id},'${col.k==='todo'?'inprogress':'done'}')">${I.fwd} İleri</button>`:''}
+        <button class="btn btn-d btn-sm" style="margin-left:auto" onclick="del('task',${t.id})">${I.trash}</button>
+      </div>
+    </div>`).join('')}</div>
+  </div>`}).join('')}</div>`}
+
+/* ═══════ CONTRACTS ═══════ */
+function rCont(){return`
+  <div class="ph"><h2>📄 Sözleşmeler</h2><button class="btn btn-p" onclick="openMo('contract')">${I.plus} Yeni Sözleşme</button></div>
+  <div class="ct-list">${contracts.map(c=>`<div class="ct-item">
+    <div class="ct-ico">${I.doc}</div>
+    <div class="ct-info"><div class="ci-h"><span class="ci-n">${cn(c.cid)}</span>${badge(c.status)}</div><div class="ci-s">Oluş: ${c.created} · ${c.terms.slice(0,70)}…</div></div>
+    <div class="ct-pr"><div class="cpm">₺${fm(c.total)}</div><div class="cps">Ödenen: ₺${fm(c.paid)}</div></div>
+    <button class="btn btn-d btn-sm" onclick="del('contract',${c.id})">${I.trash}</button>
+  </div>`).join('')}</div>`}
+
+/* ═══════ FINANCE ═══════ */
+function rFin(){
+  const inc=sessions.filter(s=>s.status==='done').reduce((a,s)=>a+s.total,0);
+  const exp=expenses.reduce((a,e)=>a+e.amt,0);
+  const catMap={};expenses.forEach(e=>{catMap[e.cat]=(catMap[e.cat]||0)+e.amt});
+  return`
+  <div class="ph"><h2>💰 Gelir / Gider</h2><button class="btn btn-p" onclick="openMo('expense')">${I.plus} Gider Ekle</button></div>
+  <div class="stat-grid" style="grid-template-columns:repeat(3,1fr)">
+    <div class="card stat"><div class="stat-ico" style="background:#ecfdf5"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg></div><div><div class="stat-lbl">Toplam Gelir</div><div class="stat-val" style="color:#10b981">₺${fm(inc)}</div></div></div>
+    <div class="card stat"><div class="stat-ico" style="background:#fef2f2"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></div><div><div class="stat-lbl">Toplam Gider</div><div class="stat-val" style="color:#ef4444">₺${fm(exp)}</div></div></div>
+    <div class="card stat"><div class="stat-ico" style="background:#eff6ff"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div><div><div class="stat-lbl">Net Kazanç</div><div class="stat-val" style="color:#3b82f6">₺${fm(inc-exp)}</div></div></div>
+  </div>
+  <div class="fin-2">
+    <div class="card card-p">
+      <div class="ph" style="margin-bottom:14px"><h3 style="font-size:15px;font-weight:700;color:#10b981">📈 Gelir Kaynakları</h3></div>
+      ${sessions.filter(s=>s.status==='done').map(s=>`<div class="fin-item"><div><div class="fi-n">${cn(s.cid)}</div><div class="fi-s">${s.pkg} · ${s.date}</div></div><span class="fv pos">+₺${fm(s.total)}</span></div>`).join('')}
+    </div>
+    <div class="card card-p">
+      <div class="ph" style="margin-bottom:14px"><h3 style="font-size:15px;font-weight:700;color:#ef4444">📉 Giderler</h3></div>
+      ${expenses.map(e=>`<div class="fin-item"><div><div class="fi-n">${e.desc}</div><div class="fi-s">${e.cat} · ${e.date}</div></div><div style="display:flex;align-items:center;gap:8px"><span class="fv neg">-₺${fm(e.amt)}</span><button class="btn btn-d btn-sm" onclick="del('expense',${e.id})">${I.trash}</button></div></div>`).join('')}
+      <div class="fin-sep">Kategori Özeti</div>
+      <div class="cat-tags">${Object.entries(catMap).map(([k,v])=>`<span class="cat-tag">${k}: ₺${fm(v)}</span>`).join('')}</div>
+    </div>
+  </div>`;
+}
+
+/* ═══════ ACTIONS ═══════ */
+function markDone(id){const s=sessions.find(x=>x.id===id);if(s){s.status='done';s.paid=s.total}persist();render(cur)}
+function mvTask(id,ns){const t=tasks.find(x=>x.id===id);if(t)t.status=ns;persist();render(cur)}
+function del(type,id){
+  ({session:()=>{sessions=sessions.filter(s=>s.id!==id)},
+    client:()=>{clients=clients.filter(c=>c.id!==id)},
+    task:()=>{tasks=tasks.filter(t=>t.id!==id)},
+    contract:()=>{contracts=contracts.filter(c=>c.id!==id)},
+    expense:()=>{expenses=expenses.filter(e=>e.id!==id)}
+  })[type]();persist();render(cur);
+}
+
+/* ═══════ MODAL ═══════ */
+const moTitles={session:'Yeni Çekim Ekle',client:'Yeni Müşteri Ekle',task:'Yeni Görev Ekle',contract:'Yeni Sözleşme Ekle',expense:'Yeni Gider Ekle'};
+function openMo(type){document.getElementById('moTitle').textContent=moTitles[type];document.getElementById('moBody').innerHTML=moForms[type]();document.getElementById('mo').classList.add('on')}
+function closeModal(){document.getElementById('mo').classList.remove('on')}
+const v=id=>(document.getElementById(id)||{}).value||'';
+
+const moForms={
+session:()=>`
+  <div class="fg"><label>Müşteri</label><select id="f_cid"><option value="">Seç…</option>${clients.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}</select></div>
+  <div class="fr"><div class="fg"><label>Tarih</label><input type="date" id="f_date"/></div><div class="fg"><label>Saat</label><input type="time" id="f_time"/></div></div>
+  <div class="fg"><label>Konum</label><input type="text" id="f_loc" placeholder="Çekim lokasyonu"/></div>
+  <div class="fr">
+    <div class="fg"><label>Süre</label><select id="f_dur"><option>1 saat</option><option>2 saat</option><option>3 saat</option><option>4 saat</option selected>5 saat</option><option>6 saat</option></select></div>
+    <div class="fg"><label>Paket</label><select id="f_pkg"><option>Standard</option><option>Premium Düğün</option><option>Kurumsal Paket</option><option>Portföy Mini</option><option>Özel</option></select></div>
+  </div>
+  <div class="fr"><div class="fg"><label>Toplam Fiyat (₺)</label><input type="number" id="f_total" placeholder="0"/></div><div class="fg"><label>Ön Ödeme (₺)</label><input type="number" id="f_paid" placeholder="0"/></div></div>
+  <button class="btn btn-p f-sub" onclick="subSession()">Çekim Ekle</button>`,
+
+client:()=>`
+  <div class="fg"><label>Ad Soyad</label><input type="text" id="f_name" placeholder="Müşteri adı"/></div>
+  <div class="fg"><label>Türü</label><select id="f_type"><option>Düğün</option><option>Kurumsal</option><option>Portföy</option><option>Etkinlik</option><option>Diğer</option></select></div>
+  <div class="fr"><div class="fg"><label>Telefon</label><input type="text" id="f_phone" placeholder="532 xxx xxxx"/></div><div class="fg"><label>Email</label><input type="email" id="f_email" placeholder="email@…"/></div></div>
+  <div class="fg"><label>Not</label><textarea id="f_note" placeholder="Ek bilgi…"></textarea></div>
+  <button class="btn btn-p f-sub" onclick="subClient()">Müşteri Ekle</button>`,
+
+task:()=>`
+  <div class="fg"><label>Görev Adı</label><input type="text" id="f_title" placeholder="Ne yapılacak?"/></div>
+  <div class="fr">
+    <div class="fg"><label>Kategori</label><select id="f_cat"><option>Düzenleme</option><option>Teslim</option><option>Hazırlık</option><option>Mali</option><option>Bakım</option><option>Diğer</option></select></div>
+    <div class="fg"><label>Öncelik</label><select id="f_pri"><option value="high">Yüksek</option><option value="medium" selected>Orta</option><option value="low">Düşük</option></select></div>
+  </div>
+  <div class="fg"><label>Son Tarih</label><input type="date" id="f_due"/></div>
+  <div class="fg"><label>İlgili Çekim</label><select id="f_sid"><option value="">Yok</option>${sessions.map(s=>`<option value="${s.id}">${cn(s.cid)} – ${s.date}</option>`).join('')}</select></div>
+  <div class="fg"><label>Not</label><textarea id="f_note" placeholder="Detay…"></textarea></div>
+  <button class="btn btn-p f-sub" onclick="subTask()">Görev Ekle</button>`,
+
+contract:()=>`
+  <div class="fg"><label>Müşteri</label><select id="f_cid"><option value="">Seç…</option>${clients.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}</select></div>
+  <div class="fg"><label>İlgili Çekim</label><select id="f_sid"><option value="">Yok</option>${sessions.map(s=>`<option value="${s.id}">${cn(s.cid)} – ${s.date}</option>`).join('')}</select></div>
+  <div class="fg"><label>Durum</label><select id="f_st"><option value="pending">Beklemede</option><option value="signed">Imzalandı</option><option value="completed">Tamamlandı</option></select></div>
+  <div class="fg"><label>Şartlar & Koşullar</label><textarea id="f_terms" placeholder="Sözleşme maddeler…"></textarea></div>
+  <div class="fr"><div class="fg"><label>Toplam Fiyat (₺)</label><input type="number" id="f_total" placeholder="0"/></div><div class="fg"><label>Ödenen (₺)</label><input type="number" id="f_paid" placeholder="0"/></div></div>
+  <button class="btn btn-p f-sub" onclick="subContract()">Sözleşme Ekle</button>`,
+
+expense:()=>`
+  <div class="fg"><label>Tarih</label><input type="date" id="f_date"/></div>
+  <div class="fg"><label>Açıklama</label><input type="text" id="f_desc" placeholder="Ne için?"/></div>
+  <div class="fr"><div class="fg"><label>Tutar (₺)</label><input type="number" id="f_amt" placeholder="0"/></div><div class="fg"><label>Kategori</label><select id="f_cat"><option>Ekipman</option><option>Yazılım</option><option>Ulaşım</option><option>Konaklama</option><option>Pazarlama</option><option>Diğer</option></select></div></div>
+  <button class="btn btn-p f-sub" onclick="subExpense()">Gider Ekle</button>`
+};
+
+function subSession(){if(!v('f_cid'))return;sessions.push({id:uid(),cid:Number(v('f_cid')),date:v('f_date'),time:v('f_time'),loc:v('f_loc'),dur:v('f_dur'),status:'upcoming',pkg:v('f_pkg'),total:Number(v('f_total'))||0,paid:Number(v('f_paid'))||0});persist();closeModal();render('sessions')}
+function subClient(){if(!v('f_name'))return;clients.push({id:uid(),name:v('f_name'),type:v('f_type'),phone:v('f_phone'),email:v('f_email'),note:v('f_note')});persist();closeModal();render('clients')}
+function subTask(){if(!v('f_title'))return;tasks.push({id:uid(),title:v('f_title'),cat:v('f_cat'),status:'todo',pri:v('f_pri'),due:v('f_due'),sid:v('f_sid')||null,note:v('f_note')});persist();closeModal();render('tasks')}
+function subContract(){if(!v('f_cid'))return;contracts.push({id:uid(),cid:Number(v('f_cid')),sid:v('f_sid')||null,created:new Date().toISOString().slice(0,10),status:v('f_st'),terms:v('f_terms'),total:Number(v('f_total'))||0,paid:Number(v('f_paid'))||0});persist();closeModal();render('contracts')}
+function subExpense(){if(!v('f_desc')||!v('f_amt'))return;expenses.push({id:uid(),date:v('f_date'),desc:v('f_desc'),amt:Number(v('f_amt')),cat:v('f_cat')});persist();closeModal();render('finance')}
+
+/* ═══════ BOOT ═══════ */
+render('dashboard');
+</script>
+</body>
+</html>
+
