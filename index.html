@@ -586,6 +586,14 @@ const defaultIncomes = [
 
 /* ═══════ RUNTIME STATE ═══════ */
 let clients=[], sessions=[], contracts=[], tasks=[], expenses=[], incomes=[];
+  const store = {
+  clients: clients,
+  sessions: sessions,
+  tasks: tasks,
+  contracts: contracts,
+  expenses: expenses,
+  incomes: incomes
+};
 
 /* ═══════ HELPERS ═══════ */
 const uid = () => Date.now() + (Math.random() * 9999 | 0);
@@ -804,16 +812,32 @@ async function mvTask(id, ns) {
 }
 
 async function del(type, id) {
-  const map = { session: 'sessions', client: 'clients', task: 'tasks', contract: 'contracts', expense: 'expenses', income: 'incomes' };
-  const col = map[type];
-  const item = eval(col).find(x => x.id === id);
+  const map = {
+    session: 'sessions',
+    client: 'clients',
+    task: 'tasks',
+    contract: 'contracts',
+    expense: 'expenses',
+    income: 'incomes'
+  };
+
+  const colName = map[type];
+  const list = store[colName];
+
+  const item = list.find(x => x.id === id);
   const fbId = item ? item._fbId : null;
-  eval(col + '=' + col + '.filter(x=>x.id!==' + id + ')');
-  if (useFirebase && fbId) await fbDelete(col, fbId);
-  else sv();
-  if (!useFirebase) showToast('Silindi ✓', 'success');
+
+  store[colName] = list.filter(x => x.id !== id);
+
+  if (useFirebase && fbId) {
+    await fbDelete(colName, fbId);
+  } else {
+    sv();
+  }
+
   render(cur);
 }
+
 
 /* persist one item: update if exists, add if new */
 async function persistOne(col, obj, isNew = false) {
