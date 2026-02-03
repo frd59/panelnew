@@ -5,8 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>PASOVART Paneli</title>
 
-<!-- Firebase SDK yükleme: modüler (ESM) yöntem — sandbox ortamlarda çalışır -->
-
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap');
 
@@ -312,10 +310,60 @@ td.pp{color:var(--amb);font-weight:600}
 /* anim */
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .pg.on{animation:fadeUp .28s ease}
+
+/* ─── LOGIN SCREEN ─── */
+.login-screen{
+  position:fixed;inset:0;background:linear-gradient(135deg,var(--sb),var(--sb2));
+  z-index:9999;display:flex;align-items:center;justify-content:center;
+}
+.login-box{
+  background:#fff;border-radius:20px;padding:40px;width:400px;
+  box-shadow:0 30px 80px rgba(0,0,0,.3);
+}
+.login-logo{text-align:center;margin-bottom:30px}
+.login-logo-icon{
+  width:60px;height:60px;border-radius:16px;
+  background:linear-gradient(135deg,#2563eb,#60a5fa);
+  display:inline-flex;align-items:center;justify-content:center;
+  box-shadow:0 5px 15px rgba(37,99,235,.4);margin-bottom:12px;
+}
+.login-logo strong{font-size:24px;font-weight:800;display:block;color:var(--txt)}
+.login-logo em{font-size:12px;color:var(--txt3);font-style:normal}
+
+/* ─── SUBMENU ─── */
+.submenu{display:none;padding-left:32px;margin-top:3px}
+.nav-item.has-sub.open .submenu{display:block}
+.nav-item.has-sub{position:relative}
+.nav-item.has-sub.active::after{display:none}
+.nav-item.has-sub::before{
+  content:'';position:absolute;right:14px;top:50%;transform:translateY(-50%) rotate(0deg);
+  width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;
+  border-top:5px solid rgba(255,255,255,.52);transition:transform .2s;
+}
+.nav-item.has-sub.open::before{transform:translateY(-50%) rotate(180deg)}
+.nav-item.has-sub.active::before{border-top-color:var(--acc2)}
 </style>
 </head>
 <body>
-<div class="app">
+
+<!-- ══════ LOGIN SCREEN ══════ -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-logo-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      </div>
+      <strong>PASOVART</strong>
+      <em>Yönetici Girişi</em>
+    </div>
+    <div class="fg"><label>Kullanıcı Adı</label><input type="text" id="loginUser" placeholder="Kullanıcı adınız"/></div>
+    <div class="fg"><label>Şifre</label><input type="password" id="loginPass" placeholder="Şifreniz" onkeypress="if(event.key==='Enter')doLogin()"/></div>
+    <button class="btn btn-p f-sub" onclick="doLogin()">Giriş Yap</button>
+    <div id="loginError" style="color:var(--red);font-size:12px;margin-top:10px;text-align:center;display:none"></div>
+  </div>
+</div>
+
+<div class="app" style="display:none" id="mainApp">
 
 <!-- ══════ SIDEBAR ══════ -->
 <aside class="sb">
@@ -327,30 +375,44 @@ td.pp{color:var(--amb);font-weight:600}
   </div>
 
   <nav class="sb-nav">
-    <button class="nav-item active" data-tab="dashboard" onclick="go('dashboard')">
+    <button class="nav-item active" data-tab="dashboard">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-      Ana Pane
+      Ana Paneller
     </button>
-    <button class="nav-item" data-tab="sessions" onclick="go('sessions')">
+    <button class="nav-item" data-tab="sessions">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
       Çekimler
     </button>
-    <button class="nav-item" data-tab="clients" onclick="go('clients')">
+    <button class="nav-item" data-tab="clients">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><circle cx="17" cy="9" r="2.5"/><path d="M23 21v-1.5a3 3 0 0 0-3-3h-.5"/></svg>
       Müşteriler
     </button>
-    <button class="nav-item" data-tab="tasks" onclick="go('tasks')">
+    <button class="nav-item" data-tab="tasks">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
       Görevler
     </button>
-    <button class="nav-item" data-tab="contracts" onclick="go('contracts')">
+    <button class="nav-item" data-tab="contracts">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
       Sözleşmeler
     </button>
-    <button class="nav-item" data-tab="finance" onclick="go('finance')">
+    <button class="nav-item" data-tab="finance">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
       Gelir / Gider
     </button>
+    <button class="nav-item has-sub" data-tab="stores" onclick="toggleSub(event)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Dükkanlar
+    </button>
+    <div class="submenu">
+      <button class="nav-item" data-tab="store-corlu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>
+        Çorlu
+      </button>
+      <button class="nav-item" data-tab="store-ergene">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>
+        Ergene
+      </button>
+    </div>
   </nav>
 
   <div class="sb-footer">
@@ -382,6 +444,8 @@ td.pp{color:var(--amb);font-weight:600}
     <div class="pg"    id="pg-tasks"></div>
     <div class="pg"    id="pg-contracts"></div>
     <div class="pg"    id="pg-finance"></div>
+    <div class="pg"    id="pg-store-corlu"></div>
+    <div class="pg"    id="pg-store-ergene"></div>
   </div>
 </div>
 </div>
@@ -411,9 +475,6 @@ td.pp{color:var(--amb);font-weight:600}
 <script type="module">
 /* ═══════════════════════════════════════════════
    FIREBASE KONFIGÜRASYONU
-   ─ Kendi Firebase projeni oluşturduktan sonra
-     aşağıdaki placeholder değerleri gerçek
-     değerlerinle değiştirin.
    ═══════════════════════════════════════════════ */
 const firebaseConfig = {
   apiKey: "AIzaSyC82ZVx7sf6evT4zs3b5qoQ6H7eXTrf4Ng",
@@ -425,6 +486,43 @@ const firebaseConfig = {
   measurementId: "G-GTR6KPH1CL"
 };
 
+/* ═══════ LOGIN SYSTEM ═══════ */
+const USERS = {
+  'ferdi': { pass: '123456', name: 'Ferdi' },
+  'eren': { pass: '123456', name: 'Eren' },
+  'muharrem': { pass: '123456', name: 'Muharrem' }
+};
+
+let currentUser = null;
+
+window.doLogin = function() {
+  const user = document.getElementById('loginUser').value.toLowerCase();
+  const pass = document.getElementById('loginPass').value;
+  const err = document.getElementById('loginError');
+  
+  if (USERS[user] && USERS[user].pass === pass) {
+    currentUser = { username: user, name: USERS[user].name };
+    localStorage.setItem('pf_currentUser', JSON.stringify(currentUser));
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('mainApp').style.display = 'flex';
+    document.querySelector('.hdr-greet').textContent = `Hoş geldin, ${currentUser.name} 👋`;
+    document.querySelector('.hdr-avatar').textContent = currentUser.name[0].toUpperCase();
+  } else {
+    err.textContent = 'Kullanıcı adı veya şifre hatalı!';
+    err.style.display = 'block';
+  }
+}
+
+function checkLogin() {
+  const saved = localStorage.getItem('pf_currentUser');
+  if (saved) {
+    currentUser = JSON.parse(saved);
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('mainApp').style.display = 'flex';
+    document.querySelector('.hdr-greet').textContent = `Hoş geldin, ${currentUser.name} 👋`;
+    document.querySelector('.hdr-avatar').textContent = currentUser.name[0].toUpperCase();
+  }
+}
 
 /* ═══════ FIREBASE INIT + FALLBACK (modular ESM) ═══════ */
 let db = null;
@@ -451,7 +549,6 @@ async function initFirebase() {
     _deleteDoc  = deleteDocFn;
     _getDocs    = getDocsFn;
 
-
     useFirebase = true;
     setStatus('online', 'Çevrimiçi');
     await loadAllFromFirebase();
@@ -462,6 +559,7 @@ async function initFirebase() {
     loadAllFromLocal();
   }
   document.getElementById('loadOverlay').classList.remove('on');
+  checkLogin();
   render('dashboard');
 }
 
@@ -495,6 +593,8 @@ async function fbAdd(col, obj) {
     const id = (crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()) + String(Math.random()).slice(2);
     const ref = _doc(db, col, id);
     const { _fbId, ...data } = obj;
+    data.lastModifiedBy = currentUser ? currentUser.name : 'System';
+    data.lastModifiedAt = new Date().toISOString();
     await _setDoc(ref, data);
     obj._fbId = id;
     showToast('Kaydedildi ✓', 'success');
@@ -506,6 +606,8 @@ async function fbUpdate(col, obj) {
   if (!useFirebase || !obj._fbId) return;
   try {
     const { _fbId, ...data } = obj;
+    data.lastModifiedBy = currentUser ? currentUser.name : 'System';
+    data.lastModifiedAt = new Date().toISOString();
     await _setDoc(_doc(db, col, _fbId), data);
     showToast('Güncellendi ✓', 'success');
   } catch (e) { console.warn(e); showToast('Güncelleme hata', 'error'); }
@@ -522,7 +624,7 @@ async function fbDelete(col, fbId) {
 /* ═══════ LOCAL STORAGE FALLBACK ═══════ */
 const ld = (k, fb) => { try { const v = localStorage.getItem('pf_' + k); return v ? JSON.parse(v) : fb; } catch { return fb; } };
 const sv = () => {
-  if (useFirebase) return; // Firebase varsa local yazmana gerek yok
+  if (useFirebase) return;
   try {
     localStorage.setItem('pf_clients', JSON.stringify(clients));
     localStorage.setItem('pf_sessions', JSON.stringify(sessions));
@@ -616,18 +718,60 @@ function showToast(msg, type = '') {
   toastTimer = setTimeout(() => t.classList.remove('on'), 2400);
 }
 
+/* ═══════ SUBMENU TOGGLE ═══════ */
+window.toggleSub = function(e) {
+  e.stopPropagation();
+  const btn = e.currentTarget;
+  btn.classList.toggle('open');
+}
+
 /* ═══════ TAB SWITCH ═══════ */
 let cur = 'dashboard';
+
+// Event delegation için navigation setup
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.nav-item').forEach(btn => {
+    if (!btn.classList.contains('has-sub')) {
+      btn.addEventListener('click', function() {
+        const tab = this.dataset.tab;
+        if (tab) go(tab);
+      });
+    }
+  });
+});
+
 function go(k) {
   cur = k;
-  document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.tab === k));
+  document.querySelectorAll('.nav-item').forEach(b => {
+    if (!b.classList.contains('has-sub')) {
+      b.classList.toggle('active', b.dataset.tab === k);
+    }
+  });
   document.querySelectorAll('.pg').forEach(p => p.classList.remove('on'));
-  document.getElementById('pg-' + k).classList.add('on');
-  render(k);
+  const pg = document.getElementById('pg-' + k);
+  if (pg) {
+    pg.classList.add('on');
+    render(k);
+  }
 }
 
 /* ═══════ RENDER ROUTER ═══════ */
-function render(k) { document.getElementById('pg-' + k).innerHTML = ({ dashboard: rDash, sessions: rSess, clients: rCli, tasks: rTask, contracts: rCont, finance: rFin })[k](); }
+function render(k) { 
+  const pages = { 
+    dashboard: rDash, 
+    sessions: rSess, 
+    clients: rCli, 
+    tasks: rTask, 
+    contracts: rCont, 
+    finance: rFin,
+    'store-corlu': rStoreCorlu,
+    'store-ergene': rStoreErgene
+  };
+  const fn = pages[k];
+  if (fn) {
+    document.getElementById('pg-' + k).innerHTML = fn(); 
+  }
+}
 
 /* ═══════ DASHBOARD ═══════ */
 function rDash() {
@@ -781,12 +925,52 @@ function rFin() {
   </div>`;
 }
 
+/* ═══════ STORES ═══════ */
+function rStoreCorlu() {
+  return `
+  <div class="ph"><h2>🏪 Çorlu Şubesi</h2></div>
+  <div class="card card-p">
+    <h3 style="font-size:17px;font-weight:700;margin-bottom:16px">Şube Bilgileri</h3>
+    <div style="line-height:2">
+      <strong>Adres:</strong> Çorlu Merkez, Tekirdağ<br>
+      <strong>Telefon:</strong> 0282 XXX XX XX<br>
+      <strong>Email:</strong> corlu@pasovart.com<br>
+      <strong>Çalışma Saatleri:</strong> Pzt-Cmt 09:00 - 18:00
+    </div>
+  </div>
+  <div class="stat-grid" style="margin-top:22px">
+    <div class="card stat"><div class="stat-ico" style="background:#ecfdf5"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div><div class="stat-lbl">Aktif Projeler</div><div class="stat-val" style="color:#10b981">12</div></div></div>
+    <div class="card stat"><div class="stat-ico" style="background:#eff6ff"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg></div><div><div class="stat-lbl">Müşteriler</div><div class="stat-val" style="color:#3b82f6">45</div></div></div>
+    <div class="card stat"><div class="stat-ico" style="background:#fffbeb"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div><div class="stat-lbl">Bu Ay Gelir</div><div class="stat-val" style="color:#f59e0b">₺28,500</div></div></div>
+    <div class="card stat"><div class="stat-ico" style="background:#fef2f2"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div><div><div class="stat-lbl">Bu Ay Gider</div><div class="stat-val" style="color:#ef4444">₺12,300</div></div></div>
+  </div>`;
+}
+
+function rStoreErgene() {
+  return `
+  <div class="ph"><h2>🏪 Ergene Şubesi</h2></div>
+  <div class="card card-p">
+    <h3 style="font-size:17px;font-weight:700;margin-bottom:16px">Şube Bilgileri</h3>
+    <div style="line-height:2">
+      <strong>Adres:</strong> Ergene Merkez, Tekirdağ<br>
+      <strong>Telefon:</strong> 0282 YYY YY YY<br>
+      <strong>Email:</strong> ergene@pasovart.com<br>
+      <strong>Çalışma Saatleri:</strong> Pzt-Cmt 09:00 - 18:00
+    </div>
+  </div>
+  <div class="stat-grid" style="margin-top:22px">
+    <div class="card stat"><div class="stat-ico" style="background:#ecfdf5"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div><div class="stat-lbl">Aktif Projeler</div><div class="stat-val" style="color:#10b981">8</div></div></div>
+    <div class="card stat"><div class="stat-ico" style="background:#eff6ff"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg></div><div><div class="stat-lbl">Müşteriler</div><div class="stat-val" style="color:#3b82f6">32</div></div></div>
+    <div class="card stat"><div class="stat-ico" style="background:#fffbeb"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div><div class="stat-lbl">Bu Ay Gelir</div><div class="stat-val" style="color:#f59e0b">₺19,800</div></div></div>
+    <div class="card stat"><div class="stat-ico" style="background:#fef2f2"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div><div><div class="stat-lbl">Bu Ay Gider</div><div class="stat-val" style="color:#ef4444">₺8,500</div></div></div>
+  </div>`;
+}
+
 /* ═══════ ACTIONS ═══════ */
-async function markDone(id) {
+window.markDone = async function(id) {
   const s = sessions.find(x => x.id === id);
   if (s) { s.status = 'done'; s.paid = s.total; }
   await persistOne('sessions', s);
-  // otomatik gelir kayıt
   const alreadyIn = incomes.find(i => i.sid === id);
   if (!alreadyIn) {
     const inc = { id: uid(), date: s.date, desc: `${cn(s.cid)} – ${s.pkg}`, amt: s.total, cat: 'Çekim Geliri', sid: id };
@@ -796,14 +980,14 @@ async function markDone(id) {
   render(cur);
 }
 
-async function mvTask(id, ns) {
+window.mvTask = async function(id, ns) {
   const t = tasks.find(x => x.id === id);
   if (t) t.status = ns;
   await persistOne('tasks', t);
   render(cur);
 }
 
-async function del(type, id) {
+window.del = async function(type, id) {
   const map = { session: 'sessions', client: 'clients', task: 'tasks', contract: 'contracts', expense: 'expenses', income: 'incomes' };
   const col = map[type];
   const item = eval(col).find(x => x.id === id);
@@ -815,7 +999,6 @@ async function del(type, id) {
   render(cur);
 }
 
-/* persist one item: update if exists, add if new */
 async function persistOne(col, obj, isNew = false) {
   if (useFirebase) {
     if (isNew || !obj._fbId) await fbAdd(col, obj);
@@ -832,14 +1015,18 @@ const moTitles = {
 
 let _moType = '', _moId = null;
 
-function openMo(type, editId) {
+window.openMo = function(type, editId) {
   _moType = type; _moId = editId || null;
   const isEdit = !!editId;
   document.getElementById('moTitle').textContent = isEdit ? 'Düzenle' : moTitles[type];
   document.getElementById('moBody').innerHTML = moForms[type](editId);
   document.getElementById('mo').classList.add('on');
 }
-function closeModal() { document.getElementById('mo').classList.remove('on'); }
+
+window.closeModal = function() { 
+  document.getElementById('mo').classList.remove('on'); 
+}
+
 const v = id => (document.getElementById(id) || {}).value || '';
 
 /* ═══════ MODAL FORMS (add & edit) ═══════ */
@@ -916,7 +1103,7 @@ const moForms = {
 };
 
 /* ═══════ SUBMIT HANDLERS (add / edit) ═══════ */
-async function subSession(editId) {
+window.subSession = async function(editId) {
   if (!v('f_cid')) return;
   if (editId) {
     const s = sessions.find(x => x.id === editId);
@@ -930,7 +1117,7 @@ async function subSession(editId) {
   closeModal(); render('sessions');
 }
 
-async function subClient(editId) {
+window.subClient = async function(editId) {
   if (!v('f_name')) return;
   if (editId) {
     const c = clients.find(x => x.id === editId);
@@ -944,7 +1131,7 @@ async function subClient(editId) {
   closeModal(); render('clients');
 }
 
-async function subTask(editId) {
+window.subTask = async function(editId) {
   if (!v('f_title')) return;
   if (editId) {
     const t = tasks.find(x => x.id === editId);
@@ -958,7 +1145,7 @@ async function subTask(editId) {
   closeModal(); render('tasks');
 }
 
-async function subContract(editId) {
+window.subContract = async function(editId) {
   if (!v('f_cid')) return;
   if (editId) {
     const c = contracts.find(x => x.id === editId);
@@ -972,7 +1159,7 @@ async function subContract(editId) {
   closeModal(); render('contracts');
 }
 
-async function subExpense(editId) {
+window.subExpense = async function(editId) {
   if (!v('f_desc') || !v('f_amt')) return;
   if (editId) {
     const e = expenses.find(x => x.id === editId);
@@ -986,7 +1173,7 @@ async function subExpense(editId) {
   closeModal(); render('finance');
 }
 
-async function subIncome(editId) {
+window.subIncome = async function(editId) {
   if (!v('f_desc') || !v('f_amt')) return;
   if (editId) {
     const i = incomes.find(x => x.id === editId);
