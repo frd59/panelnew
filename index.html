@@ -177,7 +177,7 @@ tr:last-child td{border-bottom:none}
 .fg label{display:block;font-size:13px;font-weight:600;color:var(--txt2);margin-bottom:5px}
 .fg input,.fg select,.fg textarea{width:100%;padding:9px 13px;border:1.5px solid var(--bdr2);border-radius:10px;font:400 14px var(--fn);background:#fafafa;color:var(--txt);outline:none;transition:border .2s}
 .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--acc);background:#fff}
-.fg textarea{resize:vertical;min-height:60px}
+.fg textarea{resize:vertical;min-height:80px}
 .fr{display:flex;gap:11px}.fr .fg{flex:1}
 .f-sub{width:100%;padding:11px;margin-top:6px;font-size:15px}
 .section-title { font-size:12px; font-weight:700; color:var(--acc); text-transform:uppercase; margin-bottom:10px; padding-bottom:5px; border-bottom:1px solid #f1f5f9; margin-top:15px; }
@@ -266,7 +266,7 @@ tr:last-child td{border-bottom:none}
     </div>
   </nav>
   <div class="sb-footer">
-    <span>PASOVART v2.4</span>
+    <span>PASOVART v2.6</span>
     <div class="sb-status"><div class="status-dot connecting" id="statusDot"></div><span id="statusTxt">Bağlanıyor…</span></div>
   </div>
 </aside>
@@ -284,7 +284,8 @@ tr:last-child td{border-bottom:none}
     <div class="pg" id="pg-sessions"></div>
     <div class="pg" id="pg-clients"></div>
     <div class="pg" id="pg-client-auth"></div>
-    <div class="pg" id="pg-panel-mgmt"></div> <div class="pg" id="pg-tasks"></div>
+    <div class="pg" id="pg-panel-mgmt"></div>
+    <div class="pg" id="pg-tasks"></div>
     <div class="pg" id="pg-contracts"></div>
     <div class="pg" id="pg-finance"></div>
     <div class="pg" id="pg-store-corlu"></div>
@@ -412,7 +413,7 @@ function go(k) {
 function render(k) {
   const pages = {
     dashboard: rDash, sessions: rSess, clients: rCli, 'client-auth': rCliAuth,
-    'panel-mgmt': rPanelMgmt, // YENİ RENDER FONKSİYONU
+    'panel-mgmt': rPanelMgmt,
     tasks: rTask, contracts: rCont, finance: rFin,
     'store-corlu': ()=>rStore('corlu'), 'store-ergene': ()=>rStore('ergene')
   };
@@ -430,7 +431,6 @@ function rDash() {
   <div class="card card-p"><div class="ph" style="margin-bottom:14px"><h3 style="font-size:16px;font-weight:700">📸 Yaklaşan Çekimler</h3></div>${up.slice(0,5).map(s=>`<div style="display:flex;align-items:center;gap:13px;padding:11px 0;border-bottom:1px solid #f1f5f9"><div style="width:46px;height:46px;border-radius:11px;background:linear-gradient(135deg,#dbeafe,#bfdbfe);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#1e40af;font-weight:800;line-height:1"><span>${new Date(s.date).getDate()}</span></div><div style="flex:1"><div style="font-weight:600;font-size:14px">${cn(s.cid)}</div><div style="font-size:12px;color:#94a3b8">${s.pkg}</div></div><div style="font-weight:700;color:#1e40af">₺${fm(s.total)}</div></div>`).join('')}</div>`;
 }
 
-// YENİ: PANEL YÖNETİMİ LİSTESİ
 function rPanelMgmt() {
   return `
   <div class="ph"><h2>⚙️ Müşteri Paneli Yönetimi</h2></div>
@@ -467,7 +467,7 @@ function rStore(code) {
 
 function rTask() {
   const cols = [{k:'todo',l:'Yapılacak',c:'#7c3aed'},{k:'inprogress',l:'Sürüyor',c:'#d97706'},{k:'done',l:'Bitti',c:'#16a34a'}];
-  return `<div class="ph"><h2>📌 Görevler</h2><button class="btn btn-p" onclick="openMo('task')">${I.plus} Yeni</button></div><div class="kanban">${cols.map(col => { const its=tasks.filter(t=>t.status===col.k); return `<div class="kb-col"><div class="kb-head"><strong style="color:${col.c}">${col.l}</strong><span style="font-size:11px;padding:2px 8px;border-radius:10px;background:${col.c}1a;color:${col.c}">${its.length}</span></div><div class="kb-cards">${its.map(t=>`<div class="kb-card"><div style="display:flex;justify-content:space-between;font-weight:600;font-size:13px">${t.title}</div><div style="font-size:11px;color:var(--txt3);margin-top:4px">${t.due}</div><div style="margin-top:8px;display:flex;gap:5px"><button class="btn btn-e btn-sm" onclick="openMo('task',${t.id})">${I.edit}</button><button class="btn btn-d btn-sm" onclick="del('task',${t.id})">${I.trash}</button></div></div>`).join('')}</div></div>`; }).join('')}</div>`;
+  return `<div class="ph"><h2>📌 Görevler</h2><button class="btn btn-p" onclick="openMo('task')">${I.plus} Yeni</button></div><div class="kanban">${cols.map(col => { const its=tasks.filter(t=>t.status===col.k); return `<div class="kb-col"><div class="kb-head"><strong style="color:${col.c}">${col.l}</strong><span style="font-size:11px;padding:2px 8px;border-radius:10px;background:${col.c}1a;color:${col.c}">${its.length}</span></div><div class="kb-cards">${its.map(t=>`<div class="kb-card"><div style="display:flex;justify-content:space-between;font-weight:600;font-size:13px">${t.title}</div>${t.desc?`<div style="font-size:11px;color:var(--txt2);margin-top:4px;line-height:1.4">${t.desc}</div>`:''}<div style="font-size:10px;color:var(--txt3);margin-top:6px;font-weight:700">${t.due}</div><div style="margin-top:8px;display:flex;gap:5px"><button class="btn btn-e btn-sm" onclick="openMo('task',${t.id})">${I.edit}</button><button class="btn btn-d btn-sm" onclick="del('task',${t.id})">${I.trash}</button></div></div>`).join('')}</div></div>`; }).join('')}</div>`;
 }
 
 function rCont() {
@@ -503,51 +503,49 @@ const moForms={
     const c=clients.find(x=>x.id===id);
     return `<div class="fg"><label>Müşteri</label><input type="text" value="${c.name}" disabled style="background:#e2e8f0"/></div><div class="fg"><label>Kullanıcı Adı</label><input type="text" id="f_user" value="${c.username||''}"/></div><div class="fg"><label>Şifre</label><input type="text" id="f_pass" value="${c.password||''}"/></div><button class="btn btn-p f-sub" onclick="subAuth(${id})">Kaydet</button>`;
   },
-  // YENİ: PANEL YÖNETİM MODALI
   panelMgmt:(id)=>{
     const c = clients.find(x=>x.id===id);
     const s = c.session || {};
     return `
       <div class="fg"><label>Müşteri</label><input type="text" value="${c.name}" disabled style="background:#e2e8f0; font-weight:bold"/></div>
-      
       <div class="section-title">Finansal Durum</div>
-      <div class="fr">
-        <div class="fg"><label>Anlaşma Tutarı (₺)</label><input type="number" id="pm_total" value="${c.total||0}"/></div>
-        <div class="fg"><label>Ödenen Tutar (₺)</label><input type="number" id="pm_paid" value="${c.paid||0}"/></div>
-      </div>
-
+      <div class="fr"><div class="fg"><label>Anlaşma Tutarı (₺)</label><input type="number" id="pm_total" value="${c.total||0}"/></div><div class="fg"><label>Ödenen Tutar (₺)</label><input type="number" id="pm_paid" value="${c.paid||0}"/></div></div>
       <div class="section-title">İş Akışı (1-5)</div>
-      <div class="fg">
-        <label>Mevcut Aşama</label>
-        <select id="pm_stage">
-          <option value="1" ${c.stage==1?'selected':''}>1. Çekim</option>
-          <option value="2" ${c.stage==2?'selected':''}>2. Yedekleme</option>
-          <option value="3" ${c.stage==3?'selected':''}>3. Düzenleme</option>
-          <option value="4" ${c.stage==4?'selected':''}>4. Baskı</option>
-          <option value="5" ${c.stage==5?'selected':''}>5. Teslimat</option>
-        </select>
-      </div>
-
+      <div class="fg"><label>Mevcut Aşama</label><select id="pm_stage"><option value="1" ${c.stage==1?'selected':''}>1. Çekim</option><option value="2" ${c.stage==2?'selected':''}>2. Yedekleme</option><option value="3" ${c.stage==3?'selected':''}>3. Düzenleme</option><option value="4" ${c.stage==4?'selected':''}>4. Baskı</option><option value="5" ${c.stage==5?'selected':''}>5. Teslimat</option></select></div>
       <div class="section-title">Vitrin Detayları (Müşteride Gözüken)</div>
-      <div class="fr">
-        <div class="fg"><label>Tarih</label><input type="date" id="pm_sDate" value="${s.date||''}"/></div>
-        <div class="fg"><label>Saat</label><input type="time" id="pm_sTime" value="${s.time||''}"/></div>
-      </div>
+      <div class="fr"><div class="fg"><label>Tarih</label><input type="date" id="pm_sDate" value="${s.date||''}"/></div><div class="fg"><label>Saat</label><input type="time" id="pm_sTime" value="${s.time||''}"/></div></div>
       <div class="fg"><label>Paket Adı</label><input type="text" id="pm_sPkg" value="${s.pkg||''}"/></div>
-      <div class="fr">
-        <div class="fg"><label>Konum</label><input type="text" id="pm_sLoc" value="${s.loc||''}"/></div>
-        <div class="fg"><label>Durum Metni</label><input type="text" id="pm_sStatus" value="${s.status||'Planlanıyor'}"/></div>
-      </div>
-
+      <div class="fr"><div class="fg"><label>Konum</label><input type="text" id="pm_sLoc" value="${s.loc||''}"/></div><div class="fg"><label>Durum Metni</label><input type="text" id="pm_sStatus" value="${s.status||'Planlanıyor'}"/></div></div>
       <button class="btn btn-p f-sub" onclick="subPanelMgmt(${id})">Bilgileri Güncelle</button>
     `;
   },
+  // GÜNCELLENEN SESSION FORMU (HİBRİT MÜŞTERİ SEÇİMİ, YENİ ALANLAR)
   session:(id)=>{
     const o=id?sessions.find(s=>s.id===id):{};
-    return `<div class="fg"><label>Müşteri</label><select id="f_cid"><option value="">Seç…</option>${clients.map(c=>`<option value="${c.id}" ${o.cid==c.id?'selected':''}>${c.name}</option>`).join('')}</select></div><div class="fr"><div class="fg"><label>Tarih</label><input type="date" id="f_date" value="${o.date||''}"/></div><div class="fg"><label>Tutar</label><input type="number" id="f_total" value="${o.total||''}"/></div></div><div class="fg"><label>Paket</label><input type="text" id="f_pkg" value="${o.pkg||''}"/></div><button class="btn btn-p f-sub" onclick="subSession(${id||0})">Kaydet</button>`;
+    const cName = o.cid ? cn(o.cid) : '';
+    return `
+      <div class="fg">
+        <label>Müşteri (Seç veya Yeni Yaz)</label>
+        <input type="text" id="f_cname" list="dl_clients" placeholder="Müşteri adı..." value="${cName}" autocomplete="off"/>
+        <datalist id="dl_clients">${clients.map(c=>`<option value="${c.name}">`).join('')}</datalist>
+      </div>
+      <div class="fr">
+        <div class="fg"><label>Tarih</label><input type="date" id="f_date" value="${o.date||''}"/></div>
+        <div class="fg"><label>Saat</label><input type="time" id="f_time" value="${o.time||''}"/></div>
+      </div>
+      <div class="fg"><label>Telefon (Yeni Müşteri İçin)</label><input type="text" id="f_cphone" placeholder="05xx..."/></div>
+      <div class="fr">
+        <div class="fg"><label>Toplam Tutar (₺)</label><input type="number" id="f_total" value="${o.total||''}"/></div>
+        <div class="fg"><label>${id?'Ödenen Tutar':'Ön Ödeme (Kapora)'} (₺)</label><input type="number" id="f_paid" value="${o.paid||''}"/></div>
+      </div>
+      <div class="fg"><label>Paket</label><input type="text" id="f_pkg" value="${o.pkg||''}"/></div>
+      <div class="fg"><label>Konum</label><input type="text" id="f_loc" value="${o.loc||''}"/></div>
+      <div class="fg"><label>Açıklama</label><textarea id="f_desc" placeholder="Detaylar...">${o.desc||''}</textarea></div>
+      <button class="btn btn-p f-sub" onclick="subSession(${id||0})">Kaydet</button>
+    `;
   },
   client:(id)=>{ const o=id?clients.find(c=>c.id===id):{}; return `<div class="fg"><label>Ad</label><input type="text" id="f_name" value="${o.name||''}"/></div><div class="fg"><label>Tel</label><input type="text" id="f_phone" value="${o.phone||''}"/></div><button class="btn btn-p f-sub" onclick="subClient(${id||0})">Kaydet</button>`; },
-  task:(id)=>{ const o=id?tasks.find(t=>t.id===id):{}; return `<div class="fg"><label>Başlık</label><input type="text" id="f_title" value="${o.title||''}"/></div><div class="fg"><label>Son Tarih</label><input type="date" id="f_due" value="${o.due||''}"/></div>${id?`<div class="fg"><label>Durum</label><select id="f_stat"><option value="todo" ${o.status=='todo'?'selected':''}>Yapılacak</option><option value="inprogress" ${o.status=='inprogress'?'selected':''}>Sürüyor</option><option value="done" ${o.status=='done'?'selected':''}>Bitti</option></select></div>`:''}<button class="btn btn-p f-sub" onclick="subTask(${id||0})">Kaydet</button>`; },
+  task:(id)=>{ const o=id?tasks.find(t=>t.id===id):{}; return `<div class="fg"><label>Başlık</label><input type="text" id="f_title" value="${o.title||''}"/></div><div class="fg"><label>Açıklama</label><textarea id="f_desc">${o.desc||''}</textarea></div><div class="fg"><label>Son Tarih</label><input type="date" id="f_due" value="${o.due||''}"/></div>${id?`<div class="fg"><label>Durum</label><select id="f_stat"><option value="todo" ${o.status=='todo'?'selected':''}>Yapılacak</option><option value="inprogress" ${o.status=='inprogress'?'selected':''}>Sürüyor</option><option value="done" ${o.status=='done'?'selected':''}>Bitti</option></select></div>`:''}<button class="btn btn-p f-sub" onclick="subTask(${id||0})">Kaydet</button>`; },
   contract:(id)=>{ const o=id?contracts.find(c=>c.id===id):{}; return `<div class="fg"><label>Müşteri</label><select id="f_cid"><option value="">Seç…</option>${clients.map(c=>`<option value="${c.id}" ${o.cid==c.id?'selected':''}>${c.name}</option>`).join('')}</select></div><div class="fr"><div class="fg"><label>Tarih</label><input type="date" id="f_date" value="${o.date||''}"/></div><div class="fg"><label>Tutar</label><input type="number" id="f_total" value="${o.total||''}"/></div></div><div class="fg"><label>Durum</label><select id="f_stat"><option value="signed" ${o.status=='signed'?'selected':''}>İmzalı</option><option value="pending" ${o.status=='pending'?'selected':''}>Beklemede</option></select></div><button class="btn btn-p f-sub" onclick="subContract(${id||0})">Kaydet</button>`; },
   expense:(id)=>{ const o=id?expenses.find(x=>x.id===id):{}; return `<div class="fg"><label>Tarih</label><input type="date" id="f_date" value="${o.date||''}"/></div><div class="fg"><label>Açıklama</label><input type="text" id="f_desc" value="${o.desc||''}"/></div><div class="fr"><div class="fg"><label>Tutar</label><input type="number" id="f_amt" value="${o.amt||''}"/></div><div class="fg"><label>Şube</label><select id="f_store"><option value="">Genel</option><option value="corlu" ${o.store=='corlu'?'selected':''}>Çorlu</option><option value="ergene" ${o.store=='ergene'?'selected':''}>Ergene</option></select></div></div><button class="btn btn-p f-sub" onclick="subExpInc('expenses',${id||0})">Kaydet</button>`; },
   income:(id)=>{ const o=id?incomes.find(x=>x.id===id):{}; return `<div class="fg"><label>Tarih</label><input type="date" id="f_date" value="${o.date||''}"/></div><div class="fg"><label>Açıklama</label><input type="text" id="f_desc" value="${o.desc||''}"/></div><div class="fr"><div class="fg"><label>Tutar</label><input type="number" id="f_amt" value="${o.amt||''}"/></div><div class="fg"><label>Şube</label><select id="f_store"><option value="">Genel</option><option value="corlu" ${o.store=='corlu'?'selected':''}>Çorlu</option><option value="ergene" ${o.store=='ergene'?'selected':''}>Ergene</option></select></div></div><button class="btn btn-p f-sub" onclick="subExpInc('incomes',${id||0})">Kaydet</button>`; }
@@ -558,40 +556,52 @@ window.subAuth = async function(id) {
   const c=clients.find(x=>x.id===id); c.username=v('f_user'); c.password=v('f_pass');
   await persistOne('clients',c); closeModal(); render('client-auth');
 }
-// YENİ: PANEL YÖNETİMİ KAYDETME FONKSİYONU
 window.subPanelMgmt = async function(id) {
   const c = clients.find(x=>x.id===id);
-  // Verileri güncelle
-  c.total = Number(v('pm_total'));
-  c.paid = Number(v('pm_paid'));
-  c.stage = Number(v('pm_stage'));
+  c.total = Number(v('pm_total')); c.paid = Number(v('pm_paid')); c.stage = Number(v('pm_stage'));
+  c.session = { date: v('pm_sDate'), time: v('pm_sTime'), pkg: v('pm_sPkg'), loc: v('pm_sLoc'), status: v('pm_sStatus') };
+  await persistOne('clients', c); closeModal(); render('panel-mgmt');
+}
+
+// GÜNCELLENEN SESSION KAYIT (OTOMATİK MÜŞTERİ OLUŞTURMA)
+window.subSession = async function(id) {
+  const cName = v('f_cname');
+  if(!cName) { showToast('Müşteri adı gerekli!','error'); return; }
   
-  // İç içe session objesini oluştur/güncelle
-  c.session = {
-    date: v('pm_sDate'),
-    time: v('pm_sTime'),
-    pkg: v('pm_sPkg'),
-    loc: v('pm_sLoc'),
-    status: v('pm_sStatus')
+  let cid;
+  const existingClient = clients.find(c => c.name.toLowerCase() === cName.toLowerCase());
+  
+  if (existingClient) {
+    cid = existingClient.id;
+  } else {
+    // Yeni müşteri oluştur
+    cid = uid();
+    const newClient = { id: cid, name: cName, phone: v('f_cphone'), type: 'Genel' };
+    await persistOne('clients', newClient, true);
+    clients.push(newClient); // Local listeyi güncelle
+  }
+
+  const obj = {
+    id: id||uid(), cid: cid,
+    date: v('f_date'), time: v('f_time'),
+    total: Number(v('f_total')), paid: Number(v('f_paid')),
+    pkg: v('f_pkg'), loc: v('f_loc'), desc: v('f_desc'),
+    status: 'upcoming'
   };
 
-  await persistOne('clients', c);
-  closeModal();
-  render('panel-mgmt');
+  if(id){ const i=sessions.findIndex(x=>x.id===id); sessions[i]={...sessions[i],...obj}; await persistOne('sessions',sessions[i]); }
+  else { sessions.push(obj); await persistOne('sessions',obj,true); }
+  
+  closeModal(); render('sessions');
 }
 
-window.subSession = async function(id) {
-  const obj={id:id||uid(),cid:v('f_cid'),date:v('f_date'),total:Number(v('f_total')),pkg:v('f_pkg'),status:'upcoming'};
-  if(id){const i=sessions.findIndex(x=>x.id===id);sessions[i]={...sessions[i],...obj};await persistOne('sessions',sessions[i]);}
-  else{sessions.push(obj);await persistOne('sessions',obj,true);} closeModal(); render('sessions');
-}
 window.subClient = async function(id) {
   const obj={id:id||uid(),name:v('f_name'),phone:v('f_phone')};
   if(id){const i=clients.findIndex(x=>x.id===id);clients[i]={...clients[i],...obj};await persistOne('clients',clients[i]);}
   else{clients.push(obj);await persistOne('clients',obj,true);} closeModal(); render('clients');
 }
 window.subTask = async function(id) {
-  const obj={id:id||uid(),title:v('f_title'),due:v('f_due'),status:v('f_stat')||'todo'};
+  const obj={id:id||uid(),title:v('f_title'),desc:v('f_desc'),due:v('f_due'),status:v('f_stat')||'todo'};
   if(id){const i=tasks.findIndex(x=>x.id===id);tasks[i]={...tasks[i],...obj};await persistOne('tasks',tasks[i]);}
   else{tasks.push(obj);await persistOne('tasks',obj,true);} closeModal(); render('tasks');
 }
