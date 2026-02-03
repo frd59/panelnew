@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 <title>PASOVART Yönetim Paneli</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#f0f4f8;--card:#fff;--sb:#1e293b;--sb2:#0f172a;
@@ -65,12 +65,9 @@ html,body{height:100%;font-family:var(--fn);background:var(--bg);color:var(--txt
 }
 .nav-item svg{flex-shrink:0;width:19px;height:19px}
 
-/* Submenu Logic */
-.submenu{
-  max-height: 0;overflow: hidden;transition: max-height 0.3s ease;
-  padding-left: 20px;
-}
-.nav-item.has-sub.open + .submenu { max-height: 200px; }
+/* Submenu */
+.submenu{max-height:0;overflow:hidden;transition:max-height 0.3s ease;padding-left:20px}
+.nav-item.has-sub.open + .submenu { max-height:200px }
 .nav-item.has-sub::before{
   content:'';position:absolute;right:14px;top:50%;transform:translateY(-50%) rotate(0deg);
   width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;
@@ -100,25 +97,14 @@ html,body{height:100%;font-family:var(--fn);background:var(--bg);color:var(--txt
 }
 .hdr-left{display:flex;align-items:center;gap:15px}
 .menu-btn{display:none;background:none;border:none;cursor:pointer;color:var(--txt)}
-.hdr-search{
-  display:flex;align-items:center;gap:8px;
-  background:#f8fafc;border-radius:10px;padding:9px 15px;
-}
-.hdr-search input{
-  border:none;outline:none;background:transparent;
-  font:400 14px var(--fn);color:var(--txt2);width:180px;
-}
+.hdr-search{display:flex;align-items:center;gap:8px;background:#f8fafc;border-radius:10px;padding:9px 15px}
+.hdr-search input{border:none;outline:none;background:transparent;font:400 14px var(--fn);color:var(--txt2);width:180px}
 .hdr-right{display:flex;align-items:center;gap:14px}
 .hdr-greet{font-size:13px;color:var(--txt3)}
-.hdr-avatar{
-  width:38px;height:38px;border-radius:10px;
-  background:linear-gradient(135deg,#2563eb,#60a5fa);
-  display:flex;align-items:center;justify-content:center;
-  color:#fff;font-weight:800;font-size:15px;
-}
+.hdr-avatar{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#2563eb,#60a5fa);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:15px}
 .content{flex:1;overflow-y:auto;padding:26px 28px;position:relative}
 
-/* ─── PAGES & UI ELEMENTS ─── */
+/* ─── PAGES & UI ─── */
 .pg{display:none;animation:fadeUp .28s ease}.pg.on{display:block}
 .ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px}
 .ph h2{font-size:21px;font-weight:800;color:var(--txt)}
@@ -140,7 +126,7 @@ html,body{height:100%;font-family:var(--fn);background:var(--bg);color:var(--txt
 .card-p{padding:22px}
 .badge{display:inline-block;padding:3px 11px;border-radius:20px;font-size:12px;font-weight:600;white-space:nowrap}
 .b-upcoming{background:var(--blu-bg);color:var(--blu)}
-.b-done,.b-completed,.b-active{background:var(--grn-bg);color:var(--grn)}
+.b-done,.b-completed,.b-active,.b-signed{background:var(--grn-bg);color:var(--grn)}
 .b-inprogress,.b-pending{background:var(--amb-bg);color:var(--amb)}
 .b-todo{background:var(--pur-bg);color:var(--pur)}
 
@@ -162,7 +148,14 @@ tr:last-child td{border-bottom:none}
 .cl-head{display:flex;justify-content:space-between;align-items:flex-start}
 .cl-ava{width:43px;height:43px;border-radius:12px;background:linear-gradient(135deg,#dbeafe,#bfdbfe);display:flex;align-items:center;justify-content:center}
 
-/* ─── MOBILE MODIFICATIONS ─── */
+/* KANBAN (GÖREVLER) */
+.kanban{display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:15px}
+.kb-col{background:#f8fafc;border-radius:14px;padding:15px;border:1px solid var(--bdr)}
+.kb-head{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.kb-cards{display:flex;flex-direction:column;gap:9px}
+.kb-card{background:var(--card);border-radius:11px;padding:13px;box-shadow:0 2px 8px rgba(0,0,0,.05);border:1px solid var(--bdr)}
+
+/* MOBILE */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:15;opacity:0;pointer-events:none;transition:opacity .3s}
 .overlay.active{opacity:1;pointer-events:all}
 @media (max-width: 768px) {
@@ -174,7 +167,7 @@ tr:last-child td{border-bottom:none}
   .hdr-search{display:none}
 }
 
-/* ─── MODAL & TOAST ─── */
+/* MODAL & TOAST */
 .mo{position:fixed;inset:0;background:rgba(0,0,0,.38);backdrop-filter:blur(5px);z-index:999;display:none;align-items:center;justify-content:center}
 .mo.on{display:flex}
 .mo-box{background:#fff;border-radius:16px;width:90%;max-width:470px;max-height:90vh;overflow-y:auto;padding:30px;box-shadow:0 30px 70px rgba(0,0,0,.2)}
@@ -192,7 +185,7 @@ tr:last-child td{border-bottom:none}
 .toast.success{background:var(--grn)}
 .toast.error{background:var(--red)}
 
-/* Login Screen */
+/* LOGIN SCREEN */
 .login-screen{position:fixed;inset:0;background:linear-gradient(135deg,var(--sb),var(--sb2));z-index:9999;display:flex;align-items:center;justify-content:center}
 .login-box{background:#fff;border-radius:20px;padding:40px;width:90%;max-width:400px;box-shadow:0 30px 80px rgba(0,0,0,.3)}
 .login-logo{text-align:center;margin-bottom:30px}
@@ -207,9 +200,7 @@ tr:last-child td{border-bottom:none}
 <div class="login-screen" id="loginScreen">
   <div class="login-box">
     <div class="login-logo">
-      <div class="login-logo-icon">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-      </div>
+      <div class="login-logo-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
       <strong>PASOVART</strong>
       <em>Yönetici Girişi</em>
     </div>
@@ -225,9 +216,7 @@ tr:last-child td{border-bottom:none}
 
 <aside class="sb" id="sidebar">
   <div class="sb-logo">
-    <div class="sb-logo-icon">
-      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-    </div>
+    <div class="sb-logo-icon"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
     <div class="sb-logo-txt"><strong>PASOVART</strong><em>Yönetim Paneli</em></div>
   </div>
   <nav class="sb-nav">
@@ -247,71 +236,58 @@ tr:last-child td{border-bottom:none}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
       Müşteri Girişleri
     </button>
-    
+    <button class="nav-item" data-tab="tasks">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Görevler
+    </button>
+    <button class="nav-item" data-tab="contracts">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Sözleşmeler
+    </button>
     <button class="nav-item" data-tab="finance">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
       Gelir / Gider
     </button>
-    
     <button class="nav-item has-sub" onclick="toggleSub(event)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
       Dükkanlar
     </button>
     <div class="submenu">
-      <button class="nav-item" data-tab="store-corlu">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>
-        Çorlu
-      </button>
-      <button class="nav-item" data-tab="store-ergene">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>
-        Ergene
-      </button>
+      <button class="nav-item" data-tab="store-corlu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>Çorlu</button>
+      <button class="nav-item" data-tab="store-ergene"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>Ergene</button>
     </div>
   </nav>
   <div class="sb-footer">
-    <span>PASOVART v2.2</span>
-    <div class="sb-status">
-      <div class="status-dot connecting" id="statusDot"></div>
-      <span id="statusTxt">Bağlanıyor…</span>
-    </div>
+    <span>PASOVART v2.3</span>
+    <div class="sb-status"><div class="status-dot connecting" id="statusDot"></div><span id="statusTxt">Bağlanıyor…</span></div>
   </div>
 </aside>
 
 <div class="main">
   <header class="hdr">
     <div class="hdr-left">
-      <button class="menu-btn" onclick="toggleSidebar()">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1e293b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-      </button>
-      <div class="hdr-search">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" placeholder="Arama…" />
-      </div>
+      <button class="menu-btn" onclick="toggleSidebar()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1e293b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+      <div class="hdr-search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="Arama…" /></div>
     </div>
-    <div class="hdr-right">
-      <span class="hdr-greet">Hoş geldin, PASOVART 👋</span>
-      <div class="hdr-avatar">F</div>
-    </div>
+    <div class="hdr-right"><span class="hdr-greet">Hoş geldin, PASOVART 👋</span><div class="hdr-avatar">F</div></div>
   </header>
   <div class="content">
     <div class="pg on" id="pg-dashboard"></div>
-    <div class="pg"    id="pg-sessions"></div>
-    <div class="pg"    id="pg-clients"></div>
-    <div class="pg"    id="pg-client-auth"></div> <div class="pg"    id="pg-finance"></div>
-    <div class="pg"    id="pg-store-corlu"></div>
-    <div class="pg"    id="pg-store-ergene"></div>
+    <div class="pg" id="pg-sessions"></div>
+    <div class="pg" id="pg-clients"></div>
+    <div class="pg" id="pg-client-auth"></div>
+    <div class="pg" id="pg-tasks"></div>
+    <div class="pg" id="pg-contracts"></div>
+    <div class="pg" id="pg-finance"></div>
+    <div class="pg" id="pg-store-corlu"></div>
+    <div class="pg" id="pg-store-ergene"></div>
   </div>
 </div>
 </div>
 
 <div class="mo" id="mo" onclick="if(event.target===this)closeModal()">
   <div class="mo-box">
-    <div class="mo-hd">
-      <h3 id="moTitle">–</h3>
-      <button class="mo-cls" onclick="closeModal()">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
+    <div class="mo-hd"><h3 id="moTitle">–</h3><button class="mo-cls" onclick="closeModal()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
     <div id="moBody"></div>
   </div>
 </div>
@@ -319,9 +295,6 @@ tr:last-child td{border-bottom:none}
 <div class="toast" id="toast"></div>
 
 <script type="module">
-/* ═══════════════════════════════════════════════
-   FIREBASE KONFIGÜRASYONU
-   ═══════════════════════════════════════════════ */
 const firebaseConfig = {
   apiKey: "AIzaSyC82ZVx7sf6evT4zs3b5qoQ6H7eXTrf4Ng",
   authDomain: "pasovartpanel.firebaseapp.com",
@@ -332,128 +305,72 @@ const firebaseConfig = {
   measurementId: "G-GTR6KPH1CL"
 };
 
-/* ═══════ GİRİŞ (LOGIN) SİSTEMİ ═══════ */
-const USERS = {
-  'ferdi': { pass: '123456', name: 'Ferdi' },
-  'eren': { pass: '123456', name: 'Eren' },
-  'muharrem': { pass: '123456', name: 'Muharrem' }
-};
+// LOGIN
+const USERS = { 'ferdi': { pass: '123456', name: 'Ferdi' }, 'eren': { pass: '123456', name: 'Eren' }, 'muharrem': { pass: '123456', name: 'Muharrem' } };
 let currentUser = null;
-
 window.doLogin = function() {
   const user = document.getElementById('loginUser').value.toLowerCase();
   const pass = document.getElementById('loginPass').value;
-  const err = document.getElementById('loginError');
   if (USERS[user] && USERS[user].pass === pass) {
     currentUser = { username: user, name: USERS[user].name };
     localStorage.setItem('pf_currentUser', JSON.stringify(currentUser));
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('mainApp').style.display = 'flex';
-    document.querySelector('.hdr-greet').textContent = `Hoş geldin, ${currentUser.name} 👋`;
-    document.querySelector('.hdr-avatar').textContent = currentUser.name[0].toUpperCase();
-  } else {
-    err.textContent = 'Kullanıcı adı veya şifre hatalı!';
-    err.style.display = 'block';
-  }
+  } else { document.getElementById('loginError').style.display = 'block'; document.getElementById('loginError').textContent = 'Hatalı giriş'; }
 }
 function checkLogin() {
   const saved = localStorage.getItem('pf_currentUser');
-  if (saved) {
-    currentUser = JSON.parse(saved);
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('mainApp').style.display = 'flex';
-    document.querySelector('.hdr-greet').textContent = `Hoş geldin, ${currentUser.name} 👋`;
-    document.querySelector('.hdr-avatar').textContent = currentUser.name[0].toUpperCase();
-  }
+  if (saved) { currentUser = JSON.parse(saved); document.getElementById('loginScreen').style.display = 'none'; document.getElementById('mainApp').style.display = 'flex'; }
 }
 
-/* ═══════ FIREBASE INIT ═══════ */
-let db = null;
-let useFirebase = false;
-let _doc, _collection, _setDoc, _deleteDoc, _getDocs;
-
+// FIREBASE
+let db = null; let useFirebase = false; let _doc, _collection, _setDoc, _deleteDoc, _getDocs;
 async function initFirebase() {
   try {
     const { initializeApp } = await import('https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js');
-    const {
-      getFirestore, doc: docFn, collection: colFn, setDoc: setDocFn, deleteDoc: deleteDocFn, getDocs: getDocsFn
-    } = await import('https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js');
-
-    const app = initializeApp(firebaseConfig);
-    db = getFirestore(app);
-    _doc = docFn; _collection = colFn; _setDoc = setDocFn; _deleteDoc = deleteDocFn; _getDocs = getDocsFn;
-    
-    useFirebase = true;
-    setStatus('online', 'Çevrimiçi');
-    await loadAllFromFirebase();
-  } catch (e) {
-    console.warn('Firebase bağlantı hata:', e);
-    useFirebase = false;
-    setStatus('offline', 'Çevrimdışı (yerel)');
-    loadAllFromLocal();
-  }
-  checkLogin();
-  render('dashboard');
+    const { getFirestore, doc, collection, setDoc, deleteDoc, getDocs } = await import('https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js');
+    db = getFirestore(initializeApp(firebaseConfig));
+    _doc=doc; _collection=collection; _setDoc=setDoc; _deleteDoc=deleteDoc; _getDocs=getDocs;
+    useFirebase = true; setStatus('online', 'Çevrimiçi'); await loadAllFromFirebase();
+  } catch (e) { useFirebase = false; setStatus('offline', 'Çevrimdışı (Yerel)'); loadAllFromLocal(); }
+  checkLogin(); render('dashboard');
 }
-
 function setStatus(state, txt) {
-  const dot = document.getElementById('statusDot');
-  dot.className = 'status-dot' + (state === 'online' ? '' : state === 'offline' ? ' offline' : ' connecting');
+  document.getElementById('statusDot').className = 'status-dot'+(state==='online'?'':' offline');
   document.getElementById('statusTxt').textContent = txt;
 }
 
-/* ═══════ DATA HANDLING ═══════ */
-let clients=[], sessions=[], expenses=[], incomes=[];
-
-/* Firebase'den Tüm Verileri Çek */
+// DATA
+let clients=[], sessions=[], tasks=[], contracts=[], expenses=[], incomes=[];
 async function loadAllFromFirebase() {
-  clients   = await fbGetAll('clients');
-  sessions  = await fbGetAll('sessions');
-  expenses  = await fbGetAll('expenses');
-  incomes   = await fbGetAll('incomes');
+  clients = await fbGetAll('clients'); sessions = await fbGetAll('sessions');
+  tasks = await fbGetAll('tasks'); contracts = await fbGetAll('contracts');
+  expenses = await fbGetAll('expenses'); incomes = await fbGetAll('incomes');
 }
-async function fbGetAll(col) {
-  try { const snap = await _getDocs(_collection(db, col)); return snap.docs.map(d => ({ ...d.data(), _fbId: d.id })); } catch { return []; }
-}
+async function fbGetAll(col) { try { const snap = await _getDocs(_collection(db, col)); return snap.docs.map(d=>({...d.data(),_fbId:d.id})); } catch{return[]} }
 async function fbAdd(col, obj) {
-  if (!useFirebase) return obj;
-  try {
-    const id = (crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now());
-    const ref = _doc(db, col, id);
-    const { _fbId, ...data } = obj;
-    await _setDoc(ref, data);
-    obj._fbId = id; showToast('Kaydedildi ✓', 'success');
-  } catch(e){ console.warn(e); showToast('Hata - Yerel kaydedildi', 'error'); }
-  return obj;
+  if(!useFirebase) return obj;
+  try{ const id=(crypto&&crypto.randomUUID)?crypto.randomUUID():String(Date.now()); await _setDoc(_doc(db,col,id),{...obj}); obj._fbId=id; showToast('Kaydedildi ✓','success'); }catch(e){showToast('Hata','error')} return obj;
 }
-async function fbUpdate(col, obj) {
-  if (!useFirebase || !obj._fbId) return;
-  try { const { _fbId, ...data } = obj; await _setDoc(_doc(db, col, _fbId), data); showToast('Güncellendi ✓', 'success'); } catch(e){ showToast('Güncelleme hata', 'error'); }
-}
-async function fbDelete(col, fbId) {
-  if (!useFirebase || !fbId) return;
-  try { await _deleteDoc(_doc(db, col, fbId)); showToast('Silindi ✓', 'success'); } catch(e){ showToast('Silme hata', 'error'); }
-}
+async function fbUpdate(col, obj) { if(useFirebase&&obj._fbId) await _setDoc(_doc(db,col,obj._fbId),{...obj}); showToast('Güncellendi ✓','success'); }
+async function fbDelete(col, fbId) { if(useFirebase&&fbId) await _deleteDoc(_doc(db,col,fbId)); showToast('Silindi ✓','success'); }
 
-/* LocalStorage Yedek */
-const ld = (k, fb) => { try { const v = localStorage.getItem('pf_' + k); return v ? JSON.parse(v) : fb; } catch { return fb; } };
+// LOCAL STORAGE
+const ld = (k, fb) => { try { return JSON.parse(localStorage.getItem('pf_'+k))||fb; } catch { return fb; } };
 const sv = () => {
-  if (useFirebase) return;
-  localStorage.setItem('pf_clients', JSON.stringify(clients));
-  localStorage.setItem('pf_sessions', JSON.stringify(sessions));
-  localStorage.setItem('pf_expenses', JSON.stringify(expenses));
-  localStorage.setItem('pf_incomes', JSON.stringify(incomes));
+  if(useFirebase) return;
+  localStorage.setItem('pf_clients',JSON.stringify(clients)); localStorage.setItem('pf_sessions',JSON.stringify(sessions));
+  localStorage.setItem('pf_tasks',JSON.stringify(tasks)); localStorage.setItem('pf_contracts',JSON.stringify(contracts));
+  localStorage.setItem('pf_expenses',JSON.stringify(expenses)); localStorage.setItem('pf_incomes',JSON.stringify(incomes));
+  showToast('Kaydedildi ✓','success');
 };
 function loadAllFromLocal() {
-  clients   = ld('clients', []);
-  sessions  = ld('sessions', []);
-  expenses  = ld('expenses', []);
-  incomes   = ld('incomes', []);
+  clients=ld('clients',[]); sessions=ld('sessions',[]); tasks=ld('tasks',[]); contracts=ld('contracts',[]); expenses=ld('expenses',[]); incomes=ld('incomes',[]);
 }
 
-/* ═══════ UI HELPERS ═══════ */
-const uid = () => Date.now() + (Math.random() * 9999 | 0);
-const cn = id => (clients.find(c => c.id == id) || {}).name || '–';
+// UI UTILS
+const uid = () => Date.now() + (Math.random()*9999|0);
+const cn = id => (clients.find(c=>c.id==id)||{}).name||'–';
 const fm = n => Number(n).toLocaleString('tr-TR');
 const I = {
   plus:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
@@ -462,232 +379,145 @@ const I = {
   key:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>`
 };
 
-/* ═══════ MOBILE MENÜ JS ═══════ */
-window.toggleSub = function(e) {
-  e.preventDefault();
-  const btn = e.currentTarget;
-  btn.classList.toggle('open');
-}
-window.toggleSidebar = function() {
-  const sb = document.getElementById('sidebar');
-  const overlay = document.getElementById('sidebarOverlay');
-  sb.classList.toggle('active');
-  overlay.classList.toggle('active');
-}
-
-/* ═══════ NAVIGATION ═══════ */
-let cur = 'dashboard';
+// NAV & MOBILE
+window.toggleSub=function(e){ e.preventDefault(); e.currentTarget.classList.toggle('open'); }
+window.toggleSidebar=function(){ document.getElementById('sidebar').classList.toggle('active'); document.getElementById('sidebarOverlay').classList.toggle('active'); }
+let cur='dashboard';
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.nav-item').forEach(btn => {
     if (!btn.classList.contains('has-sub')) {
       btn.addEventListener('click', function() {
-        if(window.innerWidth <= 768) window.toggleSidebar();
-        const tab = this.dataset.tab;
-        if(tab) go(tab);
+        if(window.innerWidth<=768) window.toggleSidebar();
+        const tab = this.dataset.tab; if(tab) go(tab);
       });
     }
   });
 });
 function go(k) {
-  cur = k;
-  document.querySelectorAll('.nav-item').forEach(b => {
-    if(!b.classList.contains('has-sub')) b.classList.toggle('active', b.dataset.tab === k);
-  });
-  document.querySelectorAll('.pg').forEach(p => p.classList.remove('on'));
-  const pg = document.getElementById('pg-' + k);
-  if(pg) { pg.classList.add('on'); render(k); }
+  cur=k; document.querySelectorAll('.nav-item').forEach(b=>{if(!b.classList.contains('has-sub'))b.classList.toggle('active',b.dataset.tab===k)});
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  if(document.getElementById('pg-'+k)) { document.getElementById('pg-'+k).classList.add('on'); render(k); }
 }
 
-/* ═══════ RENDERERS ═══════ */
-function render(k) { 
-  const pages = { 
+// RENDERERS
+function render(k) {
+  const pages = {
     dashboard: rDash, sessions: rSess, clients: rCli, 'client-auth': rCliAuth,
-    finance: rFin,
-    'store-corlu': () => rStore('corlu'),
-    'store-ergene': () => rStore('ergene')
+    tasks: rTask, contracts: rCont, finance: rFin,
+    'store-corlu': ()=>rStore('corlu'), 'store-ergene': ()=>rStore('ergene')
   };
-  if(pages[k]) document.getElementById('pg-'+k).innerHTML = pages[k](); 
+  if(pages[k]) document.getElementById('pg-'+k).innerHTML = pages[k]();
 }
 
-/* --- DASHBOARD --- */
 function rDash() {
-  const inc = incomes.reduce((a,i)=>a+i.amt,0);
-  const exp = expenses.reduce((a,e)=>a+e.amt,0);
-  const up = sessions.filter(s=>s.status==='upcoming').sort((a,b)=>new Date(a.date)-new Date(b.date));
-  return `
-  <div class="stat-grid">
+  const inc=incomes.reduce((a,i)=>a+i.amt,0), exp=expenses.reduce((a,e)=>a+e.amt,0);
+  const up=sessions.filter(s=>s.status==='upcoming').sort((a,b)=>new Date(a.date)-new Date(b.date));
+  return `<div class="stat-grid">
     <div class="card stat"><div class="stat-ico" style="background:#ecfdf5"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div><div><div class="stat-lbl">Toplam Gelir</div><div class="stat-val" style="color:#10b981">₺${fm(inc)}</div></div></div>
     <div class="card stat"><div class="stat-ico" style="background:#fef2f2"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div><div><div class="stat-lbl">Toplam Gider</div><div class="stat-val" style="color:#ef4444">₺${fm(exp)}</div></div></div>
     <div class="card stat"><div class="stat-ico" style="background:#eff6ff"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div><div class="stat-lbl">Net Kazanç</div><div class="stat-val" style="color:#3b82f6">₺${fm(inc-exp)}</div></div></div>
   </div>
-  <div class="card card-p">
-    <div class="ph" style="margin-bottom:14px"><h3 style="font-size:16px;font-weight:700">📸 Yaklaşan Çekimler</h3></div>
-    ${up.slice(0,5).map(s => { const d=new Date(s.date); return `<div style="display:flex;align-items:center;gap:13px;padding:11px 0;border-bottom:1px solid #f1f5f9">
-      <div style="width:46px;height:46px;border-radius:11px;background:linear-gradient(135deg,#dbeafe,#bfdbfe);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#1e40af;font-weight:800;line-height:1"><span style="font-size:16px">${d.getDate()}</span><span style="font-size:9px;color:#3b82f6;text-transform:uppercase">${d.toLocaleString('tr',{month:'short'})}</span></div>
-      <div style="flex:1"><div style="font-weight:600;font-size:14px;color:#1e293b">${cn(s.cid)}</div><div style="font-size:12px;color:#94a3b8">${s.pkg}</div></div>
-      <div style="font-weight:700;color:#1e40af;font-size:14px">₺${fm(s.total)}</div>
-    </div>`; }).join('')}
-  </div>`;
+  <div class="card card-p"><div class="ph" style="margin-bottom:14px"><h3 style="font-size:16px;font-weight:700">📸 Yaklaşan Çekimler</h3></div>${up.slice(0,5).map(s=>`<div style="display:flex;align-items:center;gap:13px;padding:11px 0;border-bottom:1px solid #f1f5f9"><div style="width:46px;height:46px;border-radius:11px;background:linear-gradient(135deg,#dbeafe,#bfdbfe);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#1e40af;font-weight:800;line-height:1"><span>${new Date(s.date).getDate()}</span></div><div style="flex:1"><div style="font-weight:600;font-size:14px">${cn(s.cid)}</div><div style="font-size:12px;color:#94a3b8">${s.pkg}</div></div><div style="font-weight:700;color:#1e40af">₺${fm(s.total)}</div></div>`).join('')}</div>`;
 }
 
-/* --- CLIENT AUTH (ÖNEMLİ KISIM) --- */
 function rCliAuth() {
-  return `
-  <div class="ph"><h2>🔐 Müşteri Giriş Yönetimi</h2></div>
-  <div class="card card-p">
-    <p style="font-size:13px;color:var(--txt2);margin-bottom:15px;line-height:1.6">
-      Aşağıdaki listeden müşterilerinize <strong>Kullanıcı Adı</strong> ve <strong>Şifre</strong> tanımlayabilirsiniz.
-      Tanımladığınız bu bilgiler Firebase veritabanına kaydedilir ve müşteriniz kendi panelinden bu bilgilerle giriş yapar.
-    </p>
-    <div class="tbl-wrap"><table>
-      <thead><tr><th>Müşteri Adı</th><th>Kullanıcı Adı</th><th>Durum</th><th>İşlem</th></tr></thead>
-      <tbody>
-        ${clients.map(c => `
-          <tr>
-            <td style="font-weight:600;color:var(--txt)">${c.name}</td>
-            <td>${c.username ? c.username : '<span style="color:var(--txt3);font-style:italic">Belirlenmedi</span>'}</td>
-            <td>${c.username ? '<span class="badge b-active">Aktif</span>' : '<span class="badge b-pending">Pasif</span>'}</td>
-            <td>
-              <button class="btn btn-e btn-sm" onclick="openMo('auth', ${c.id})">
-                ${I.key} ${c.username ? 'Düzenle' : 'Giriş Oluştur'}
-              </button>
-            </td>
-          </tr>
-        `).join('')}
-      </tbody>
-    </table></div>
-  </div>`;
+  return `<div class="ph"><h2>🔐 Müşteri Giriş Yönetimi</h2></div><div class="card card-p"><p style="font-size:13px;color:var(--txt2);margin-bottom:15px">Müşterilerin panellerine giriş yapması için kullanıcı adı ve şifre tanımlayın.</p><div class="tbl-wrap"><table><thead><tr><th>Müşteri</th><th>Kullanıcı Adı</th><th>Durum</th><th>İşlem</th></tr></thead><tbody>${clients.map(c=>`<tr><td style="font-weight:600">${c.name}</td><td>${c.username||'<em style="color:#94a3b8">Yok</em>'}</td><td>${c.username?'<span class="badge b-active">Aktif</span>':'<span class="badge b-pending">Pasif</span>'}</td><td><button class="btn btn-e btn-sm" onclick="openMo('auth',${c.id})">${I.key} Düzenle</button></td></tr>`).join('')}</tbody></table></div></div>`;
 }
 
-/* --- STORE LOGIC --- */
-function rStore(storeCode) {
-  const storeName = storeCode === 'corlu' ? 'Çorlu' : 'Ergene';
-  const sInc = incomes.filter(i => i.store === storeCode).reduce((a,b)=>a+b.amt,0);
-  const sExp = expenses.filter(e => e.store === storeCode).reduce((a,b)=>a+b.amt,0);
-  const sItems = [...incomes.filter(i=>i.store===storeCode).map(i=>({...i, type:'inc'})), ...expenses.filter(e=>e.store===storeCode).map(e=>({...e, type:'exp'}))].sort((a,b)=>new Date(b.date)-new Date(a.date));
-
-  return `
-  <div class="ph"><h2>🏪 ${storeName} Şubesi</h2></div>
-  <div class="stat-grid">
-    <div class="card stat"><div class="stat-ico" style="background:#ecfdf5"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div><div><div class="stat-lbl">${storeName} Gelir</div><div class="stat-val" style="color:#10b981">₺${fm(sInc)}</div></div></div>
-    <div class="card stat"><div class="stat-ico" style="background:#fef2f2"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div><div><div class="stat-lbl">${storeName} Gider</div><div class="stat-val" style="color:#ef4444">₺${fm(sExp)}</div></div></div>
-  </div>
-  <div class="card card-p">
-    <h3 style="font-size:16px;font-weight:700;margin-bottom:15px">Hareketler</h3>
-    <div class="tbl-wrap"><table>
-      <thead><tr><th>Tarih</th><th>Açıklama</th><th>Türü</th><th>Tutar</th></tr></thead>
-      <tbody>
-        ${sItems.length > 0 ? sItems.map(item => `<tr><td>${item.date}</td><td style="font-weight:600">${item.desc}</td><td>${item.type==='inc'?'<span style="color:var(--grn)">Gelir</span>':'<span style="color:var(--red)">Gider</span>'}</td><td style="font-weight:700">${item.type==='inc'?'+':'-'}₺${fm(item.amt)}</td></tr>`).join('') : '<tr><td colspan="4" style="text-align:center;color:var(--txt3)">Kayıt yok.</td></tr>'}
-      </tbody>
-    </table></div>
-  </div>`;
+function rStore(code) {
+  const name=code==='corlu'?'Çorlu':'Ergene';
+  const sInc=incomes.filter(i=>i.store===code), sExp=expenses.filter(e=>e.store===code);
+  const totInc=sInc.reduce((a,b)=>a+b.amt,0), totExp=sExp.reduce((a,b)=>a+b.amt,0);
+  const items=[...sInc.map(i=>({...i,t:'inc'})),...sExp.map(e=>({...e,t:'exp'}))].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  return `<div class="ph"><h2>🏪 ${name} Şubesi</h2></div><div class="stat-grid"><div class="card stat"><div class="stat-ico" style="background:#ecfdf5"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div><div><div class="stat-lbl">Gelir</div><div class="stat-val" style="color:#10b981">₺${fm(totInc)}</div></div></div><div class="card stat"><div class="stat-ico" style="background:#fef2f2"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div><div><div class="stat-lbl">Gider</div><div class="stat-val" style="color:#ef4444">₺${fm(totExp)}</div></div></div></div><div class="card card-p"><h3 style="font-size:16px;font-weight:700;margin-bottom:15px">Hareketler</h3><div class="tbl-wrap"><table><thead><tr><th>Tarih</th><th>Açıklama</th><th>Türü</th><th>Tutar</th></tr></thead><tbody>${items.length?items.map(x=>`<tr><td>${x.date}</td><td style="font-weight:600">${x.desc}</td><td>${x.t==='inc'?'<span style="color:var(--grn)">Gelir</span>':'<span style="color:var(--red)">Gider</span>'}</td><td style="font-weight:700">${x.t==='inc'?'+':'-'}₺${fm(x.amt)}</td></tr>`).join(''):'<tr><td colspan="4" style="text-align:center;color:var(--txt3)">Kayıt yok.</td></tr>'}</tbody></table></div></div>`;
 }
 
-/* --- FINANCE & STANDARD PAGES --- */
-function rFin() {
-  const inc = incomes.reduce((a, i) => a + i.amt, 0);
-  const exp = expenses.reduce((a, e) => a + e.amt, 0);
-  return `
-  <div class="ph"><h2>💰 Gelir / Gider</h2><div style="display:flex;gap:8px"><button class="btn btn-p" onclick="openMo('income')">${I.plus} Gelir Ekle</button><button class="btn btn-p" style="background:linear-gradient(135deg,#dc2626,#ef4444);box-shadow:0 2px 8px rgba(239,68,68,.3)" onclick="openMo('expense')">${I.plus} Gider Ekle</button></div></div>
-  <div class="stat-grid" style="grid-template-columns:repeat(auto-fit, minmax(200px, 1fr))">
-    <div class="card stat"><div class="stat-ico" style="background:#ecfdf5"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg></div><div><div class="stat-lbl">Toplam Gelir</div><div class="stat-val" style="color:#10b981">₺${fm(inc)}</div></div></div>
-    <div class="card stat"><div class="stat-ico" style="background:#fef2f2"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div><div><div class="stat-lbl">Toplam Gider</div><div class="stat-val" style="color:#ef4444">₺${fm(exp)}</div></div></div>
-  </div>`;
+function rTask() {
+  const cols = [{k:'todo',l:'Yapılacak',c:'#7c3aed'},{k:'inprogress',l:'Sürüyor',c:'#d97706'},{k:'done',l:'Bitti',c:'#16a34a'}];
+  return `<div class="ph"><h2>📌 Görevler</h2><button class="btn btn-p" onclick="openMo('task')">${I.plus} Yeni</button></div><div class="kanban">${cols.map(col => { const its=tasks.filter(t=>t.status===col.k); return `<div class="kb-col"><div class="kb-head"><strong style="color:${col.c}">${col.l}</strong><span style="font-size:11px;padding:2px 8px;border-radius:10px;background:${col.c}1a;color:${col.c}">${its.length}</span></div><div class="kb-cards">${its.map(t=>`<div class="kb-card"><div style="display:flex;justify-content:space-between;font-weight:600;font-size:13px">${t.title}</div><div style="font-size:11px;color:var(--txt3);margin-top:4px">${t.due}</div><div style="margin-top:8px;display:flex;gap:5px"><button class="btn btn-e btn-sm" onclick="openMo('task',${t.id})">${I.edit}</button><button class="btn btn-d btn-sm" onclick="del('task',${t.id})">${I.trash}</button></div></div>`).join('')}</div></div>`; }).join('')}</div>`;
 }
+
+function rCont() {
+  return `<div class="ph"><h2>📄 Sözleşmeler</h2><button class="btn btn-p" onclick="openMo('contract')">${I.plus} Yeni</button></div><div class="tbl-wrap"><table><thead><tr><th>Müşteri</th><th>Oluşturma</th><th>Durum</th><th>Tutar</th><th>İşlem</th></tr></thead><tbody>${contracts.map(c=>`<tr><td style="font-weight:600">${cn(c.cid)}</td><td>${c.date}</td><td><span class="badge b-${c.status}">${c.status}</span></td><td>₺${fm(c.total)}</td><td style="display:flex;gap:5px"><button class="btn btn-e btn-sm" onclick="openMo('contract',${c.id})">${I.edit}</button><button class="btn btn-d btn-sm" onclick="del('contract',${c.id})">${I.trash}</button></td></tr>`).join('')}</tbody></table></div>`;
+}
+
 function rSess() { return `<div class="ph"><h2>📷 Çekimler</h2><button class="btn btn-p" onclick="openMo('session')">${I.plus} Yeni</button></div><div class="tbl-wrap"><table><thead><tr><th>Müşteri</th><th>Tarih</th><th>Paket</th><th>Tutar</th><th>İşlem</th></tr></thead><tbody>${sessions.map(s=>`<tr><td style="font-weight:600">${cn(s.cid)}</td><td>${s.date}</td><td>${s.pkg}</td><td>₺${fm(s.total)}</td><td style="display:flex;gap:5px"><button class="btn btn-e btn-sm" onclick="openMo('session',${s.id})">${I.edit}</button><button class="btn btn-d btn-sm" onclick="del('session',${s.id})">${I.trash}</button></td></tr>`).join('')}</tbody></table></div>`; }
 function rCli() { return `<div class="ph"><h2>👤 Müşteriler</h2><button class="btn btn-p" onclick="openMo('client')">${I.plus} Yeni</button></div><div class="cl-grid">${clients.map(c=>`<div class="card cl-card"><div class="cl-head"><div class="cl-ava">${I.edit}</div><div><div style="font-weight:700">${c.name}</div><div style="font-size:12px">${c.phone}</div></div><button class="btn btn-d btn-sm" onclick="del('client',${c.id})">${I.trash}</button></div></div>`).join('')}</div>`; }
+function rFin() { return `<div class="ph"><h2>💰 Gelir / Gider</h2><div style="display:flex;gap:8px"><button class="btn btn-p" onclick="openMo('income')">${I.plus} Gelir</button><button class="btn btn-p" style="background:linear-gradient(135deg,#dc2626,#ef4444);box-shadow:0 2px 8px rgba(239,68,68,.3)" onclick="openMo('expense')">${I.plus} Gider</button></div></div><div class="card card-p"><div class="tbl-wrap"><table><thead><tr><th>Tarih</th><th>Açıklama</th><th>Tutar</th><th>İşlem</th></tr></thead><tbody>${[...incomes.map(i=>({...i,t:'inc'})),...expenses.map(e=>({...e,t:'exp'}))].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,10).map(x=>`<tr><td>${x.date}</td><td>${x.desc}</td><td style="font-weight:700;color:${x.t==='inc'?'var(--grn)':'var(--red)'}">${x.t==='inc'?'+':'-'}₺${fm(x.amt)}</td><td><button class="btn btn-d btn-sm" onclick="del('${x.t==='inc'?'income':'expense'}',${x.id})">${I.trash}</button></td></tr>`).join('')}</tbody></table></div></div>`; }
 
-/* ═══════ ACTIONS ═══════ */
+// ACTIONS
 window.del = async function(type, id) {
-  const map = { session: 'sessions', client: 'clients', expense: 'expenses', income: 'incomes' };
-  const col = map[type];
-  const item = eval(col).find(x => x.id === id);
-  if(useFirebase && item && item._fbId) await fbDelete(col, item._fbId);
-  eval(`${col} = ${col}.filter(x => x.id !== ${id})`);
-  if(!useFirebase) sv();
-  render(cur);
+  const map={session:'sessions',client:'clients',task:'tasks',contract:'contracts',expense:'expenses',income:'incomes'};
+  const col=map[type], item=eval(col).find(x=>x.id===id);
+  if(useFirebase && item && item._fbId) await fbDelete(col,item._fbId);
+  eval(`${col}=${col}.filter(x=>x.id!==${id})`); if(!useFirebase) sv(); render(cur);
 }
 
-/* ═══════ MODALS & FORMS ═══════ */
-const moTitles = { session:'Çekim Ekle', client:'Müşteri Ekle', expense:'Gider Ekle', income:'Gelir Ekle', auth:'Müşteri Giriş Bilgileri' };
-let _moType = '', _moId = null;
-
-window.openMo = function(type, editId) {
-  _moType = type; _moId = editId || null;
-  document.getElementById('moTitle').textContent = editId && type!=='auth' ? 'Düzenle' : moTitles[type];
-  document.getElementById('moBody').innerHTML = moForms[type](editId);
+// MODALS
+const moTitles={session:'Çekim Ekle',client:'Müşteri Ekle',task:'Görev Ekle',contract:'Sözleşme Ekle',expense:'Gider Ekle',income:'Gelir Ekle',auth:'Giriş Bilgileri'};
+let _moType='', _moId=null;
+window.openMo=function(type,editId){
+  _moType=type; _moId=editId||null;
+  document.getElementById('moTitle').textContent=editId&&type!=='auth'?'Düzenle':moTitles[type];
+  document.getElementById('moBody').innerHTML=moForms[type](editId);
   document.getElementById('mo').classList.add('on');
 }
-window.closeModal = function() { document.getElementById('mo').classList.remove('on'); }
-const v = id => (document.getElementById(id) || {}).value || '';
+window.closeModal=function(){document.getElementById('mo').classList.remove('on')}
+const v=id=>(document.getElementById(id)||{}).value||'';
 
-const moForms = {
-  // *** AUTH FORM (MÜŞTERİ PANELİ İÇİN) ***
-  auth: (id) => {
-    const c = clients.find(x => x.id === id);
-    return `
-      <div class="fg"><label>Müşteri Adı</label><input type="text" value="${c.name}" disabled style="background:#e2e8f0;font-weight:600"/></div>
-      <div style="background:#fffbeb;padding:10px;border-radius:8px;border:1px solid #fcd34d;font-size:12px;color:#92400e;margin-bottom:15px">
-        ⚠️ Buraya gireceğiniz bilgiler ile müşteri kendi panelinden giriş yapacaktır.
-      </div>
-      <div class="fg"><label>Kullanıcı Adı</label><input type="text" id="f_user" placeholder="örn: ${c.name.toLowerCase().replace(/\s/g,'')}" value="${c.username||''}"/></div>
-      <div class="fg"><label>Şifre</label><input type="text" id="f_pass" placeholder="Şifre belirle" value="${c.password||''}"/></div>
-      <button class="btn btn-p f-sub" onclick="subAuth(${id})">Bilgileri Güncelle & Kaydet</button>
-    `;
+const moForms={
+  auth:(id)=>{
+    const c=clients.find(x=>x.id===id);
+    return `<div class="fg"><label>Müşteri</label><input type="text" value="${c.name}" disabled style="background:#e2e8f0"/></div><div class="fg"><label>Kullanıcı Adı</label><input type="text" id="f_user" value="${c.username||''}"/></div><div class="fg"><label>Şifre</label><input type="text" id="f_pass" value="${c.password||''}"/></div><button class="btn btn-p f-sub" onclick="subAuth(${id})">Kaydet</button>`;
   },
-  session: (id) => {
-    const o = id ? sessions.find(s=>s.id===id) : {};
+  session:(id)=>{
+    const o=id?sessions.find(s=>s.id===id):{};
     return `<div class="fg"><label>Müşteri</label><select id="f_cid"><option value="">Seç…</option>${clients.map(c=>`<option value="${c.id}" ${o.cid==c.id?'selected':''}>${c.name}</option>`).join('')}</select></div><div class="fr"><div class="fg"><label>Tarih</label><input type="date" id="f_date" value="${o.date||''}"/></div><div class="fg"><label>Tutar</label><input type="number" id="f_total" value="${o.total||''}"/></div></div><div class="fg"><label>Paket</label><input type="text" id="f_pkg" value="${o.pkg||''}"/></div><button class="btn btn-p f-sub" onclick="subSession(${id||0})">Kaydet</button>`;
   },
-  client: (id) => `<div class="fg"><label>Ad</label><input type="text" id="f_name"/></div><div class="fg"><label>Tel</label><input type="text" id="f_phone"/></div><button class="btn btn-p f-sub" onclick="subClient(0)">Kaydet</button>`,
-  expense: () => `<div class="fg"><label>Tarih</label><input type="date" id="f_date"/></div><div class="fg"><label>Açıklama</label><input type="text" id="f_desc"/></div><div class="fr"><div class="fg"><label>Tutar</label><input type="number" id="f_amt"/></div><div class="fg"><label>Şube</label><select id="f_store"><option value="">Genel</option><option value="corlu">Çorlu</option><option value="ergene">Ergene</option></select></div></div><button class="btn btn-p f-sub" onclick="subExpense(0)">Kaydet</button>`,
-  income: () => `<div class="fg"><label>Tarih</label><input type="date" id="f_date"/></div><div class="fg"><label>Açıklama</label><input type="text" id="f_desc"/></div><div class="fr"><div class="fg"><label>Tutar</label><input type="number" id="f_amt"/></div><div class="fg"><label>Şube</label><select id="f_store"><option value="">Genel</option><option value="corlu">Çorlu</option><option value="ergene">Ergene</option></select></div></div><button class="btn btn-p f-sub" onclick="subIncome(0)">Kaydet</button>`
+  client:(id)=>{ const o=id?clients.find(c=>c.id===id):{}; return `<div class="fg"><label>Ad</label><input type="text" id="f_name" value="${o.name||''}"/></div><div class="fg"><label>Tel</label><input type="text" id="f_phone" value="${o.phone||''}"/></div><button class="btn btn-p f-sub" onclick="subClient(${id||0})">Kaydet</button>`; },
+  task:(id)=>{ const o=id?tasks.find(t=>t.id===id):{}; return `<div class="fg"><label>Başlık</label><input type="text" id="f_title" value="${o.title||''}"/></div><div class="fg"><label>Son Tarih</label><input type="date" id="f_due" value="${o.due||''}"/></div>${id?`<div class="fg"><label>Durum</label><select id="f_stat"><option value="todo" ${o.status=='todo'?'selected':''}>Yapılacak</option><option value="inprogress" ${o.status=='inprogress'?'selected':''}>Sürüyor</option><option value="done" ${o.status=='done'?'selected':''}>Bitti</option></select></div>`:''}<button class="btn btn-p f-sub" onclick="subTask(${id||0})">Kaydet</button>`; },
+  contract:(id)=>{ const o=id?contracts.find(c=>c.id===id):{}; return `<div class="fg"><label>Müşteri</label><select id="f_cid"><option value="">Seç…</option>${clients.map(c=>`<option value="${c.id}" ${o.cid==c.id?'selected':''}>${c.name}</option>`).join('')}</select></div><div class="fr"><div class="fg"><label>Tarih</label><input type="date" id="f_date" value="${o.date||''}"/></div><div class="fg"><label>Tutar</label><input type="number" id="f_total" value="${o.total||''}"/></div></div><div class="fg"><label>Durum</label><select id="f_stat"><option value="signed" ${o.status=='signed'?'selected':''}>İmzalı</option><option value="pending" ${o.status=='pending'?'selected':''}>Beklemede</option></select></div><button class="btn btn-p f-sub" onclick="subContract(${id||0})">Kaydet</button>`; },
+  expense:(id)=>{ const o=id?expenses.find(x=>x.id===id):{}; return `<div class="fg"><label>Tarih</label><input type="date" id="f_date" value="${o.date||''}"/></div><div class="fg"><label>Açıklama</label><input type="text" id="f_desc" value="${o.desc||''}"/></div><div class="fr"><div class="fg"><label>Tutar</label><input type="number" id="f_amt" value="${o.amt||''}"/></div><div class="fg"><label>Şube</label><select id="f_store"><option value="">Genel</option><option value="corlu" ${o.store=='corlu'?'selected':''}>Çorlu</option><option value="ergene" ${o.store=='ergene'?'selected':''}>Ergene</option></select></div></div><button class="btn btn-p f-sub" onclick="subExpInc('expenses',${id||0})">Kaydet</button>`; },
+  income:(id)=>{ const o=id?incomes.find(x=>x.id===id):{}; return `<div class="fg"><label>Tarih</label><input type="date" id="f_date" value="${o.date||''}"/></div><div class="fg"><label>Açıklama</label><input type="text" id="f_desc" value="${o.desc||''}"/></div><div class="fr"><div class="fg"><label>Tutar</label><input type="number" id="f_amt" value="${o.amt||''}"/></div><div class="fg"><label>Şube</label><select id="f_store"><option value="">Genel</option><option value="corlu" ${o.store=='corlu'?'selected':''}>Çorlu</option><option value="ergene" ${o.store=='ergene'?'selected':''}>Ergene</option></select></div></div><button class="btn btn-p f-sub" onclick="subExpInc('incomes',${id||0})">Kaydet</button>`; }
 };
 
-/* ═══════ SUBMIT HANDLERS ═══════ */
-// MÜŞTERİ GİRİŞ BİLGİLERİNİ KAYDETME
+// SUBMITS
 window.subAuth = async function(id) {
-  const c = clients.find(x => x.id === id);
-  c.username = v('f_user');
-  c.password = v('f_pass');
-  // Firebase'deki mevcut müşteri kaydını güncelliyoruz
-  await persistOne('clients', c);
-  closeModal();
-  render('client-auth');
+  const c=clients.find(x=>x.id===id); c.username=v('f_user'); c.password=v('f_pass');
+  await persistOne('clients',c); closeModal(); render('client-auth');
 }
-
 window.subSession = async function(id) {
-  const obj = { id: id||uid(), cid: v('f_cid'), date: v('f_date'), total: Number(v('f_total')), pkg: v('f_pkg'), status:'upcoming' };
-  if(id) { const idx=sessions.findIndex(x=>x.id===id); sessions[idx]={...sessions[idx],...obj}; await persistOne('sessions',sessions[idx]); }
-  else { sessions.push(obj); await persistOne('sessions',obj,true); }
-  closeModal(); render('sessions');
+  const obj={id:id||uid(),cid:v('f_cid'),date:v('f_date'),total:Number(v('f_total')),pkg:v('f_pkg'),status:'upcoming'};
+  if(id){const i=sessions.findIndex(x=>x.id===id);sessions[i]={...sessions[i],...obj};await persistOne('sessions',sessions[i]);}
+  else{sessions.push(obj);await persistOne('sessions',obj,true);} closeModal(); render('sessions');
 }
-window.subClient = async function() {
-  const obj = { id: uid(), name: v('f_name'), phone: v('f_phone') };
-  clients.push(obj); await persistOne('clients',obj,true); closeModal(); render('clients');
+window.subClient = async function(id) {
+  const obj={id:id||uid(),name:v('f_name'),phone:v('f_phone')};
+  if(id){const i=clients.findIndex(x=>x.id===id);clients[i]={...clients[i],...obj};await persistOne('clients',clients[i]);}
+  else{clients.push(obj);await persistOne('clients',obj,true);} closeModal(); render('clients');
 }
-window.subExpense = async function() {
-  const obj = { id: uid(), date: v('f_date'), desc: v('f_desc'), amt: Number(v('f_amt')), store: v('f_store') };
-  expenses.push(obj); await persistOne('expenses',obj,true); closeModal(); render(cur);
+window.subTask = async function(id) {
+  const obj={id:id||uid(),title:v('f_title'),due:v('f_due'),status:v('f_stat')||'todo'};
+  if(id){const i=tasks.findIndex(x=>x.id===id);tasks[i]={...tasks[i],...obj};await persistOne('tasks',tasks[i]);}
+  else{tasks.push(obj);await persistOne('tasks',obj,true);} closeModal(); render('tasks');
 }
-window.subIncome = async function() {
-  const obj = { id: uid(), date: v('f_date'), desc: v('f_desc'), amt: Number(v('f_amt')), store: v('f_store') };
-  incomes.push(obj); await persistOne('incomes',obj,true); closeModal(); render(cur);
+window.subContract = async function(id) {
+  const obj={id:id||uid(),cid:v('f_cid'),date:v('f_date'),total:Number(v('f_total')),status:v('f_stat')};
+  if(id){const i=contracts.findIndex(x=>x.id===id);contracts[i]={...contracts[i],...obj};await persistOne('contracts',contracts[i]);}
+  else{contracts.push(obj);await persistOne('contracts',obj,true);} closeModal(); render('contracts');
+}
+window.subExpInc = async function(type, id) {
+  const arr=type==='expenses'?expenses:incomes;
+  const obj={id:id||uid(),date:v('f_date'),desc:v('f_desc'),amt:Number(v('f_amt')),store:v('f_store')};
+  if(id){const i=arr.findIndex(x=>x.id===id);arr[i]={...arr[i],...obj};await persistOne(type,arr[i]);}
+  else{arr.push(obj);await persistOne(type,obj,true);} closeModal(); render(cur);
 }
 
 async function persistOne(col, obj, isNew = false) {
-  if (useFirebase) { if (isNew || !obj._fbId) await fbAdd(col, obj); else await fbUpdate(col, obj); } 
-  else { sv(); showToast('Kaydedildi ✓', 'success'); }
+  if(useFirebase) { if(isNew||!obj._fbId) await fbAdd(col,obj); else await fbUpdate(col,obj); } else { sv(); }
 }
-
-/* ═══════ TOAST ═══════ */
-let toastTimer;
-window.showToast = function(msg, type) {
-  const t = document.getElementById('toast'); t.textContent = msg; t.className = 'toast on ' + type;
-  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('on'), 2400);
-}
+window.showToast = function(msg,type){const t=document.getElementById('toast');t.textContent=msg;t.className='toast on '+type;setTimeout(()=>t.classList.remove('on'),2400);}
 initFirebase();
-
 </script>
 </body>
 </html>
