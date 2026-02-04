@@ -245,6 +245,9 @@ tr:last-child td{border-bottom:none}
 .toast.success{background:var(--grn)}
 .toast.error{background:var(--red)}
 
+/* Checkbox Style for Trash */
+.chk-custom { width:18px; height:18px; cursor:pointer; accent-color:var(--acc); }
+
 /* LOGIN SCREEN */
 .login-screen{position:fixed;inset:0;background:linear-gradient(135deg,var(--sb),var(--sb2));z-index:9999;display:flex;align-items:center;justify-content:center}
 .login-box{background:#fff;border-radius:20px;padding:40px;width:90%;max-width:400px;box-shadow:0 30px 80px rgba(0,0,0,.3)}
@@ -322,6 +325,12 @@ tr:last-child td{border-bottom:none}
       <button class="nav-item" data-tab="store-corlu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>Çorlu</button>
       <button class="nav-item" data-tab="store-ergene"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>Ergene</button>
     </div>
+
+    <button class="nav-item" data-tab="trash" style="margin-top:20px; color:#fca5a5;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+      Çöp Kutusu
+    </button>
+
   </nav>
   <div class="sb-footer">
     <span>PASOVART v3.0</span>
@@ -348,6 +357,7 @@ tr:last-child td{border-bottom:none}
     <div class="pg" id="pg-finance"></div>
     <div class="pg" id="pg-store-corlu"></div>
     <div class="pg" id="pg-store-ergene"></div>
+    <div class="pg" id="pg-trash"></div>
   </div>
 </div>
 </div>
@@ -417,11 +427,12 @@ function setStatus(state, txt) {
 }
 
 // DATA
-let clients=[], sessions=[], tasks=[], contracts=[], expenses=[], incomes=[];
+let clients=[], sessions=[], tasks=[], contracts=[], expenses=[], incomes=[], trashBin=[];
 async function loadAllFromFirebase() {
   clients = await fbGetAll('clients'); sessions = await fbGetAll('sessions');
   tasks = await fbGetAll('tasks'); contracts = await fbGetAll('contracts');
   expenses = await fbGetAll('expenses'); incomes = await fbGetAll('incomes');
+  trashBin = await fbGetAll('trashBin');
 }
 async function fbGetAll(col) { try { const snap = await _getDocs(_collection(db, col)); return snap.docs.map(d=>({...d.data(),_fbId:d.id})); } catch{return[]} }
 async function fbAdd(col, obj) {
@@ -438,10 +449,11 @@ const sv = () => {
   localStorage.setItem('pf_clients',JSON.stringify(clients)); localStorage.setItem('pf_sessions',JSON.stringify(sessions));
   localStorage.setItem('pf_tasks',JSON.stringify(tasks)); localStorage.setItem('pf_contracts',JSON.stringify(contracts));
   localStorage.setItem('pf_expenses',JSON.stringify(expenses)); localStorage.setItem('pf_incomes',JSON.stringify(incomes));
+  localStorage.setItem('pf_trashBin',JSON.stringify(trashBin));
   showToast('Kaydedildi ✓','success');
 };
 function loadAllFromLocal() {
-  clients=ld('clients',[]); sessions=ld('sessions',[]); tasks=ld('tasks',[]); contracts=ld('contracts',[]); expenses=ld('expenses',[]); incomes=ld('incomes',[]);
+  clients=ld('clients',[]); sessions=ld('sessions',[]); tasks=ld('tasks',[]); contracts=ld('contracts',[]); expenses=ld('expenses',[]); incomes=ld('incomes',[]); trashBin=ld('trashBin',[]);
 }
 
 // UTILS
@@ -461,7 +473,8 @@ const I = {
   key:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>`,
   set:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
   print:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>`,
-  eye: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`
+  eye: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
+  refresh: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>`
 };
 
 // HELPER: Stage Naming
@@ -499,7 +512,8 @@ function render(k) {
     dashboard: rDash, sessions: rSess, clients: rCli, 'client-auth': rCliAuth,
     'panel-mgmt': rPanelMgmt,
     tasks: rTask, contracts: rCont, finance: rFin,
-    'store-corlu': ()=>rStore('corlu'), 'store-ergene': ()=>rStore('ergene')
+    'store-corlu': ()=>rStore('corlu'), 'store-ergene': ()=>rStore('ergene'),
+    trash: rTrash
   };
   if(pages[k]) document.getElementById('pg-'+k).innerHTML = pages[k]();
 }
@@ -594,12 +608,148 @@ function rSess() { return `<div class="ph"><h2>📷 Çekimler</h2><button class=
 function rCli() { return `<div class="ph"><h2>👤 Müşteriler</h2><button class="btn btn-p" onclick="openMo('client')">${I.plus} Yeni</button></div><div class="cl-grid">${clients.map(c=>`<div class="card cl-card"><div class="cl-head"><div class="cl-ava">${I.edit}</div><div><div style="font-weight:700">${c.name}</div><div style="font-size:12px">${c.phone}</div></div><button class="btn btn-d btn-sm" onclick="del('client',${c.id})">${I.trash}</button></div></div>`).join('')}</div>`; }
 function rFin() { return `<div class="ph"><h2>💰 Gelir / Gider</h2><div style="display:flex;gap:8px"><button class="btn btn-p" onclick="openMo('income')">${I.plus} Gelir</button><button class="btn btn-p" style="background:linear-gradient(135deg,#dc2626,#ef4444);box-shadow:0 2px 8px rgba(239,68,68,.3)" onclick="openMo('expense')">${I.plus} Gider</button></div></div><div class="card card-p"><div class="tbl-wrap"><table><thead><tr><th>Tarih</th><th>Açıklama</th><th>Tutar</th><th>İşlem</th></tr></thead><tbody>${[...incomes.map(i=>({...i,t:'inc'})),...expenses.map(e=>({...e,t:'exp'}))].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,10).map(x=>`<tr><td>${fmtDate(x.date)}</td><td>${x.desc}</td><td style="font-weight:700;color:${x.t==='inc'?'var(--grn)':'var(--red)'}">${x.t==='inc'?'+':'-'}₺${fm(x.amt)}</td><td><button class="btn btn-d btn-sm" onclick="del('${x.t==='inc'?'income':'expense'}',${x.id})">${I.trash}</button></td></tr>`).join('')}</tbody></table></div></div>`; }
 
-// ACTIONS
+// ─── TRASH BIN RENDERER ───
+function rTrash() {
+  const sortedTrash = trashBin.sort((a,b) => new Date(b._delDate) - new Date(a._delDate));
+  
+  return `
+  <div class="ph"><h2>🗑️ Çöp Kutusu</h2>
+    <div style="display:flex; gap:8px;">
+      <button class="btn btn-e" onclick="restoreSelected()">${I.refresh} Seçilenleri Geri Yükle</button>
+      <button class="btn btn-d" onclick="deleteSelected()">${I.trash} Seçilenleri Kalıcı Sil</button>
+    </div>
+  </div>
+  <div class="card card-p">
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:40px; text-align:center;"><input type="checkbox" class="chk-custom" onchange="toggleAllTrash(this)"></th>
+            <th>Silinen Öğe</th>
+            <th>Türü</th>
+            <th>Silinme Tarihi</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${sortedTrash.length === 0 ? '<tr><td colspan="4" style="text-align:center; padding:20px; color:var(--txt3)">Çöp kutusu boş.</td></tr>' : 
+            sortedTrash.map(item => {
+              let name = '-';
+              if(item.name) name = item.name;
+              else if(item.desc) name = item.desc;
+              else if(item.title) name = item.title;
+              else if(item.pkg) name = item.pkg;
+              
+              const typeLabels = {client:'Müşteri', session:'Çekim', task:'Görev', contract:'Sözleşme', expense:'Gider', income:'Gelir'};
+              const displayType = typeLabels[item._originType] || item._originType;
+
+              return `
+              <tr>
+                <td style="text-align:center;"><input type="checkbox" class="chk-custom trash-chk" value="${item._fbId}"></td>
+                <td style="font-weight:600">${name}</td>
+                <td><span class="badge b-pending">${displayType}</span></td>
+                <td>${fmtDate(item._delDate)}</td>
+              </tr>`;
+            }).join('')
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+  `;
+}
+
+// ─── ACTIONS (UPDATED FOR TRASH) ───
+
+// Soft Delete: Move to Trash
 window.del = async function(type, id) {
   const map={session:'sessions',client:'clients',task:'tasks',contract:'contracts',expense:'expenses',income:'incomes'};
-  const col=map[type], item=eval(col).find(x=>x.id===id);
-  if(useFirebase && item && item._fbId) await fbDelete(col,item._fbId);
-  eval(`${col}=${col}.filter(x=>x.id!==${id})`); if(!useFirebase) sv(); render(cur);
+  const col=map[type];
+  const item = eval(col).find(x=>x.id===id);
+  
+  if(!item) return;
+
+  if(!confirm('Bu öğeyi çöp kutusuna taşımak istediğinize emin misiniz?')) return;
+
+  // Add metadata for trash
+  const trashItem = { ...item, _originType: type, _originCol: col, _delDate: new Date().toISOString() };
+  
+  // 1. Add to TrashBin in Firebase
+  await fbAdd('trashBin', trashItem);
+  
+  // 2. Remove from Original Collection in Firebase
+  if(useFirebase && item._fbId) await fbDelete(col, item._fbId);
+  
+  // 3. Update Local State
+  trashBin.push(trashItem);
+  eval(`${col}=${col}.filter(x=>x.id!==${id})`);
+  
+  if(!useFirebase) sv();
+  
+  render(cur);
+  showToast('Öğe çöp kutusuna taşındı', 'success');
+}
+
+// Trash: Toggle All Checkboxes
+window.toggleAllTrash = function(el) {
+  document.querySelectorAll('.trash-chk').forEach(chk => chk.checked = el.checked);
+}
+
+// Trash: Restore Selected
+window.restoreSelected = async function() {
+  const selected = Array.from(document.querySelectorAll('.trash-chk:checked')).map(cb => cb.value);
+  if(selected.length === 0) { showToast('Lütfen seçim yapın.', 'error'); return; }
+
+  for(let fbId of selected) {
+    const item = trashBin.find(x => x._fbId === fbId);
+    if(item) {
+      const originalCol = item._originCol;
+      // Clean up metadata
+      const restoreItem = { ...item };
+      delete restoreItem._originType;
+      delete restoreItem._originCol;
+      delete restoreItem._delDate;
+      delete restoreItem._fbId; // New ID will be generated or use existing ID logic
+
+      // Restore to original collection
+      await fbAdd(originalCol, restoreItem);
+      // Remove from trash
+      await fbDelete('trashBin', fbId);
+
+      // Local update
+      // We need to reload to be safe or manually push. Reloading logic is safer for consistency here.
+      if(!useFirebase) {
+         trashBin = trashBin.filter(x => x._fbId !== fbId);
+         // Push to local array
+         eval(`${originalCol}.push(restoreItem)`);
+         sv();
+      }
+    }
+  }
+  
+  if(useFirebase) await loadAllFromFirebase(); // Refresh all data to sync IDs
+  render('trash');
+  showToast(`${selected.length} öğe geri yüklendi.`, 'success');
+}
+
+// Trash: Delete Permanently
+window.deleteSelected = async function() {
+  const selected = Array.from(document.querySelectorAll('.trash-chk:checked')).map(cb => cb.value);
+  if(selected.length === 0) { showToast('Lütfen seçim yapın.', 'error'); return; }
+
+  const pass = prompt("DİKKAT: Bu işlem geri alınamaz!\nSilmek için güvenlik şifresini girin (1453):");
+  if(pass !== '1453') { showToast('Hatalı şifre! İşlem iptal edildi.', 'error'); return; }
+
+  for(let fbId of selected) {
+    await fbDelete('trashBin', fbId);
+    if(!useFirebase) {
+       trashBin = trashBin.filter(x => x._fbId !== fbId);
+       sv();
+    }
+  }
+  
+  if(useFirebase) trashBin = trashBin.filter(x => !selected.includes(x._fbId));
+  render('trash');
+  showToast('Seçilenler kalıcı olarak silindi.', 'success');
 }
 
 // MODALS
@@ -801,7 +951,7 @@ window.subPanelMgmt = async function(id) {
     time: v('pm_time'),
     pkg: v('pm_pkg'),
     loc: v('pm_loc'),
-    status: v('pm_status') || 'Planlanıyor' // YENİ: Burası artık serbest yazı
+    status: v('pm_status') || 'Planlanıyor' 
   };
   await persistOne('clients', c); closeModal(); render('panel-mgmt');
 }
