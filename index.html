@@ -525,7 +525,10 @@ function rPanelMgmt() {
             <td style="font-weight:600">${c.name}</td>
             <td><span class="badge b-active">${stageLbl}</span></td>
             <td>${debt > 0 ? `<span style="color:var(--red)">₺${fm(debt)} Borç</span>` : '<span style="color:var(--grn)">Ödendi</span>'}</td>
-            <td><button class="btn btn-e btn-sm" onclick="openMo('panelMgmt', ${c.id})">${I.set} Yönet</button></td>
+            <td>
+              <button class="btn btn-e btn-sm" onclick="openMo('panelMgmt', ${c.id})">${I.set} Yönet</button>
+              <button class="btn btn-d btn-sm" onclick="del('client', '${c.id}')" style="margin-left:5px">${I.trash}</button>
+            </td>
           </tr>`
         }).join('')}
       </tbody>
@@ -534,7 +537,7 @@ function rPanelMgmt() {
 }
 
 function rCliAuth() {
-  return `<div class="ph"><h2>🔐 Müşteri Giriş Yönetimi</h2></div><div class="card card-p"><div class="tbl-wrap"><table><thead><tr><th>Müşteri</th><th>Kullanıcı Adı</th><th>Durum</th><th>İşlem</th></tr></thead><tbody>${clients.map(c=>`<tr><td style="font-weight:600">${c.name}</td><td>${c.username||'<em style="color:#94a3b8">Yok</em>'}</td><td>${c.username?'<span class="badge b-active">Aktif</span>':'<span class="badge b-pending">Pasif</span>'}</td><td><button class="btn btn-e btn-sm" onclick="openMo('auth',${c.id})">${I.key} Düzenle</button></td></tr>`).join('')}</tbody></table></div></div>`;
+  return `<div class="ph"><h2>🔐 Müşteri Giriş Yönetimi</h2></div><div class="card card-p"><div class="tbl-wrap"><table><thead><tr><th>Müşteri</th><th>Kullanıcı Adı</th><th>Durum</th><th>İşlem</th></tr></thead><tbody>${clients.map(c=>`<tr><td style="font-weight:600">${c.name}</td><td>${c.username||'<em style="color:#94a3b8">Yok</em>'}</td><td>${c.username?'<span class="badge b-active">Aktif</span>':'<span class="badge b-pending">Pasif</span>'}</td><td><button class="btn btn-e btn-sm" onclick="openMo('auth',${c.id})">${I.key} Düzenle</button><button class="btn btn-d btn-sm" onclick="del('client', '${c.id}')" style="margin-left:5px">${I.trash}</button></td></tr>`).join('')}</tbody></table></div></div>`;
 }
 
 function rStore(code) {
@@ -781,19 +784,28 @@ window.subSession = async function(id) {
   if(!cName) { showToast('Müşteri adı gerekli!','error'); return; }
   let cid;
   const existingClient = clients.find(c => c.name.toLowerCase() === cName.toLowerCase());
-  if (existingClient) { cid = existingClient.id; } 
-  else {
+  
+  const total = Number(v('f_total'));
+  const paid = Number(v('f_paid'));
+  
+  if (existingClient) { 
+    cid = existingClient.id;
+    // YENİ: Müşteri zaten varsa, bakiyesine ekle!
+    existingClient.total = (existingClient.total || 0) + total;
+    existingClient.paid = (existingClient.paid || 0) + paid;
+    await persistOne('clients', existingClient);
+  } else {
     cid = uid();
-    const newClient = { id: cid, name: cName, phone: v('f_cphone'), type: 'Genel', total: Number(v('f_total')), paid: Number(v('f_paid')) };
+    const newClient = { id: cid, name: cName, phone: v('f_cphone'), type: 'Genel', total: total, paid: paid };
     await persistOne('clients', newClient, true);
     clients.push(newClient);
   }
+  
   const date = v('f_date');
-  const total = Number(v('f_total'));
-  const paid = Number(v('f_paid'));
   const desc = v('f_desc');
   const pkg = v('f_pkg');
   const obj = { id: id||uid(), cid: cid, date: date, time: v('f_time'), total: total, paid: paid, pkg: pkg, loc: v('f_loc'), desc: desc, status: 'upcoming' };
+  
   if(id){ const i=sessions.findIndex(x=>x.id===id); sessions[i]={...sessions[i],...obj}; await persistOne('sessions',sessions[i]); }
   else { 
     sessions.push(obj); await persistOne('sessions',obj,true); 
