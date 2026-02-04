@@ -192,25 +192,53 @@ tr:last-child td{border-bottom:none}
 .click-row { cursor:pointer; transition:background .15s; }
 .click-row:hover { background: #f8fafc; }
 
-/* PRINT STYLES */
-@media print {
-  @page { margin: 0; size: A4; }
-  body * { visibility: hidden; }
-  .print-area, .print-area * { visibility: visible; }
-  .print-area { position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: white; color: black; padding: 40px; z-index: 9999; }
+/* ─── YENİ SÖZLEŞME VE PRINT MODAL STİLLERİ ─── */
+.print-modal {
+    display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%;
+    overflow: auto; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
 }
-.print-paper { display:none; background: #fff; padding: 40px; color: #000; font-family: 'Times New Roman', serif; }
-.print-paper.active { display:block; }
-.print-header { text-align:center; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 30px; }
-.print-logo { font-size: 28px; font-weight: bold; letter-spacing: 2px; }
-.print-sub { font-size: 14px; margin-top: 5px; color: #555; }
-.print-row { display:flex; justify-content: space-between; margin-bottom: 15px; }
-.print-label { font-weight: bold; width: 150px; }
-.print-val { flex: 1; border-bottom: 1px dotted #999; }
-.print-box { border: 1px solid #000; padding: 15px; margin: 20px 0; }
-.print-title { font-weight: bold; font-size: 16px; margin-bottom: 10px; text-decoration: underline; }
-.print-signatures { display: flex; justify-content: space-between; margin-top: 80px; }
-.sig-box { width: 40%; text-align: center; border-top: 1px solid #000; padding-top: 10px; }
+.print-modal-content {
+    background-color: #fff; margin: 3% auto; padding: 30px; border-radius: 16px;
+    width: 90%; max-width: 800px; box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    position: relative;
+}
+.close-print-btn {
+    position: absolute; top: 15px; right: 20px; color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; z-index: 10;
+}
+.close-print-btn:hover { color: #000; }
+
+/* Sözleşme İçerik Stilleri (Admin) */
+.ct-print-area { padding: 10px; }
+.ct-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #000; padding-bottom: 15px; margin-bottom: 20px; }
+.ct-logo { font-size: 20px; font-weight: 800; color: #000; }
+.ct-logo span { display: block; font-size: 12px; font-weight: 500; color: #555; }
+
+.ct-row { display: flex; justify-content: space-between; border-bottom: 1px dashed #ccc; padding-bottom: 8px; margin-bottom: 8px; }
+.ct-row:last-child { border-bottom: none; }
+
+.ct-lbl { color: #555; font-size: 13px; font-weight: 700; width: 40%; }
+.ct-val { color: #000; font-size: 14px; font-weight: 600; text-align: right; width: 60%; }
+
+.ct-box { border: 1px solid #000; padding: 15px; margin-top: 20px; }
+.ct-title { font-size: 14px; font-weight: 800; color: #000; margin-bottom: 10px; text-transform: uppercase; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
+.ct-text { font-size: 13px; color: #000; line-height: 1.6; white-space: pre-line; text-align: justify; }
+
+/* Print Butonu */
+.admin-print-btn {
+    display: block; width: 100%; background: var(--sb); color: #fff; padding: 12px; 
+    border: none; border-radius: 10px; font-weight: 700; cursor: pointer; margin-top: 20px;
+}
+.admin-print-btn:hover { background: var(--sb2); }
+
+/* Print Media Query */
+@media print {
+    body * { visibility: hidden; }
+    .print-modal { position: absolute; left: 0; top: 0; width: 100%; height: auto; background: #fff; overflow: visible; display: block !important; }
+    .print-modal-content { box-shadow: none; margin: 0; width: 100%; max-width: 100%; padding: 0; }
+    .ct-print-area, .ct-print-area * { visibility: visible; }
+    .ct-print-area { position: absolute; left: 0; top: 0; width: 100%; }
+    .admin-print-btn, .close-print-btn { display: none !important; }
+}
 
 .toast{position:fixed;bottom:24px;right:24px;z-index:1001;background:var(--txt);color:#fff;padding:12px 20px;border-radius:12px;font:500 14px var(--fn);opacity:0;transform:translateY(12px);transition:all .3s;pointer-events:none;max-width:320px}
 .toast.on{opacity:1;transform:translateY(0)}
@@ -331,12 +359,13 @@ tr:last-child td{border-bottom:none}
   </div>
 </div>
 
-<div class="print-paper print-area" id="printArea">
-  <div class="print-header">
-    <div class="print-logo">PASOVART</div>
-    <div class="print-sub">Fotoğraf & Video Prodüksiyon Hizmetleri</div>
-  </div>
-  <div id="printContent"></div>
+<div id="printModal" class="print-modal">
+    <div class="print-modal-content">
+        <span class="close-print-btn" onclick="closePrintModal()">&times;</span>
+        <div class="ct-print-area" id="adminPrintArea">
+            </div>
+        <button class="admin-print-btn" onclick="window.print()">🖨️ Bu Sayfayı Yazdır</button>
+    </div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -553,11 +582,13 @@ function rTask() {
   return `<div class="ph"><h2>📌 Görevler</h2><button class="btn btn-p" onclick="openMo('task')">${I.plus} Yeni</button></div><div class="kanban">${cols.map(col => { const its=tasks.filter(t=>t.status===col.k); return `<div class="kb-col"><div class="kb-head"><strong style="color:${col.c}">${col.l}</strong><span style="font-size:11px;padding:2px 8px;border-radius:10px;background:${col.c}1a;color:${col.c}">${its.length}</span></div><div class="kb-cards">${its.map(t=>`<div class="kb-card"><div style="display:flex;justify-content:space-between;font-weight:600;font-size:13px">${t.title}</div>${t.desc?`<div style="font-size:11px;color:var(--txt2);margin-top:4px;line-height:1.4">${t.desc}</div>`:''}<div style="font-size:10px;color:var(--txt3);margin-top:6px;font-weight:700">${fmtDate(t.due)}</div><div style="margin-top:8px;display:flex;gap:5px"><button class="btn btn-e btn-sm" onclick="openMo('task',${t.id})">${I.edit}</button><button class="btn btn-d btn-sm" onclick="del('task',${t.id})">${I.trash}</button></div></div>`).join('')}</div></div>`; }).join('')}</div>`;
 }
 
+// ─── GÜNCELLENEN SÖZLEŞMELER BÖLÜMÜ ───
 function rCont() {
   return `<div class="ph"><h2>📄 Sözleşmeler</h2></div><div class="tbl-wrap"><table><thead><tr><th>Müşteri (Detay)</th><th>Oluşturma</th><th>Bakiye</th><th>İşlem</th></tr></thead><tbody>${contracts.map(c=>{
     const sess = sessions.find(s => s.cid === c.cid && s.date === c.date) || {};
     const detailAction = sess.id ? `onclick="openSessionDetail(${sess.id})"` : '';
-    return `<tr><td style="font-weight:600; cursor:pointer; color:var(--acc);" ${detailAction}>${cn(c.cid)} ${I.eye}</td><td>${fmtDate(c.date)}</td><td>${(c.total-c.paid)>0 ? '<span style="color:var(--red)">Borçlu</span>' : '<span style="color:var(--grn)">Ödendi</span>'}</td><td style="display:flex;gap:5px"><button class="btn btn-e btn-sm" onclick="openPrintContract(${c.id})">${I.print} Yazdır</button><button class="btn btn-d btn-sm" onclick="del('contract',${c.id})">${I.trash}</button></td></tr>`;
+    // YAZDIR BUTONU GÜNCELLENDİ -> viewContractForPrint
+    return `<tr><td style="font-weight:600; cursor:pointer; color:var(--acc);" ${detailAction}>${cn(c.cid)} ${I.eye}</td><td>${fmtDate(c.date)}</td><td>${(c.total-c.paid)>0 ? '<span style="color:var(--red)">Borçlu</span>' : '<span style="color:var(--grn)">Ödendi</span>'}</td><td style="display:flex;gap:5px"><button class="btn btn-e btn-sm" onclick="viewContractForPrint(${c.id})">${I.print} Yazdır</button><button class="btn btn-d btn-sm" onclick="del('contract',${c.id})">${I.trash}</button></td></tr>`;
   }).join('')}</tbody></table></div>`;
 }
 
@@ -691,7 +722,6 @@ const moForms={
   contract:()=>{ return ``; }, 
   expense:(id)=>{ const o=id?expenses.find(x=>x.id===id):{}; return `<div class="fg"><label>Tarih</label><input type="date" id="f_date" value="${o.date||''}"/></div><div class="fg"><label>Açıklama</label><input type="text" id="f_desc" value="${o.desc||''}"/></div><div class="fr"><div class="fg"><label>Tutar</label><input type="number" id="f_amt" value="${o.amt||''}"/></div><div class="fg"><label>Şube</label><select id="f_store"><option value="">Genel</option><option value="corlu" ${o.store=='corlu'?'selected':''}>Çorlu</option><option value="ergene" ${o.store=='ergene'?'selected':''}>Ergene</option></select></div></div><button class="btn btn-p f-sub" onclick="subExpInc('expenses',${id||0})">Kaydet</button>`; },
   
-  // ÖNEMLİ: GELİR EKLEME KISMI - İŞ SEÇİMİ VE OTOMATİK BORÇ DÜŞME
   income:(id)=>{ 
     const o=id?incomes.find(x=>x.id===id):{}; 
     return `
@@ -715,7 +745,6 @@ const moForms={
   }
 };
 
-// YENİ: Müşteri Seçilince İşlerini Getir
 window.onClientChange = function(el) {
     const val = el.value;
     const client = clients.find(c => c.name === val);
@@ -723,9 +752,7 @@ window.onClientChange = function(el) {
     const jobDiv = document.getElementById('div_inc_job');
     
     if(client) {
-        // Müşterinin sessionlarını bul
         const clientSessions = sessions.filter(s => s.cid === client.id);
-        
         if(clientSessions.length > 0) {
             jobDiv.style.display = 'block';
             let opts = `<option value="">Seçiniz...</option>`;
@@ -735,7 +762,6 @@ window.onClientChange = function(el) {
             });
             jobSelect.innerHTML = opts;
         } else {
-             // İş yoksa sadece isimle doldur
              jobDiv.style.display = 'none';
              document.getElementById('f_desc').value = `${client.name} - Ödeme (Tel: ${client.phone})`;
         }
@@ -744,7 +770,6 @@ window.onClientChange = function(el) {
     }
 }
 
-// YENİ: İş Seçilince Açıklamayı Doldur
 window.autoFillJobDesc = function() {
     const clientName = document.getElementById('f_inc_client').value;
     const client = clients.find(c => c.name === clientName);
@@ -759,7 +784,6 @@ window.autoFillJobDesc = function() {
     }
 }
 
-// SUBMITS
 window.subAuth = async function(id) {
   const c=clients.find(x=>x.id===id); c.username=v('f_user'); c.password=v('f_pass');
   await persistOne('clients',c); closeModal(); render('client-auth');
@@ -782,63 +806,40 @@ window.subPanelMgmt = async function(id) {
 window.subSession = async function(id) {
   const cName = v('f_cname');
   if(!cName) { showToast('Müşteri adı gerekli!','error'); return; }
-  
   let cid;
   const existingClient = clients.find(c => c.name.toLowerCase() === cName.toLowerCase());
   
   const total = Number(v('f_total'));
   const paid = Number(v('f_paid'));
-  
-  // Formdan verileri al
+
   const date = v('f_date');
   const time = v('f_time');
   const pkg = v('f_pkg');
   const loc = v('f_loc');
   const desc = v('f_desc');
 
-  // Müşteriye eklenecek session özeti (Müşteri panelinde görünmesi için)
   const sessionSummary = {
-    date: date,
-    time: time,
-    pkg: pkg,
-    loc: loc,
-    status: 'Planlanıyor' // Varsayılan durum
+    date: date, time: time, pkg: pkg, loc: loc, status: 'Planlanıyor'
   };
   
   if (existingClient) { 
     cid = existingClient.id;
-    // YENİ EKLENEN KISIM: Bakiyeyi güncelle VE Session detaylarını müşteri kartına işle
     existingClient.total = (existingClient.total || 0) + total;
     existingClient.paid = (existingClient.paid || 0) + paid;
-    existingClient.session = sessionSummary; // <--- BU SATIR EKSİKTİ
-    
+    existingClient.session = sessionSummary;
     await persistOne('clients', existingClient);
   } else {
     cid = uid();
-    // Yeni müşteri oluştururken de session bilgisini ekliyoruz
-    const newClient = { 
-        id: cid, 
-        name: cName, 
-        phone: v('f_cphone'), 
-        type: 'Genel', 
-        total: total, 
-        paid: paid,
-        session: sessionSummary // <--- BU SATIR EKSİKTİ
-    };
+    const newClient = { id: cid, name: cName, phone: v('f_cphone'), type: 'Genel', total: total, paid: paid, session: sessionSummary };
     await persistOne('clients', newClient, true);
     clients.push(newClient);
   }
   
-  // Sessions koleksiyonuna kayıt (Admin tarafındaki çekimler listesi için)
   const obj = { id: id||uid(), cid: cid, date: date, time: time, total: total, paid: paid, pkg: pkg, loc: loc, desc: desc, status: 'upcoming' };
   
-  if(id){ 
-      const i=sessions.findIndex(x=>x.id===id); 
-      sessions[i]={...sessions[i],...obj}; 
-      await persistOne('sessions',sessions[i]); 
-  } else { 
-    sessions.push(obj); 
-    await persistOne('sessions',obj,true); 
+  if(id){ const i=sessions.findIndex(x=>x.id===id); sessions[i]={...sessions[i],...obj}; await persistOne('sessions',sessions[i]); }
+  else { 
+    sessions.push(obj); await persistOne('sessions',obj,true); 
     if(paid > 0) {
       const inc = { id: uid(), date: date, desc: `${cName} - ${pkg} Kapora (Tel: ${existingClient ? existingClient.phone : v('f_cphone')})`, amt: paid, store: 'corlu' };
       incomes.push(inc); await persistOne('incomes', inc, true);
@@ -860,29 +861,23 @@ window.subTask = async function(id) {
   else{tasks.push(obj);await persistOne('tasks',obj,true);} closeModal(); render('tasks');
 }
 
-// !!! ÖNEMLİ GÜNCELLEME: GELİR EKLEME VE BORÇ DÜŞME MANTIĞI !!!
 window.subExpInc = async function(type, id) {
   const arr = type==='expenses' ? expenses : incomes;
   const clientName = (type==='incomes') ? document.getElementById('f_inc_client').value : '';
-  const jobId = (type==='incomes') ? document.getElementById('f_inc_job').value : ''; // Seçilen işin ID'si
+  const jobId = (type==='incomes') ? document.getElementById('f_inc_job').value : ''; 
   const amt = Number(v('f_amt'));
   
   const obj = { id: id || uid(), date: v('f_date'), desc: v('f_desc'), amt: amt, store: v('f_store') };
 
-  // EĞER GELİR İSE VE BİR İŞ SEÇİLDİYSE -> O İŞİN BORCUNDAN VE MÜŞTERİNİN TOPLAM BORCUNDAN DÜŞ
   if(type === 'incomes' && clientName && !id) { 
       const client = clients.find(c => c.name === clientName);
-      
-      // 1. Specific İş Seçildiyse
       if(jobId) {
           const session = sessions.find(s => s.id == jobId);
           if(session) {
-              session.paid = (session.paid || 0) + amt; // İşin ödenen miktarını artır
-              await persistOne('sessions', session); // Kaydet
+              session.paid = (session.paid || 0) + amt;
+              await persistOne('sessions', session); 
           }
       }
-
-      // 2. Müşterinin Genel Toplamını Güncelle
       if(client) {
           client.paid = (client.paid || 0) + amt;
           await persistOne('clients', client);
@@ -892,41 +887,65 @@ window.subExpInc = async function(type, id) {
 
   if(id){ const i=arr.findIndex(x=>x.id===id); arr[i]={...arr[i],...obj}; await persistOne(type,arr[i]); }
   else{ arr.push(obj); await persistOne(type,obj,true); } 
-  
-  closeModal(); 
-  render(cur);
+  closeModal(); render(cur);
 }
 
-window.openPrintContract = function(id) {
+// ─── YENİ SÖZLEŞME YAZDIRMA (MODAL) FONKSİYONU ───
+window.viewContractForPrint = function(id) {
   const c = contracts.find(x => x.id === id);
+  if(!c) return;
+
   const client = clients.find(x => x.id === c.cid) || {};
   const remaining = c.total - c.paid;
-  const content = `
-    <div class="print-row"><span class="print-label">Müşteri Adı:</span><span class="print-val">${client.name}</span></div>
-    <div class="print-row"><span class="print-label">Telefon:</span><span class="print-val">${client.phone || ''}</span></div>
-    <div class="print-row"><span class="print-label">Tarih:</span><span class="print-val">${fmtDate(c.date)}</span></div>
-    <div class="print-box">
-      <div class="print-title">Hizmet Detayları</div>
-      <p>${c.terms.replace(/\n/g, '<br>')}</p>
+  const dateStr = new Date(c.date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  const htmlContent = `
+    <div class="ct-header">
+        <div class="ct-logo">PASOVART<span>Prodüksiyon</span></div>
+        <div style="font-size:12px; color:#555">${dateStr}</div>
     </div>
-    <div class="print-box">
-      <div class="print-title">Ödeme Tablosu</div>
-      <div class="print-row"><span class="print-label">Toplam Tutar:</span><span class="print-val">₺${fm(c.total)}</span></div>
-      <div class="print-row"><span class="print-label">Alınan Kapora:</span><span class="print-val">₺${fm(c.paid)}</span></div>
-      <div class="print-row"><span class="print-label">Kalan Bakiye:</span><span class="print-val">₺${fm(remaining)}</span></div>
+
+    <div class="ct-row"><span class="ct-lbl">Müşteri Adı:</span><span class="ct-val">${client.name}</span></div>
+    <div class="ct-row"><span class="ct-lbl">Telefon:</span><span class="ct-val">${client.phone || '-'}</span></div>
+
+    <div class="ct-box">
+        <div class="ct-title">Hizmet Detayları</div>
+        <div class="ct-text">${(c.terms || '').replace(/\n/g, '<br>')}</div>
     </div>
-    <div style="font-size:12px; text-align:justify; margin-top:20px;">
-      İşbu sözleşme taraflar arasında yukarıda belirtilen şartlar dahilinde düzenlenmiştir.
-      Hizmet alan kişi, çekim tarihinden en geç 3 gün öncesine kadar iptal hakkına sahiptir. 
-      Kapora iadesi mücbir sebepler dışında yapılmamaktadır.
+
+    <div class="ct-box">
+        <div class="ct-title">Ödeme Tablosu</div>
+        <div class="ct-row"><span class="ct-lbl">Toplam Tutar:</span><span class="ct-val">₺${Number(c.total).toLocaleString('tr-TR')}</span></div>
+        <div class="ct-row"><span class="ct-lbl">Alınan Kapora:</span><span class="ct-val">₺${Number(c.paid).toLocaleString('tr-TR')}</span></div>
+        <div class="ct-row"><span class="ct-lbl">Kalan Bakiye:</span><span class="ct-val" style="font-weight:800">₺${Number(remaining).toLocaleString('tr-TR')}</span></div>
     </div>
-    <div class="print-signatures">
-      <div class="sig-box">PASOVART Yetkilisi<br><br><br>İmza</div>
-      <div class="sig-box">Müşteri<br><br><br>İmza</div>
+
+    <div style="font-size:11px; color:#555; margin-top:20px; text-align:justify; line-height:1.4">
+        İşbu sözleşme taraflar arasında yukarıda belirtilen şartlar dahilinde düzenlenmiştir.
+        Hizmet alan kişi, çekim tarihinden en geç 3 gün öncesine kadar iptal hakkına sahiptir. 
+        Kapora iadesi mücbir sebepler dışında yapılmamaktadır.
     </div>
   `;
-  document.getElementById('printContent').innerHTML = content;
-  window.print();
+
+  document.getElementById('adminPrintArea').innerHTML = htmlContent;
+  document.getElementById('printModal').style.display = 'block';
+}
+
+window.closePrintModal = function() {
+    document.getElementById('printModal').style.display = 'none';
+}
+
+// Modal dışına tıklayınca kapatma
+window.onclick = function(event) {
+    const modal = document.getElementById('printModal');
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+    // Diğer modal için de kontrol
+    const mo = document.getElementById('mo');
+    if (event.target == mo) {
+        closeModal();
+    }
 }
 
 async function persistOne(col, obj, isNew = false) {
