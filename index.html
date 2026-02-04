@@ -132,7 +132,6 @@ html,body{height:100%;font-family:var(--fn);background:var(--bg);color:var(--txt
 
 .stat-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:14px;margin-bottom:22px}
 .stat{padding:18px 19px;display:flex;align-items:center;gap:15px;cursor:default;}
-/* Stat card click effect for receivables */
 .stat.clickable { cursor:pointer; transition:transform 0.1s; }
 .stat.clickable:active { transform:scale(0.98); }
 
@@ -193,21 +192,14 @@ tr:last-child td{border-bottom:none}
 .click-row { cursor:pointer; transition:background .15s; }
 .click-row:hover { background: #f8fafc; }
 
-/* PRINT STYLES (A4) */
+/* PRINT STYLES */
 @media print {
   @page { margin: 0; size: A4; }
   body * { visibility: hidden; }
   .print-area, .print-area * { visibility: visible; }
-  .print-area {
-    position: absolute; left: 0; top: 0; width: 100%; height: 100%;
-    background: white; color: black; padding: 40px; z-index: 9999;
-  }
-  .print-btn-group { display: none !important; }
+  .print-area { position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: white; color: black; padding: 40px; z-index: 9999; }
 }
-.print-paper {
-  display:none; 
-  background: #fff; padding: 40px; color: #000; font-family: 'Times New Roman', serif;
-}
+.print-paper { display:none; background: #fff; padding: 40px; color: #000; font-family: 'Times New Roman', serif; }
 .print-paper.active { display:block; }
 .print-header { text-align:center; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 30px; }
 .print-logo { font-size: 28px; font-weight: bold; letter-spacing: 2px; }
@@ -423,7 +415,7 @@ function loadAllFromLocal() {
   clients=ld('clients',[]); sessions=ld('sessions',[]); tasks=ld('tasks',[]); contracts=ld('contracts',[]); expenses=ld('expenses',[]); incomes=ld('incomes',[]);
 }
 
-// UI UTILS
+// UTILS
 const uid = () => Date.now() + (Math.random()*9999|0);
 const cn = id => (clients.find(c=>c.id==id)||{}).name||'–';
 const cp = id => (clients.find(c=>c.id==id)||{}).phone||'';
@@ -442,6 +434,15 @@ const I = {
   print:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>`,
   eye: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`
 };
+
+// HELPER: Stage Naming
+function getStageLabel(stage, pkg) {
+    const isWedding = (pkg || "").toLowerCase().includes('düğün');
+    let labels = [];
+    if(isWedding) labels = ["Çekim", "Yedekleme", "Montaj", "Teslimata Hazır", "Teslim Edildi"];
+    else labels = ["Çekim", "Yedekleme", "Düzenleme", "Baskı", "Teslimata Hazır", "Teslim Edildi"];
+    return labels[stage - 1] || `${stage}. Adım`;
+}
 
 // NAV & MOBILE
 window.toggleSub=function(e){ e.preventDefault(); e.currentTarget.classList.toggle('open'); }
@@ -476,11 +477,9 @@ function render(k) {
 
 function rDash() {
   const inc=incomes.reduce((a,i)=>a+i.amt,0), exp=expenses.reduce((a,e)=>a+e.amt,0);
-  // Calculate Total Receivables (Remaining Balance)
   const receivables = clients.reduce((acc, c) => acc + (c.total - c.paid), 0);
-
   const up=sessions.filter(s=>s.status==='upcoming').sort((a,b)=>new Date(a.date)-new Date(b.date));
-  
+   
   return `<div class="stat-grid">
     <div class="card stat"><div class="stat-ico" style="background:#ecfdf5"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div><div><div class="stat-lbl">Toplam Gelir (Kasa)</div><div class="stat-val" style="color:#10b981">₺${fm(inc)}</div></div></div>
     <div class="card stat"><div class="stat-ico" style="background:#fef2f2"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div><div><div class="stat-lbl">Toplam Gider</div><div class="stat-val" style="color:#ef4444">₺${fm(exp)}</div></div></div>
@@ -515,13 +514,16 @@ function rPanelMgmt() {
   <div class="ph"><h2>⚙️ Müşteri Paneli Yönetimi</h2></div>
   <div class="card card-p">
     <div class="tbl-wrap"><table>
-      <thead><tr><th>Müşteri</th><th>Aşama (1-5)</th><th>Borç Durumu</th><th>İşlem</th></tr></thead>
+      <thead><tr><th>Müşteri</th><th>Aşama</th><th>Borç Durumu</th><th>İşlem</th></tr></thead>
       <tbody>
         ${clients.map(c => {
           const debt = (c.total || 0) - (c.paid || 0);
+          const pkg = (c.session && c.session.pkg) ? c.session.pkg : "";
+          const stageLbl = getStageLabel(c.stage || 1, pkg);
+
           return `<tr>
             <td style="font-weight:600">${c.name}</td>
-            <td><span class="badge b-active">${c.stage || 1}. Adım</span></td>
+            <td><span class="badge b-active">${stageLbl}</span></td>
             <td>${debt > 0 ? `<span style="color:var(--red)">₺${fm(debt)} Borç</span>` : '<span style="color:var(--grn)">Ödendi</span>'}</td>
             <td><button class="btn btn-e btn-sm" onclick="openMo('panelMgmt', ${c.id})">${I.set} Yönet</button></td>
           </tr>`
@@ -550,10 +552,8 @@ function rTask() {
 
 function rCont() {
   return `<div class="ph"><h2>📄 Sözleşmeler</h2></div><div class="tbl-wrap"><table><thead><tr><th>Müşteri (Detay)</th><th>Oluşturma</th><th>Bakiye</th><th>İşlem</th></tr></thead><tbody>${contracts.map(c=>{
-    // Find matching session for this contract if possible
     const sess = sessions.find(s => s.cid === c.cid && s.date === c.date) || {};
     const detailAction = sess.id ? `onclick="openSessionDetail(${sess.id})"` : '';
-    
     return `<tr><td style="font-weight:600; cursor:pointer; color:var(--acc);" ${detailAction}>${cn(c.cid)} ${I.eye}</td><td>${fmtDate(c.date)}</td><td>${(c.total-c.paid)>0 ? '<span style="color:var(--red)">Borçlu</span>' : '<span style="color:var(--grn)">Ödendi</span>'}</td><td style="display:flex;gap:5px"><button class="btn btn-e btn-sm" onclick="openPrintContract(${c.id})">${I.print} Yazdır</button><button class="btn btn-d btn-sm" onclick="del('contract',${c.id})">${I.trash}</button></td></tr>`;
   }).join('')}</tbody></table></div>`;
 }
@@ -582,74 +582,44 @@ window.openMo=function(type,editId){
 window.closeModal=function(){document.getElementById('mo').classList.remove('on')}
 const v=id=>(document.getElementById(id)||{}).value||'';
 
-// NEW: OPEN RECEIVABLES LIST
 window.openReceivablesList = function() {
   const indebtedClients = clients.filter(c => (c.total - c.paid) > 0);
-  
-  if(indebtedClients.length === 0) {
-    showToast('Tüm ödemeler alınmış.', 'success');
-    return;
-  }
-
+  if(indebtedClients.length === 0) { showToast('Tüm ödemeler alınmış.', 'success'); return; }
   let html = `<div class="tbl-wrap"><table><thead><tr><th>Müşteri</th><th>Telefon</th><th>Hizmet/Etkinlik</th><th>Kalan Tutar</th></tr></thead><tbody>`;
-  
   indebtedClients.forEach(c => {
-    // Find related session or package info if available
     let pkgInfo = '-';
     if(c.session && c.session.pkg) pkgInfo = c.session.pkg; 
-    // If no session attached to client directly, search in sessions array
-    else {
-      const s = sessions.find(sess => sess.cid === c.id);
-      if(s) pkgInfo = s.pkg;
-    }
-
+    else { const s = sessions.find(sess => sess.cid === c.id); if(s) pkgInfo = s.pkg; }
     const remaining = c.total - c.paid;
-    
-    html += `<tr>
-      <td style="font-weight:600">${c.name}</td>
-      <td>${c.phone}</td>
-      <td style="font-size:12px; color:var(--txt2)">${pkgInfo}</td>
-      <td style="font-weight:700; color:var(--red)">₺${fm(remaining)}</td>
-    </tr>`;
+    html += `<tr><td style="font-weight:600">${c.name}</td><td>${c.phone}</td><td style="font-size:12px; color:var(--txt2)">${pkgInfo}</td><td style="font-weight:700; color:var(--red)">₺${fm(remaining)}</td></tr>`;
   });
-
   html += `</tbody></table></div>`;
-  
   document.getElementById('moTitle').textContent = 'Alacak Listesi';
   document.getElementById('moBody').innerHTML = html;
   document.getElementById('mo').classList.add('on');
 }
 
-
-// NEW: FULL DETAIL VIEW FUNCTION
 window.openSessionDetail = function(id) {
   const s = sessions.find(x => x.id === id);
   if(!s) return;
   const c = clients.find(x => x.id === s.cid) || {};
-  
   const content = `
     <div style="padding-bottom:10px; border-bottom:1px solid #e2e8f0; margin-bottom:15px; text-align:center;">
        <div style="font-size:18px; font-weight:800; color:var(--txt)">${c.name}</div>
        <div style="font-size:14px; color:var(--acc); font-weight:600; margin-top:4px;">${s.pkg}</div>
     </div>
-    
     <div class="det-row"><div class="det-lbl">Telefon</div><div class="det-val">${c.phone || '-'}</div></div>
     <div class="det-row"><div class="det-lbl">Tarih</div><div class="det-val">${fmtDate(s.date)}</div></div>
     <div class="det-row"><div class="det-lbl">Saat</div><div class="det-val">${s.time || '-'}</div></div>
     <div class="det-row"><div class="det-lbl">Mekan/Konum</div><div class="det-val">${s.loc || '-'}</div></div>
-    
     <div style="background:#f8fafc; padding:12px; border-radius:8px; margin:15px 0;">
       <div class="det-row" style="margin-bottom:6px; border:none;"><div class="det-lbl">Toplam Tutar</div><div class="det-val">₺${fm(s.total)}</div></div>
       <div class="det-row" style="margin-bottom:6px; border:none;"><div class="det-lbl">Ödenen</div><div class="det-val" style="color:var(--grn)">₺${fm(s.paid)}</div></div>
       <div class="det-row" style="margin-bottom:0; border:none;"><div class="det-lbl">Kalan</div><div class="det-val" style="color:var(--red)">₺${fm(s.total - s.paid)}</div></div>
     </div>
-
     <div style="font-size:12px; font-weight:700; color:var(--txt3); margin-bottom:5px; text-transform:uppercase;">Notlar / Açıklama</div>
-    <div style="font-size:14px; color:var(--txt2); line-height:1.5; background:#fff; border:1px solid #e2e8f0; padding:10px; border-radius:8px;">
-      ${s.desc || 'Not girilmemiş.'}
-    </div>
+    <div style="font-size:14px; color:var(--txt2); line-height:1.5; background:#fff; border:1px solid #e2e8f0; padding:10px; border-radius:8px;">${s.desc || 'Not girilmemiş.'}</div>
   `;
-  
   document.getElementById('moTitle').textContent = 'Çekim Detayları';
   document.getElementById('moBody').innerHTML = content;
   document.getElementById('mo').classList.add('on');
@@ -662,15 +632,42 @@ const moForms={
   },
   panelMgmt:(id)=>{
     const c = clients.find(x=>x.id===id);
-    const s = c.session || {}; // Müşteriye ait session verisi
+    const s = c.session || {}; 
+    
+    // YENİ: Paket ismine göre seçenekleri belirle
+    const pkgName = (s.pkg || "").toLowerCase();
+    const isWedding = pkgName.includes("düğün");
+    let stageOptions = "";
+    
+    if(isWedding) {
+        // Düğün Akışı (5 Adım)
+        const steps = ["Çekim", "Yedekleme", "Montaj", "Teslimata Hazır", "Teslim Edildi"];
+        stageOptions = steps.map((label, i) => {
+            const val = i + 1;
+            const sel = c.stage == val ? 'selected' : '';
+            return `<option value="${val}" ${sel}>${val}. ${label}</option>`;
+        }).join('');
+    } else {
+        // Standart Akış (6 Adım - Dış Çekim vb.)
+        const steps = ["Çekim", "Yedekleme", "Düzenleme", "Baskı", "Teslimata Hazır", "Teslim Edildi"];
+        stageOptions = steps.map((label, i) => {
+            const val = i + 1;
+            const sel = c.stage == val ? 'selected' : '';
+            return `<option value="${val}" ${sel}>${val}. ${label}</option>`;
+        }).join('');
+    }
+
     return `
       <div class="fg"><label>Müşteri</label><input type="text" value="${c.name}" disabled style="background:#e2e8f0; font-weight:bold"/></div>
       
       <div class="section-title">Finansal Durum</div>
       <div class="fr"><div class="fg"><label>Anlaşma Tutarı (₺)</label><input type="number" id="pm_total" value="${c.total||0}"/></div><div class="fg"><label>Ödenen Tutar (₺)</label><input type="number" id="pm_paid" value="${c.paid||0}"/></div></div>
       
-      <div class="section-title">İş Akışı (1-5)</div>
-      <div class="fg"><label>Mevcut Aşama</label><select id="pm_stage"><option value="1" ${c.stage==1?'selected':''}>1. Çekim</option><option value="2" ${c.stage==2?'selected':''}>2. Yedekleme</option><option value="3" ${c.stage==3?'selected':''}>3. Düzenleme</option><option value="4" ${c.stage==4?'selected':''}>4. Baskı</option><option value="5" ${c.stage==5?'selected':''}>5. Teslimat</option></select></div>
+      <div class="section-title">İş Akışı (Durum Güncelle)</div>
+      <div class="fg">
+        <label>Mevcut Aşama (${isWedding ? 'Düğün Paketi' : 'Standart Paket'})</label>
+        <select id="pm_stage">${stageOptions}</select>
+      </div>
 
       <div class="section-title">Çekim Detayları (Müşteri Görünümü)</div>
       <div class="fr">
@@ -722,12 +719,9 @@ window.subAuth = async function(id) {
 }
 window.subPanelMgmt = async function(id) {
   const c = clients.find(x=>x.id===id);
-  // Finansal Güncelleme
   c.total = Number(v('pm_total')); 
   c.paid = Number(v('pm_paid')); 
-  c.stage = Number(v('pm_stage'));
-  
-  // Çekim Detayları Güncelleme (Müşteri Paneli İçin)
+  c.stage = Number(v('pm_stage')); // Bu kısım artık dinamik seçilen değeri alır
   c.session = {
     date: v('pm_date'),
     time: v('pm_time'),
@@ -735,19 +729,14 @@ window.subPanelMgmt = async function(id) {
     loc: v('pm_loc'),
     status: v('pm_status') || 'Planlanıyor'
   };
-
   await persistOne('clients', c); closeModal(); render('panel-mgmt');
 }
 
-// SESSION SAVING WITH AUTOMATION (AUTO-INCOME & AUTO-CONTRACT)
 window.subSession = async function(id) {
   const cName = v('f_cname');
   if(!cName) { showToast('Müşteri adı gerekli!','error'); return; }
-  
   let cid;
   const existingClient = clients.find(c => c.name.toLowerCase() === cName.toLowerCase());
-  
-  // 1. Müşteri Kontrol / Oluşturma
   if (existingClient) { cid = existingClient.id; } 
   else {
     cid = uid();
@@ -755,38 +744,22 @@ window.subSession = async function(id) {
     await persistOne('clients', newClient, true);
     clients.push(newClient);
   }
-
   const date = v('f_date');
   const total = Number(v('f_total'));
   const paid = Number(v('f_paid'));
   const desc = v('f_desc');
   const pkg = v('f_pkg');
-
-  const obj = {
-    id: id||uid(), cid: cid, date: date, time: v('f_time'),
-    total: total, paid: paid, pkg: pkg, loc: v('f_loc'), desc: desc, status: 'upcoming'
-  };
-
-  // 2. Session Kaydetme
+  const obj = { id: id||uid(), cid: cid, date: date, time: v('f_time'), total: total, paid: paid, pkg: pkg, loc: v('f_loc'), desc: desc, status: 'upcoming' };
   if(id){ const i=sessions.findIndex(x=>x.id===id); sessions[i]={...sessions[i],...obj}; await persistOne('sessions',sessions[i]); }
   else { 
     sessions.push(obj); await persistOne('sessions',obj,true); 
-    
-    // YENİ KAYIT İŞLEMLERİ (OTOMASYON)
-    // A. Otomatik Gelir Ekleme (Eğer kapora varsa)
     if(paid > 0) {
-      const inc = { id: uid(), date: date, desc: `${cName} - Kapora / Ön Ödeme`, amt: paid, store: 'corlu' }; // Varsayılan Şube
+      const inc = { id: uid(), date: date, desc: `${cName} - Kapora / Ön Ödeme`, amt: paid, store: 'corlu' };
       incomes.push(inc); await persistOne('incomes', inc, true);
     }
-
-    // B. Otomatik Sözleşme Oluşturma
-    const cont = {
-      id: uid(), cid: cid, date: date, total: total, paid: paid, status: 'pending',
-      terms: `Hizmet: ${pkg} \nLokasyon: ${v('f_loc')} \nNotlar: ${desc}`
-    };
+    const cont = { id: uid(), cid: cid, date: date, total: total, paid: paid, status: 'pending', terms: `Hizmet: ${pkg} \nLokasyon: ${v('f_loc')} \nNotlar: ${desc}` };
     contracts.push(cont); await persistOne('contracts', cont, true);
   }
-  
   closeModal(); render('sessions');
 }
 
@@ -807,12 +780,10 @@ window.subExpInc = async function(type, id) {
   else{arr.push(obj);await persistOne(type,obj,true);} closeModal(); render(cur);
 }
 
-// PRINT FUNCTION
 window.openPrintContract = function(id) {
   const c = contracts.find(x => x.id === id);
   const client = clients.find(x => x.id === c.cid) || {};
   const remaining = c.total - c.paid;
-  
   const content = `
     <div class="print-row"><span class="print-label">Müşteri Adı:</span><span class="print-val">${client.name}</span></div>
     <div class="print-row"><span class="print-label">Telefon:</span><span class="print-val">${client.phone || ''}</span></div>
