@@ -543,17 +543,17 @@ function rPanelMgmt() {
   <div class="ph"><h2>⚙️ Müşteri Paneli Yönetimi</h2></div>
   <div class="card card-p">
     <div class="tbl-wrap"><table>
-      <thead><tr><th>Müşteri</th><th>Aşama</th><th>Borç Durumu</th><th>İşlem</th></tr></thead>
+      <thead><tr><th>Müşteri</th><th>Aşama</th><th>Durum Yazısı (Panelde)</th><th>İşlem</th></tr></thead>
       <tbody>
         ${clients.map(c => {
-          const debt = (c.total || 0) - (c.paid || 0);
           const pkg = (c.session && c.session.pkg) ? c.session.pkg : "";
           const stageLbl = getStageLabel(c.stage || 1, pkg);
+          const currentStatus = (c.session && c.session.status) ? c.session.status : 'Planlanıyor';
 
           return `<tr>
             <td style="font-weight:600">${c.name}</td>
             <td><span class="badge b-active">${stageLbl}</span></td>
-            <td>${debt > 0 ? `<span style="color:var(--red)">₺${fm(debt)} Borç</span>` : '<span style="color:var(--grn)">Ödendi</span>'}</td>
+            <td><span style="font-size:12px; color:var(--txt2); font-weight:600">${currentStatus}</span></td>
             <td>
               <button class="btn btn-e btn-sm" onclick="openMo('panelMgmt', ${c.id})">${I.set} Yönet</button>
               <button class="btn btn-d btn-sm" onclick="del('client', '${c.id}')" style="margin-left:5px">${I.trash}</button>
@@ -582,12 +582,10 @@ function rTask() {
   return `<div class="ph"><h2>📌 Görevler</h2><button class="btn btn-p" onclick="openMo('task')">${I.plus} Yeni</button></div><div class="kanban">${cols.map(col => { const its=tasks.filter(t=>t.status===col.k); return `<div class="kb-col"><div class="kb-head"><strong style="color:${col.c}">${col.l}</strong><span style="font-size:11px;padding:2px 8px;border-radius:10px;background:${col.c}1a;color:${col.c}">${its.length}</span></div><div class="kb-cards">${its.map(t=>`<div class="kb-card"><div style="display:flex;justify-content:space-between;font-weight:600;font-size:13px">${t.title}</div>${t.desc?`<div style="font-size:11px;color:var(--txt2);margin-top:4px;line-height:1.4">${t.desc}</div>`:''}<div style="font-size:10px;color:var(--txt3);margin-top:6px;font-weight:700">${fmtDate(t.due)}</div><div style="margin-top:8px;display:flex;gap:5px"><button class="btn btn-e btn-sm" onclick="openMo('task',${t.id})">${I.edit}</button><button class="btn btn-d btn-sm" onclick="del('task',${t.id})">${I.trash}</button></div></div>`).join('')}</div></div>`; }).join('')}</div>`;
 }
 
-// ─── GÜNCELLENEN SÖZLEŞMELER BÖLÜMÜ ───
 function rCont() {
   return `<div class="ph"><h2>📄 Sözleşmeler</h2></div><div class="tbl-wrap"><table><thead><tr><th>Müşteri (Detay)</th><th>Oluşturma</th><th>Bakiye</th><th>İşlem</th></tr></thead><tbody>${contracts.map(c=>{
     const sess = sessions.find(s => s.cid === c.cid && s.date === c.date) || {};
     const detailAction = sess.id ? `onclick="openSessionDetail(${sess.id})"` : '';
-    // YAZDIR BUTONU GÜNCELLENDİ -> viewContractForPrint
     return `<tr><td style="font-weight:600; cursor:pointer; color:var(--acc);" ${detailAction}>${cn(c.cid)} ${I.eye}</td><td>${fmtDate(c.date)}</td><td>${(c.total-c.paid)>0 ? '<span style="color:var(--red)">Borçlu</span>' : '<span style="color:var(--grn)">Ödendi</span>'}</td><td style="display:flex;gap:5px"><button class="btn btn-e btn-sm" onclick="viewContractForPrint(${c.id})">${I.print} Yazdır</button><button class="btn btn-d btn-sm" onclick="del('contract',${c.id})">${I.trash}</button></td></tr>`;
   }).join('')}</tbody></table></div>`;
 }
@@ -691,11 +689,16 @@ const moForms={
       <div class="fr"><div class="fg"><label>Anlaşma Tutarı (₺)</label><input type="number" id="pm_total" value="${c.total||0}"/></div><div class="fg"><label>Ödenen Tutar (₺)</label><input type="number" id="pm_paid" value="${c.paid||0}"/></div></div>
       <div class="section-title">İş Akışı (Durum Güncelle)</div>
       <div class="fg"><label>Mevcut Aşama (${isWedding ? 'Düğün Paketi' : 'Standart Paket'})</label><select id="pm_stage">${stageOptions}</select></div>
+      
+      <div class="fg" style="border:1px solid #e2e8f0; padding:10px; border-radius:8px; background:#f8fafc; margin-bottom:15px;">
+        <label style="color:var(--acc); font-weight:700">Müşteri Panelinde Görünen Durum Yazısı</label>
+        <input type="text" id="pm_status" value="${s.status || ''}" placeholder="Örn: Hazırlanıyor, Kargolandı, Beklemede..." style="background:#fff"/>
+      </div>
+
       <div class="section-title">Çekim Detayları (Müşteri Görünümü)</div>
       <div class="fr"><div class="fg"><label>Tarih</label><input type="date" id="pm_date" value="${s.date||''}"/></div><div class="fg"><label>Saat</label><input type="time" id="pm_time" value="${s.time||''}"/></div></div>
       <div class="fg"><label>Paket Adı</label><input type="text" id="pm_pkg" value="${s.pkg||''}"/></div>
       <div class="fg"><label>Konum</label><input type="text" id="pm_loc" value="${s.loc||''}"/></div>
-      <div class="fg"><label>Durum Yazısı (Örn: Planlanıyor)</label><input type="text" id="pm_status" value="${s.status||'Planlanıyor'}"/></div>
       <button class="btn btn-p f-sub" onclick="subPanelMgmt(${id})">Bilgileri Güncelle</button>
     `;
   },
@@ -798,7 +801,7 @@ window.subPanelMgmt = async function(id) {
     time: v('pm_time'),
     pkg: v('pm_pkg'),
     loc: v('pm_loc'),
-    status: v('pm_status') || 'Planlanıyor'
+    status: v('pm_status') || 'Planlanıyor' // YENİ: Burası artık serbest yazı
   };
   await persistOne('clients', c); closeModal(); render('panel-mgmt');
 }
@@ -901,7 +904,7 @@ window.viewContractForPrint = function(id) {
 
   const htmlContent = `
     <div class="ct-header">
-        <div class="ct-logo">PASOVART<span>-photography-medya-film</span></div>
+        <div class="ct-logo">PASOVART<span>Prodüksiyon</span></div>
         <div style="font-size:12px; color:#555">${dateStr}</div>
     </div>
 
