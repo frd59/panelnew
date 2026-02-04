@@ -132,6 +132,7 @@ html,body{height:100%;font-family:var(--fn);background:var(--bg);color:var(--txt
 
 .stat-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:14px;margin-bottom:22px}
 .stat{padding:18px 19px;display:flex;align-items:center;gap:15px;cursor:default;}
+/* Stat card click effect for receivables */
 .stat.clickable { cursor:pointer; transition:transform 0.1s; }
 .stat.clickable:active { transform:scale(0.98); }
 
@@ -157,6 +158,9 @@ tr:last-child td{border-bottom:none}
 .kb-head{display:flex;align-items:center;gap:8px;margin-bottom:12px}
 .kb-cards{display:flex;flex-direction:column;gap:9px}
 .kb-card{background:var(--card);border-radius:11px;padding:13px;box-shadow:0 2px 8px rgba(0,0,0,.05);border:1px solid var(--bdr)}
+
+/* TRASH CHECKBOX */
+.trash-check { width:18px; height:18px; cursor:pointer; accent-color: var(--red); }
 
 /* MOBILE */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:15;opacity:0;pointer-events:none;transition:opacity .3s}
@@ -192,61 +196,37 @@ tr:last-child td{border-bottom:none}
 .click-row { cursor:pointer; transition:background .15s; }
 .click-row:hover { background: #f8fafc; }
 
-/* ─── YENİ SÖZLEŞME VE PRINT MODAL STİLLERİ ─── */
-.print-modal {
-    display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%;
-    overflow: auto; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
-}
-.print-modal-content {
-    background-color: #fff; margin: 3% auto; padding: 30px; border-radius: 16px;
-    width: 90%; max-width: 800px; box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-    position: relative;
-}
-.close-print-btn {
-    position: absolute; top: 15px; right: 20px; color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; z-index: 10;
-}
-.close-print-btn:hover { color: #000; }
-
-/* Sözleşme İçerik Stilleri (Admin) */
-.ct-print-area { padding: 10px; }
-.ct-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #000; padding-bottom: 15px; margin-bottom: 20px; }
-.ct-logo { font-size: 20px; font-weight: 800; color: #000; }
-.ct-logo span { display: block; font-size: 12px; font-weight: 500; color: #555; }
-
-.ct-row { display: flex; justify-content: space-between; border-bottom: 1px dashed #ccc; padding-bottom: 8px; margin-bottom: 8px; }
-.ct-row:last-child { border-bottom: none; }
-
-.ct-lbl { color: #555; font-size: 13px; font-weight: 700; width: 40%; }
-.ct-val { color: #000; font-size: 14px; font-weight: 600; text-align: right; width: 60%; }
-
-.ct-box { border: 1px solid #000; padding: 15px; margin-top: 20px; }
-.ct-title { font-size: 14px; font-weight: 800; color: #000; margin-bottom: 10px; text-transform: uppercase; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
-.ct-text { font-size: 13px; color: #000; line-height: 1.6; white-space: pre-line; text-align: justify; }
-
-/* Print Butonu */
-.admin-print-btn {
-    display: block; width: 100%; background: var(--sb); color: #fff; padding: 12px; 
-    border: none; border-radius: 10px; font-weight: 700; cursor: pointer; margin-top: 20px;
-}
-.admin-print-btn:hover { background: var(--sb2); }
-
-/* Print Media Query */
+/* PRINT STYLES (A4) */
 @media print {
-    body * { visibility: hidden; }
-    .print-modal { position: absolute; left: 0; top: 0; width: 100%; height: auto; background: #fff; overflow: visible; display: block !important; }
-    .print-modal-content { box-shadow: none; margin: 0; width: 100%; max-width: 100%; padding: 0; }
-    .ct-print-area, .ct-print-area * { visibility: visible; }
-    .ct-print-area { position: absolute; left: 0; top: 0; width: 100%; }
-    .admin-print-btn, .close-print-btn { display: none !important; }
+  @page { margin: 0; size: A4; }
+  body * { visibility: hidden; }
+  .print-area, .print-area * { visibility: visible; }
+  .print-area {
+    position: absolute; left: 0; top: 0; width: 100%; height: 100%;
+    background: white; color: black; padding: 40px; z-index: 9999;
+  }
+  .print-btn-group { display: none !important; }
 }
+.print-paper {
+  display:none; 
+  background: #fff; padding: 40px; color: #000; font-family: 'Times New Roman', serif;
+}
+.print-paper.active { display:block; }
+.print-header { text-align:center; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 30px; }
+.print-logo { font-size: 28px; font-weight: bold; letter-spacing: 2px; }
+.print-sub { font-size: 14px; margin-top: 5px; color: #555; }
+.print-row { display:flex; justify-content: space-between; margin-bottom: 15px; }
+.print-label { font-weight: bold; width: 150px; }
+.print-val { flex: 1; border-bottom: 1px dotted #999; }
+.print-box { border: 1px solid #000; padding: 15px; margin: 20px 0; }
+.print-title { font-weight: bold; font-size: 16px; margin-bottom: 10px; text-decoration: underline; }
+.print-signatures { display: flex; justify-content: space-between; margin-top: 80px; }
+.sig-box { width: 40%; text-align: center; border-top: 1px solid #000; padding-top: 10px; }
 
 .toast{position:fixed;bottom:24px;right:24px;z-index:1001;background:var(--txt);color:#fff;padding:12px 20px;border-radius:12px;font:500 14px var(--fn);opacity:0;transform:translateY(12px);transition:all .3s;pointer-events:none;max-width:320px}
 .toast.on{opacity:1;transform:translateY(0)}
 .toast.success{background:var(--grn)}
 .toast.error{background:var(--red)}
-
-/* Checkbox Style for Trash */
-.chk-custom { width:18px; height:18px; cursor:pointer; accent-color:var(--acc); }
 
 /* LOGIN SCREEN */
 .login-screen{position:fixed;inset:0;background:linear-gradient(135deg,var(--sb),var(--sb2));z-index:9999;display:flex;align-items:center;justify-content:center}
@@ -325,12 +305,13 @@ tr:last-child td{border-bottom:none}
       <button class="nav-item" data-tab="store-corlu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>Çorlu</button>
       <button class="nav-item" data-tab="store-ergene"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>Ergene</button>
     </div>
-
-    <button class="nav-item" data-tab="trash" style="margin-top:20px; color:#fca5a5;">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-      Çöp Kutusu
-    </button>
-
+    
+    <div style="margin-top:20px; border-top:1px solid rgba(255,255,255,0.1); padding-top:10px;">
+        <button class="nav-item" data-tab="trash" style="color:#fecaca">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path></svg>
+            Çöp Kutusu
+        </button>
+    </div>
   </nav>
   <div class="sb-footer">
     <span>PASOVART v3.0</span>
@@ -369,13 +350,12 @@ tr:last-child td{border-bottom:none}
   </div>
 </div>
 
-<div id="printModal" class="print-modal">
-    <div class="print-modal-content">
-        <span class="close-print-btn" onclick="closePrintModal()">&times;</span>
-        <div class="ct-print-area" id="adminPrintArea">
-            </div>
-        <button class="admin-print-btn" onclick="window.print()">🖨️ Bu Sayfayı Yazdır</button>
-    </div>
+<div class="print-paper print-area" id="printArea">
+  <div class="print-header">
+    <div class="print-logo">PASOVART</div>
+    <div class="print-sub">Fotoğraf & Video Prodüksiyon Hizmetleri</div>
+  </div>
+  <div id="printContent"></div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -427,12 +407,12 @@ function setStatus(state, txt) {
 }
 
 // DATA
-let clients=[], sessions=[], tasks=[], contracts=[], expenses=[], incomes=[], trashBin=[];
+let clients=[], sessions=[], tasks=[], contracts=[], expenses=[], incomes=[], trash=[];
 async function loadAllFromFirebase() {
   clients = await fbGetAll('clients'); sessions = await fbGetAll('sessions');
   tasks = await fbGetAll('tasks'); contracts = await fbGetAll('contracts');
   expenses = await fbGetAll('expenses'); incomes = await fbGetAll('incomes');
-  trashBin = await fbGetAll('trashBin');
+  trash = await fbGetAll('trash'); // TRASH LOAD
 }
 async function fbGetAll(col) { try { const snap = await _getDocs(_collection(db, col)); return snap.docs.map(d=>({...d.data(),_fbId:d.id})); } catch{return[]} }
 async function fbAdd(col, obj) {
@@ -449,14 +429,15 @@ const sv = () => {
   localStorage.setItem('pf_clients',JSON.stringify(clients)); localStorage.setItem('pf_sessions',JSON.stringify(sessions));
   localStorage.setItem('pf_tasks',JSON.stringify(tasks)); localStorage.setItem('pf_contracts',JSON.stringify(contracts));
   localStorage.setItem('pf_expenses',JSON.stringify(expenses)); localStorage.setItem('pf_incomes',JSON.stringify(incomes));
-  localStorage.setItem('pf_trashBin',JSON.stringify(trashBin));
+  localStorage.setItem('pf_trash',JSON.stringify(trash));
   showToast('Kaydedildi ✓','success');
 };
 function loadAllFromLocal() {
-  clients=ld('clients',[]); sessions=ld('sessions',[]); tasks=ld('tasks',[]); contracts=ld('contracts',[]); expenses=ld('expenses',[]); incomes=ld('incomes',[]); trashBin=ld('trashBin',[]);
+  clients=ld('clients',[]); sessions=ld('sessions',[]); tasks=ld('tasks',[]); contracts=ld('contracts',[]); expenses=ld('expenses',[]); incomes=ld('incomes',[]);
+  trash=ld('trash',[]);
 }
 
-// UTILS
+// UI UTILS
 const uid = () => Date.now() + (Math.random()*9999|0);
 const cn = id => (clients.find(c=>c.id==id)||{}).name||'–';
 const cp = id => (clients.find(c=>c.id==id)||{}).phone||'';
@@ -474,17 +455,8 @@ const I = {
   set:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
   print:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>`,
   eye: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
-  refresh: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>`
+  restore: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>`
 };
-
-// HELPER: Stage Naming
-function getStageLabel(stage, pkg) {
-    const isWedding = (pkg || "").toLowerCase().includes('düğün');
-    let labels = [];
-    if(isWedding) labels = ["Çekim", "Yedekleme", "Montaj", "Teslimata Hazır", "Teslim Edildi"];
-    else labels = ["Çekim", "Yedekleme", "Düzenleme", "Baskı", "Teslimata Hazır", "Teslim Edildi"];
-    return labels[stage - 1] || `${stage}. Adım`;
-}
 
 // NAV & MOBILE
 window.toggleSub=function(e){ e.preventDefault(); e.currentTarget.classList.toggle('open'); }
@@ -522,7 +494,7 @@ function rDash() {
   const inc=incomes.reduce((a,i)=>a+i.amt,0), exp=expenses.reduce((a,e)=>a+e.amt,0);
   const receivables = clients.reduce((acc, c) => acc + (c.total - c.paid), 0);
   const up=sessions.filter(s=>s.status==='upcoming').sort((a,b)=>new Date(a.date)-new Date(b.date));
-   
+  
   return `<div class="stat-grid">
     <div class="card stat"><div class="stat-ico" style="background:#ecfdf5"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div><div><div class="stat-lbl">Toplam Gelir (Kasa)</div><div class="stat-val" style="color:#10b981">₺${fm(inc)}</div></div></div>
     <div class="card stat"><div class="stat-ico" style="background:#fef2f2"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div><div><div class="stat-lbl">Toplam Gider</div><div class="stat-val" style="color:#ef4444">₺${fm(exp)}</div></div></div>
@@ -557,21 +529,15 @@ function rPanelMgmt() {
   <div class="ph"><h2>⚙️ Müşteri Paneli Yönetimi</h2></div>
   <div class="card card-p">
     <div class="tbl-wrap"><table>
-      <thead><tr><th>Müşteri</th><th>Aşama</th><th>Durum Yazısı (Panelde)</th><th>İşlem</th></tr></thead>
+      <thead><tr><th>Müşteri</th><th>Aşama (1-5)</th><th>Borç Durumu</th><th>İşlem</th></tr></thead>
       <tbody>
         ${clients.map(c => {
-          const pkg = (c.session && c.session.pkg) ? c.session.pkg : "";
-          const stageLbl = getStageLabel(c.stage || 1, pkg);
-          const currentStatus = (c.session && c.session.status) ? c.session.status : 'Planlanıyor';
-
+          const debt = (c.total || 0) - (c.paid || 0);
           return `<tr>
             <td style="font-weight:600">${c.name}</td>
-            <td><span class="badge b-active">${stageLbl}</span></td>
-            <td><span style="font-size:12px; color:var(--txt2); font-weight:600">${currentStatus}</span></td>
-            <td>
-              <button class="btn btn-e btn-sm" onclick="openMo('panelMgmt', ${c.id})">${I.set} Yönet</button>
-              <button class="btn btn-d btn-sm" onclick="del('client', '${c.id}')" style="margin-left:5px">${I.trash}</button>
-            </td>
+            <td><span class="badge b-active">${c.stage || 1}. Adım</span></td>
+            <td>${debt > 0 ? `<span style="color:var(--red)">₺${fm(debt)} Borç</span>` : '<span style="color:var(--grn)">Ödendi</span>'}</td>
+            <td><button class="btn btn-e btn-sm" onclick="openMo('panelMgmt', ${c.id})">${I.set} Yönet</button></td>
           </tr>`
         }).join('')}
       </tbody>
@@ -580,7 +546,7 @@ function rPanelMgmt() {
 }
 
 function rCliAuth() {
-  return `<div class="ph"><h2>🔐 Müşteri Giriş Yönetimi</h2></div><div class="card card-p"><div class="tbl-wrap"><table><thead><tr><th>Müşteri</th><th>Kullanıcı Adı</th><th>Durum</th><th>İşlem</th></tr></thead><tbody>${clients.map(c=>`<tr><td style="font-weight:600">${c.name}</td><td>${c.username||'<em style="color:#94a3b8">Yok</em>'}</td><td>${c.username?'<span class="badge b-active">Aktif</span>':'<span class="badge b-pending">Pasif</span>'}</td><td><button class="btn btn-e btn-sm" onclick="openMo('auth',${c.id})">${I.key} Düzenle</button><button class="btn btn-d btn-sm" onclick="del('client', '${c.id}')" style="margin-left:5px">${I.trash}</button></td></tr>`).join('')}</tbody></table></div></div>`;
+  return `<div class="ph"><h2>🔐 Müşteri Giriş Yönetimi</h2></div><div class="card card-p"><div class="tbl-wrap"><table><thead><tr><th>Müşteri</th><th>Kullanıcı Adı</th><th>Durum</th><th>İşlem</th></tr></thead><tbody>${clients.map(c=>`<tr><td style="font-weight:600">${c.name}</td><td>${c.username||'<em style="color:#94a3b8">Yok</em>'}</td><td>${c.username?'<span class="badge b-active">Aktif</span>':'<span class="badge b-pending">Pasif</span>'}</td><td><button class="btn btn-e btn-sm" onclick="openMo('auth',${c.id})">${I.key} Düzenle</button></td></tr>`).join('')}</tbody></table></div></div>`;
 }
 
 function rStore(code) {
@@ -600,7 +566,7 @@ function rCont() {
   return `<div class="ph"><h2>📄 Sözleşmeler</h2></div><div class="tbl-wrap"><table><thead><tr><th>Müşteri (Detay)</th><th>Oluşturma</th><th>Bakiye</th><th>İşlem</th></tr></thead><tbody>${contracts.map(c=>{
     const sess = sessions.find(s => s.cid === c.cid && s.date === c.date) || {};
     const detailAction = sess.id ? `onclick="openSessionDetail(${sess.id})"` : '';
-    return `<tr><td style="font-weight:600; cursor:pointer; color:var(--acc);" ${detailAction}>${cn(c.cid)} ${I.eye}</td><td>${fmtDate(c.date)}</td><td>${(c.total-c.paid)>0 ? '<span style="color:var(--red)">Borçlu</span>' : '<span style="color:var(--grn)">Ödendi</span>'}</td><td style="display:flex;gap:5px"><button class="btn btn-e btn-sm" onclick="viewContractForPrint(${c.id})">${I.print} Yazdır</button><button class="btn btn-d btn-sm" onclick="del('contract',${c.id})">${I.trash}</button></td></tr>`;
+    return `<tr><td style="font-weight:600; cursor:pointer; color:var(--acc);" ${detailAction}>${cn(c.cid)} ${I.eye}</td><td>${fmtDate(c.date)}</td><td>${(c.total-c.paid)>0 ? '<span style="color:var(--red)">Borçlu</span>' : '<span style="color:var(--grn)">Ödendi</span>'}</td><td style="display:flex;gap:5px"><button class="btn btn-e btn-sm" onclick="openPrintContract(${c.id})">${I.print} Yazdır</button><button class="btn btn-d btn-sm" onclick="del('contract',${c.id})">${I.trash}</button></td></tr>`;
   }).join('')}</tbody></table></div>`;
 }
 
@@ -608,247 +574,288 @@ function rSess() { return `<div class="ph"><h2>📷 Çekimler</h2><button class=
 function rCli() { return `<div class="ph"><h2>👤 Müşteriler</h2><button class="btn btn-p" onclick="openMo('client')">${I.plus} Yeni</button></div><div class="cl-grid">${clients.map(c=>`<div class="card cl-card"><div class="cl-head"><div class="cl-ava">${I.edit}</div><div><div style="font-weight:700">${c.name}</div><div style="font-size:12px">${c.phone}</div></div><button class="btn btn-d btn-sm" onclick="del('client',${c.id})">${I.trash}</button></div></div>`).join('')}</div>`; }
 function rFin() { return `<div class="ph"><h2>💰 Gelir / Gider</h2><div style="display:flex;gap:8px"><button class="btn btn-p" onclick="openMo('income')">${I.plus} Gelir</button><button class="btn btn-p" style="background:linear-gradient(135deg,#dc2626,#ef4444);box-shadow:0 2px 8px rgba(239,68,68,.3)" onclick="openMo('expense')">${I.plus} Gider</button></div></div><div class="card card-p"><div class="tbl-wrap"><table><thead><tr><th>Tarih</th><th>Açıklama</th><th>Tutar</th><th>İşlem</th></tr></thead><tbody>${[...incomes.map(i=>({...i,t:'inc'})),...expenses.map(e=>({...e,t:'exp'}))].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,10).map(x=>`<tr><td>${fmtDate(x.date)}</td><td>${x.desc}</td><td style="font-weight:700;color:${x.t==='inc'?'var(--grn)':'var(--red)'}">${x.t==='inc'?'+':'-'}₺${fm(x.amt)}</td><td><button class="btn btn-d btn-sm" onclick="del('${x.t==='inc'?'income':'expense'}',${x.id})">${I.trash}</button></td></tr>`).join('')}</tbody></table></div></div>`; }
 
-// ─── TRASH BIN RENDERER ───
+// TRASH RENDERER
 function rTrash() {
-  const sortedTrash = trashBin.sort((a,b) => new Date(b._delDate) - new Date(a._delDate));
-  
-  return `
-  <div class="ph"><h2>🗑️ Çöp Kutusu</h2>
-    <div style="display:flex; gap:8px;">
-      <button class="btn btn-e" onclick="restoreSelected()">${I.refresh} Seçilenleri Geri Yükle</button>
-      <button class="btn btn-d" onclick="deleteSelected()">${I.trash} Seçilenleri Kalıcı Sil</button>
+    const mapName = {
+        'sessions': 'Çekim', 'clients': 'Müşteri', 'tasks': 'Görev',
+        'contracts': 'Sözleşme', 'expenses': 'Gider', 'incomes': 'Gelir'
+    };
+    return `
+    <div class="ph">
+        <h2>🗑️ Çöp Kutusu</h2>
+        <div style="display:flex;gap:8px">
+            <button class="btn btn-e" onclick="restoreSelected()">${I.restore} Seçilenleri Geri Yükle</button>
+            <button class="btn btn-d" onclick="askPermDelete()">${I.trash} Kalıcı Sil</button>
+        </div>
     </div>
-  </div>
-  <div class="card card-p">
-    <div class="tbl-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th style="width:40px; text-align:center;"><input type="checkbox" class="chk-custom" onchange="toggleAllTrash(this)"></th>
-            <th>Silinen Öğe</th>
-            <th>Türü</th>
-            <th>Silinme Tarihi</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${sortedTrash.length === 0 ? '<tr><td colspan="4" style="text-align:center; padding:20px; color:var(--txt3)">Çöp kutusu boş.</td></tr>' : 
-            sortedTrash.map(item => {
-              let name = '-';
-              if(item.name) name = item.name;
-              else if(item.desc) name = item.desc;
-              else if(item.title) name = item.title;
-              else if(item.pkg) name = item.pkg;
-              
-              const typeLabels = {client:'Müşteri', session:'Çekim', task:'Görev', contract:'Sözleşme', expense:'Gider', income:'Gelir'};
-              const displayType = typeLabels[item._originType] || item._originType;
-
-              return `
-              <tr>
-                <td style="text-align:center;"><input type="checkbox" class="chk-custom trash-chk" value="${item._fbId}"></td>
-                <td style="font-weight:600">${name}</td>
-                <td><span class="badge b-pending">${displayType}</span></td>
-                <td>${fmtDate(item._delDate)}</td>
-              </tr>`;
-            }).join('')
-          }
-        </tbody>
-      </table>
-    </div>
-  </div>
-  `;
+    <div class="card card-p">
+        <div class="tbl-wrap"><table>
+            <thead>
+                <tr>
+                    <th style="width:30px"><input type="checkbox" class="trash-check" onchange="toggleAllTrash(this)"/></th>
+                    <th>Tür</th>
+                    <th>İçerik Detayı</th>
+                    <th>Silinme Tarihi</th>
+                    <th>İşlem</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${trash.length === 0 ? '<tr><td colspan="5" style="text-align:center;color:var(--txt3);padding:20px">Çöp kutusu boş.</td></tr>' : 
+                trash.sort((a,b)=>new Date(b._deletedAt)-new Date(a._deletedAt)).map(t => {
+                    let desc = '-';
+                    if(t.name) desc = t.name;
+                    else if(t.title) desc = t.title;
+                    else if(t.desc) desc = t.desc;
+                    else if(t.pkg) desc = t.pkg;
+                    
+                    return `<tr>
+                        <td><input type="checkbox" class="trash-check trash-item" value="${t.id}"/></td>
+                        <td><span class="badge b-pending">${mapName[t._origin] || t._origin}</span></td>
+                        <td style="font-weight:600">${desc}</td>
+                        <td style="color:var(--txt3);font-size:12px">${fmtDate(t._deletedAt)}</td>
+                        <td style="display:flex;gap:5px">
+                            <button class="btn btn-e btn-sm" onclick="restoreOne('${t.id}')">Geri Al</button>
+                        </td>
+                    </tr>`;
+                }).join('')}
+            </tbody>
+        </table></div>
+    </div>`;
 }
 
-// ─── ACTIONS (UPDATED FOR TRASH) ───
+// BULK ACTIONS UTILS
+window.toggleAllTrash = function(el) {
+    document.querySelectorAll('.trash-item').forEach(c => c.checked = el.checked);
+}
+window.restoreSelected = function() {
+    const ids = Array.from(document.querySelectorAll('.trash-item:checked')).map(c => c.value);
+    if(ids.length === 0) { showToast('Hiçbir kayıt seçilmedi', 'error'); return; }
+    ids.forEach(id => restoreOne(id, false));
+    showToast(`${ids.length} kayıt geri yüklendi`, 'success');
+    render('trash');
+}
+window.restoreOne = async function(id, renderNow=true) {
+    const item = trash.find(x => String(x.id) === String(id));
+    if(!item) return;
+    
+    // Move back to origin
+    const col = item._origin;
+    const restoredItem = { ...item };
+    delete restoredItem._origin;
+    delete restoredItem._deletedAt;
+    
+    // Add to active array
+    eval(col).push(restoredItem);
+    await persistOne(col, restoredItem, true);
+    
+    // Remove from trash
+    if(useFirebase && item._fbId) await fbDelete('trash', item._fbId);
+    trash = trash.filter(x => String(x.id) !== String(id));
+    if(!useFirebase) sv();
+    
+    if(renderNow) { showToast('Geri yüklendi', 'success'); render('trash'); }
+}
 
-// Soft Delete: Move to Trash
+// PERMANENT DELETE LOGIC
+window.askPermDelete = function() {
+    const ids = Array.from(document.querySelectorAll('.trash-item:checked')).map(c => c.value);
+    if(ids.length === 0) { showToast('Hiçbir kayıt seçilmedi', 'error'); return; }
+    
+    // Show password modal
+    openMo('permDeleteAuth', ids.join(','));
+}
+
+window.checkPermDelete = async function() {
+    const pass = v('pd_pass');
+    if(pass !== '1453') {
+        showToast('Hatalı Şifre!', 'error');
+        return;
+    }
+    
+    const rawIds = document.getElementById('pd_ids').value;
+    const ids = rawIds.split(',');
+    
+    // Execute deletion
+    for(const id of ids) {
+        const item = trash.find(x => String(x.id) === String(id));
+        if(item) {
+            if(useFirebase && item._fbId) await fbDelete('trash', item._fbId);
+            trash = trash.filter(x => String(x.id) !== String(id));
+        }
+    }
+    if(!useFirebase) sv();
+    
+    closeModal();
+    showToast('Seçilenler kalıcı olarak silindi.', 'success');
+    render('trash');
+}
+
+// MODIFIED DELETE ACTION (SOFT DELETE)
 window.del = async function(type, id) {
   const map={session:'sessions',client:'clients',task:'tasks',contract:'contracts',expense:'expenses',income:'incomes'};
   const col=map[type];
-  const item = eval(col).find(x=>x.id===id);
+  const item=eval(col).find(x=>x.id===id);
   
   if(!item) return;
-
-  if(!confirm('Bu öğeyi çöp kutusuna taşımak istediğinize emin misiniz?')) return;
-
-  // Add metadata for trash
-  const trashItem = { ...item, _originType: type, _originCol: col, _delDate: new Date().toISOString() };
   
-  // 1. Add to TrashBin in Firebase
-  await fbAdd('trashBin', trashItem);
+  // 1. Create Trash Object
+  const trashItem = { ...item, _origin: col, _deletedAt: new Date().toISOString() };
+  // New ID for trash collection specifically if using FB to avoid conflict
+  if(useFirebase) trashItem._fbId = null; 
   
-  // 2. Remove from Original Collection in Firebase
+  // 2. Add to Trash
+  trash.push(trashItem);
+  await persistOne('trash', trashItem, true);
+  
+  // 3. Delete from Original
   if(useFirebase && item._fbId) await fbDelete(col, item._fbId);
+  eval(`${col}=${col}.filter(x=>x.id!==${id})`); 
   
-  // 3. Update Local State
-  trashBin.push(trashItem);
-  eval(`${col}=${col}.filter(x=>x.id!==${id})`);
+  if(!useFirebase) sv(); 
   
-  if(!useFirebase) sv();
-  
+  showToast('Çöp kutusuna taşındı', 'success');
   render(cur);
-  showToast('Öğe çöp kutusuna taşındı', 'success');
-}
-
-// Trash: Toggle All Checkboxes
-window.toggleAllTrash = function(el) {
-  document.querySelectorAll('.trash-chk').forEach(chk => chk.checked = el.checked);
-}
-
-// Trash: Restore Selected
-window.restoreSelected = async function() {
-  const selected = Array.from(document.querySelectorAll('.trash-chk:checked')).map(cb => cb.value);
-  if(selected.length === 0) { showToast('Lütfen seçim yapın.', 'error'); return; }
-
-  for(let fbId of selected) {
-    const item = trashBin.find(x => x._fbId === fbId);
-    if(item) {
-      const originalCol = item._originCol;
-      // Clean up metadata
-      const restoreItem = { ...item };
-      delete restoreItem._originType;
-      delete restoreItem._originCol;
-      delete restoreItem._delDate;
-      delete restoreItem._fbId; // New ID will be generated or use existing ID logic
-
-      // Restore to original collection
-      await fbAdd(originalCol, restoreItem);
-      // Remove from trash
-      await fbDelete('trashBin', fbId);
-
-      // Local update
-      // We need to reload to be safe or manually push. Reloading logic is safer for consistency here.
-      if(!useFirebase) {
-         trashBin = trashBin.filter(x => x._fbId !== fbId);
-         // Push to local array
-         eval(`${originalCol}.push(restoreItem)`);
-         sv();
-      }
-    }
-  }
-  
-  if(useFirebase) await loadAllFromFirebase(); // Refresh all data to sync IDs
-  render('trash');
-  showToast(`${selected.length} öğe geri yüklendi.`, 'success');
-}
-
-// Trash: Delete Permanently
-window.deleteSelected = async function() {
-  const selected = Array.from(document.querySelectorAll('.trash-chk:checked')).map(cb => cb.value);
-  if(selected.length === 0) { showToast('Lütfen seçim yapın.', 'error'); return; }
-
-  const pass = prompt("DİKKAT: Bu işlem geri alınamaz!\nSilmek için güvenlik şifresini girin (1453):");
-  if(pass !== '1453') { showToast('Hatalı şifre! İşlem iptal edildi.', 'error'); return; }
-
-  for(let fbId of selected) {
-    await fbDelete('trashBin', fbId);
-    if(!useFirebase) {
-       trashBin = trashBin.filter(x => x._fbId !== fbId);
-       sv();
-    }
-  }
-  
-  if(useFirebase) trashBin = trashBin.filter(x => !selected.includes(x._fbId));
-  render('trash');
-  showToast('Seçilenler kalıcı olarak silindi.', 'success');
 }
 
 // MODALS
-const moTitles={session:'Çekim Ekle',client:'Müşteri Ekle',task:'Görev Ekle',contract:'Sözleşme Ekle',expense:'Gider Ekle',income:'Gelir Ekle',auth:'Giriş Bilgileri', panelMgmt:'Panel Yönetimi', detail: 'Çekim Detayları', receivables: 'Alacak Listesi'};
+const moTitles={session:'Çekim Ekle',client:'Müşteri Ekle',task:'Görev Ekle',contract:'Sözleşme Ekle',expense:'Gider Ekle',income:'Gelir Ekle',auth:'Giriş Bilgileri', panelMgmt:'Panel Yönetimi', detail: 'Çekim Detayları', receivables: 'Alacak Listesi', permDeleteAuth: 'Kalıcı Silme Onayı'};
 let _moType='', _moId=null;
 window.openMo=function(type,editId){
   _moType=type; _moId=editId||null;
-  document.getElementById('moTitle').textContent=editId&&type!=='auth'&&type!=='panelMgmt'?'Düzenle':moTitles[type];
-  document.getElementById('moBody').innerHTML=moForms[type](editId);
+  document.getElementById('moTitle').textContent=editId&&type!=='auth'&&type!=='panelMgmt'&&type!=='permDeleteAuth'?'Düzenle':moTitles[type];
+  
+  if(type === 'permDeleteAuth') {
+      // Special handling for delete auth to pass IDs
+      document.getElementById('moBody').innerHTML = moForms[type](editId); // editId here acts as ID list string
+  } else {
+      document.getElementById('moBody').innerHTML=moForms[type](editId);
+  }
   document.getElementById('mo').classList.add('on');
 }
 window.closeModal=function(){document.getElementById('mo').classList.remove('on')}
 const v=id=>(document.getElementById(id)||{}).value||'';
 
+// NEW: OPEN RECEIVABLES LIST
 window.openReceivablesList = function() {
   const indebtedClients = clients.filter(c => (c.total - c.paid) > 0);
-  if(indebtedClients.length === 0) { showToast('Tüm ödemeler alınmış.', 'success'); return; }
+  
+  if(indebtedClients.length === 0) {
+    showToast('Tüm ödemeler alınmış.', 'success');
+    return;
+  }
+
   let html = `<div class="tbl-wrap"><table><thead><tr><th>Müşteri</th><th>Telefon</th><th>Hizmet/Etkinlik</th><th>Kalan Tutar</th></tr></thead><tbody>`;
+  
   indebtedClients.forEach(c => {
     let pkgInfo = '-';
     if(c.session && c.session.pkg) pkgInfo = c.session.pkg; 
-    else { const s = sessions.find(sess => sess.cid === c.id); if(s) pkgInfo = s.pkg; }
+    else {
+      const s = sessions.find(sess => sess.cid === c.id);
+      if(s) pkgInfo = s.pkg;
+    }
     const remaining = c.total - c.paid;
-    html += `<tr><td style="font-weight:600">${c.name}</td><td>${c.phone}</td><td style="font-size:12px; color:var(--txt2)">${pkgInfo}</td><td style="font-weight:700; color:var(--red)">₺${fm(remaining)}</td></tr>`;
+    html += `<tr>
+      <td style="font-weight:600">${c.name}</td>
+      <td>${c.phone}</td>
+      <td style="font-size:12px; color:var(--txt2)">${pkgInfo}</td>
+      <td style="font-weight:700; color:var(--red)">₺${fm(remaining)}</td>
+    </tr>`;
   });
+
   html += `</tbody></table></div>`;
+  
   document.getElementById('moTitle').textContent = 'Alacak Listesi';
   document.getElementById('moBody').innerHTML = html;
   document.getElementById('mo').classList.add('on');
 }
 
+
+// NEW: FULL DETAIL VIEW FUNCTION
 window.openSessionDetail = function(id) {
   const s = sessions.find(x => x.id === id);
   if(!s) return;
   const c = clients.find(x => x.id === s.cid) || {};
+  
   const content = `
     <div style="padding-bottom:10px; border-bottom:1px solid #e2e8f0; margin-bottom:15px; text-align:center;">
        <div style="font-size:18px; font-weight:800; color:var(--txt)">${c.name}</div>
        <div style="font-size:14px; color:var(--acc); font-weight:600; margin-top:4px;">${s.pkg}</div>
     </div>
+    
     <div class="det-row"><div class="det-lbl">Telefon</div><div class="det-val">${c.phone || '-'}</div></div>
     <div class="det-row"><div class="det-lbl">Tarih</div><div class="det-val">${fmtDate(s.date)}</div></div>
     <div class="det-row"><div class="det-lbl">Saat</div><div class="det-val">${s.time || '-'}</div></div>
     <div class="det-row"><div class="det-lbl">Mekan/Konum</div><div class="det-val">${s.loc || '-'}</div></div>
+    
     <div style="background:#f8fafc; padding:12px; border-radius:8px; margin:15px 0;">
       <div class="det-row" style="margin-bottom:6px; border:none;"><div class="det-lbl">Toplam Tutar</div><div class="det-val">₺${fm(s.total)}</div></div>
       <div class="det-row" style="margin-bottom:6px; border:none;"><div class="det-lbl">Ödenen</div><div class="det-val" style="color:var(--grn)">₺${fm(s.paid)}</div></div>
       <div class="det-row" style="margin-bottom:0; border:none;"><div class="det-lbl">Kalan</div><div class="det-val" style="color:var(--red)">₺${fm(s.total - s.paid)}</div></div>
     </div>
+
     <div style="font-size:12px; font-weight:700; color:var(--txt3); margin-bottom:5px; text-transform:uppercase;">Notlar / Açıklama</div>
-    <div style="font-size:14px; color:var(--txt2); line-height:1.5; background:#fff; border:1px solid #e2e8f0; padding:10px; border-radius:8px;">${s.desc || 'Not girilmemiş.'}</div>
+    <div style="font-size:14px; color:var(--txt2); line-height:1.5; background:#fff; border:1px solid #e2e8f0; padding:10px; border-radius:8px;">
+      ${s.desc || 'Not girilmemiş.'}
+    </div>
   `;
+  
   document.getElementById('moTitle').textContent = 'Çekim Detayları';
   document.getElementById('moBody').innerHTML = content;
   document.getElementById('mo').classList.add('on');
 }
 
 const moForms={
+  permDeleteAuth: (ids) => {
+      return `
+      <div style="text-align:center; margin-bottom:15px; color:var(--red)">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        <div style="font-weight:700; margin-top:5px">KALICI SİLME İŞLEMİ</div>
+        <div style="font-size:12px;color:var(--txt2)">Bu işlem geri alınamaz. Silmek için şifreyi giriniz.</div>
+      </div>
+      <input type="hidden" id="pd_ids" value="${ids}" />
+      <div class="fg"><label>Güvenlik Şifresi</label><input type="password" id="pd_pass" placeholder="Şifre..."/></div>
+      <button class="btn btn-d f-sub" onclick="checkPermDelete()">Onayla ve Sil</button>
+      `;
+  },
   auth:(id)=>{
     const c=clients.find(x=>x.id===id);
     return `<div class="fg"><label>Müşteri</label><input type="text" value="${c.name}" disabled style="background:#e2e8f0"/></div><div class="fg"><label>Kullanıcı Adı</label><input type="text" id="f_user" value="${c.username||''}"/></div><div class="fg"><label>Şifre</label><input type="text" id="f_pass" value="${c.password||''}"/></div><button class="btn btn-p f-sub" onclick="subAuth(${id})">Kaydet</button>`;
   },
   panelMgmt:(id)=>{
     const c = clients.find(x=>x.id===id);
-    const s = c.session || {}; 
-    const pkgName = (s.pkg || "").toLowerCase();
-    const isWedding = pkgName.includes("düğün");
-    let stageOptions = "";
-    if(isWedding) {
-        const steps = ["Çekim", "Yedekleme", "Montaj", "Teslimata Hazır", "Teslim Edildi"];
-        stageOptions = steps.map((label, i) => {
-            const val = i + 1;
-            const sel = c.stage == val ? 'selected' : '';
-            return `<option value="${val}" ${sel}>${val}. ${label}</option>`;
-        }).join('');
-    } else {
-        const steps = ["Çekim", "Yedekleme", "Düzenleme", "Baskı", "Teslimata Hazır", "Teslim Edildi"];
-        stageOptions = steps.map((label, i) => {
-            const val = i + 1;
-            const sel = c.stage == val ? 'selected' : '';
-            return `<option value="${val}" ${sel}>${val}. ${label}</option>`;
-        }).join('');
-    }
+    const s = c.session || {}; // Müşteriye ait session verisi
     return `
       <div class="fg"><label>Müşteri</label><input type="text" value="${c.name}" disabled style="background:#e2e8f0; font-weight:bold"/></div>
+      
       <div class="section-title">Finansal Durum</div>
       <div class="fr"><div class="fg"><label>Anlaşma Tutarı (₺)</label><input type="number" id="pm_total" value="${c.total||0}"/></div><div class="fg"><label>Ödenen Tutar (₺)</label><input type="number" id="pm_paid" value="${c.paid||0}"/></div></div>
-      <div class="section-title">İş Akışı (Durum Güncelle)</div>
-      <div class="fg"><label>Mevcut Aşama (${isWedding ? 'Düğün Paketi' : 'Standart Paket'})</label><select id="pm_stage">${stageOptions}</select></div>
       
-      <div class="fg" style="border:1px solid #e2e8f0; padding:10px; border-radius:8px; background:#f8fafc; margin-bottom:15px;">
-        <label style="color:var(--acc); font-weight:700">Müşteri Panelinde Görünen Durum Yazısı</label>
-        <input type="text" id="pm_status" value="${s.status || ''}" placeholder="Örn: Hazırlanıyor, Kargolandı, Beklemede..." style="background:#fff"/>
+      <div class="section-title">İş Akışı (1-5)</div>
+      <div class="fg"><label>Mevcut Aşama</label><select id="pm_stage"><option value="1" ${c.stage==1?'selected':''}>1. Çekim</option><option value="2" ${c.stage==2?'selected':''}>2. Yedekleme</option><option value="3" ${c.stage==3?'selected':''}>3. Düzenleme</option><option value="4" ${c.stage==4?'selected':''}>4. Baskı</option><option value="5" ${c.stage==5?'selected':''}>5. Teslimat</option></select></div>
+
+      <div class="section-title">📂 Google Drive Klasör Linki</div>
+      <div class="fg">
+        <label>Drive Klasör URL</label>
+        <input type="text" id="pm_drive" value="${c.driveFolder||''}" placeholder="https://drive.google.com/drive/folders/..."/>
+        <small style="color:var(--txt3); font-size:10px; margin-top:5px; display:block">
+          ⚠️ Klasörü "herkese açık" yapın ve linki buraya yapıştırın
+        </small>
+      </div>
+      
+      <div class="section-title" style="margin-top:20px">Seçilen Fotoğraflar (Müşteri Tarafından)</div>
+      <div style="background:#f8fafc; padding:12px; border-radius:8px; min-height:50px; font-size:12px; color:var(--txt2)">
+        ${c.selectedPhotos && c.selectedPhotos.length > 0 ? c.selectedPhotos.join(', ') : '<em style="color:var(--txt3)">Henüz fotoğraf seçilmedi</em>'}
       </div>
 
       <div class="section-title">Çekim Detayları (Müşteri Görünümü)</div>
-      <div class="fr"><div class="fg"><label>Tarih</label><input type="date" id="pm_date" value="${s.date||''}"/></div><div class="fg"><label>Saat</label><input type="time" id="pm_time" value="${s.time||''}"/></div></div>
+      <div class="fr">
+        <div class="fg"><label>Tarih</label><input type="date" id="pm_date" value="${s.date||''}"/></div>
+        <div class="fg"><label>Saat</label><input type="time" id="pm_time" value="${s.time||''}"/></div>
+      </div>
       <div class="fg"><label>Paket Adı</label><input type="text" id="pm_pkg" value="${s.pkg||''}"/></div>
       <div class="fg"><label>Konum</label><input type="text" id="pm_loc" value="${s.loc||''}"/></div>
+      <div class="fg"><label>Durum Yazısı (Örn: Planlanıyor)</label><input type="text" id="pm_status" value="${s.status||'Planlanıyor'}"/></div>
+
       <button class="btn btn-p f-sub" onclick="subPanelMgmt(${id})">Bilgileri Güncelle</button>
     `;
   },
@@ -861,9 +868,15 @@ const moForms={
         <input type="text" id="f_cname" list="dl_clients" placeholder="Müşteri adı..." value="${cName}" autocomplete="off"/>
         <datalist id="dl_clients">${clients.map(c=>`<option value="${c.name}">`).join('')}</datalist>
       </div>
-      <div class="fr"><div class="fg"><label>Tarih</label><input type="date" id="f_date" value="${o.date||''}"/></div><div class="fg"><label>Saat</label><input type="time" id="f_time" value="${o.time||''}"/></div></div>
+      <div class="fr">
+        <div class="fg"><label>Tarih</label><input type="date" id="f_date" value="${o.date||''}"/></div>
+        <div class="fg"><label>Saat</label><input type="time" id="f_time" value="${o.time||''}"/></div>
+      </div>
       <div class="fg"><label>Telefon (Yeni Müşteri İçin)</label><input type="text" id="f_cphone" placeholder="05xx..."/></div>
-      <div class="fr"><div class="fg"><label>Toplam Tutar (₺)</label><input type="number" id="f_total" value="${o.total||''}"/></div><div class="fg"><label>${id?'Ödenen Tutar':'Ön Ödeme (Kapora)'} (₺)</label><input type="number" id="f_paid" value="${o.paid||''}"/></div></div>
+      <div class="fr">
+        <div class="fg"><label>Toplam Tutar (₺)</label><input type="number" id="f_total" value="${o.total||''}"/></div>
+        <div class="fg"><label>${id?'Ödenen Tutar':'Ön Ödeme (Kapora)'} (₺)</label><input type="number" id="f_paid" value="${o.paid||''}"/></div>
+      </div>
       <div class="fg"><label>Paket</label><input type="text" id="f_pkg" value="${o.pkg||''}"/></div>
       <div class="fg"><label>Konum</label><input type="text" id="f_loc" value="${o.loc||''}"/></div>
       <div class="fg"><label>Açıklama</label><textarea id="f_desc" placeholder="Detaylar...">${o.desc||''}</textarea></div>
@@ -874,132 +887,84 @@ const moForms={
   task:(id)=>{ const o=id?tasks.find(t=>t.id===id):{}; return `<div class="fg"><label>Başlık</label><input type="text" id="f_title" value="${o.title||''}"/></div><div class="fg"><label>Açıklama</label><textarea id="f_desc">${o.desc||''}</textarea></div><div class="fg"><label>Son Tarih</label><input type="date" id="f_due" value="${o.due||''}"/></div>${id?`<div class="fg"><label>Durum</label><select id="f_stat"><option value="todo" ${o.status=='todo'?'selected':''}>Yapılacak</option><option value="inprogress" ${o.status=='inprogress'?'selected':''}>Sürüyor</option><option value="done" ${o.status=='done'?'selected':''}>Bitti</option></select></div>`:''}<button class="btn btn-p f-sub" onclick="subTask(${id||0})">Kaydet</button>`; },
   contract:()=>{ return ``; }, 
   expense:(id)=>{ const o=id?expenses.find(x=>x.id===id):{}; return `<div class="fg"><label>Tarih</label><input type="date" id="f_date" value="${o.date||''}"/></div><div class="fg"><label>Açıklama</label><input type="text" id="f_desc" value="${o.desc||''}"/></div><div class="fr"><div class="fg"><label>Tutar</label><input type="number" id="f_amt" value="${o.amt||''}"/></div><div class="fg"><label>Şube</label><select id="f_store"><option value="">Genel</option><option value="corlu" ${o.store=='corlu'?'selected':''}>Çorlu</option><option value="ergene" ${o.store=='ergene'?'selected':''}>Ergene</option></select></div></div><button class="btn btn-p f-sub" onclick="subExpInc('expenses',${id||0})">Kaydet</button>`; },
-  
-  income:(id)=>{ 
-    const o=id?incomes.find(x=>x.id===id):{}; 
-    return `
-      <div class="fg">
-        <label>1. Müşteri Seç (Borçtan Düşmesi İçin)</label>
-        <input type="text" id="f_inc_client" list="dl_inc_clients" placeholder="Müşteri Ara..." onchange="onClientChange(this)" autocomplete="off"/>
-        <datalist id="dl_inc_clients">${clients.map(c=>`<option value="${c.name}">`).join('')}</datalist>
-      </div>
-      <div class="fg" id="div_inc_job" style="display:none">
-        <label>2. Hangi İş İçin Ödeme Alınıyor?</label>
-        <select id="f_inc_job" onchange="autoFillJobDesc()"></select>
-      </div>
-      <div class="fg"><label>Tarih</label><input type="date" id="f_date" value="${o.date||''}"/></div>
-      <div class="fg"><label>Açıklama (Otomatik Oluşur)</label><input type="text" id="f_desc" value="${o.desc||''}"/></div>
-      <div class="fr">
-        <div class="fg"><label>Tutar (₺)</label><input type="number" id="f_amt" value="${o.amt||''}"/></div>
-        <div class="fg"><label>Şube</label><select id="f_store"><option value="">Genel</option><option value="corlu" ${o.store=='corlu'?'selected':''}>Çorlu</option><option value="ergene" ${o.store=='ergene'?'selected':''}>Ergene</option></select></div>
-      </div>
-      <button class="btn btn-p f-sub" onclick="subExpInc('incomes',${id||0})">Kaydet ve Bakiyeden Düş</button>
-    `; 
-  }
+  income:(id)=>{ const o=id?incomes.find(x=>x.id===id):{}; return `<div class="fg"><label>Tarih</label><input type="date" id="f_date" value="${o.date||''}"/></div><div class="fg"><label>Açıklama</label><input type="text" id="f_desc" value="${o.desc||''}"/></div><div class="fr"><div class="fg"><label>Tutar</label><input type="number" id="f_amt" value="${o.amt||''}"/></div><div class="fg"><label>Şube</label><select id="f_store"><option value="">Genel</option><option value="corlu" ${o.store=='corlu'?'selected':''}>Çorlu</option><option value="ergene" ${o.store=='ergene'?'selected':''}>Ergene</option></select></div></div><button class="btn btn-p f-sub" onclick="subExpInc('incomes',${id||0})">Kaydet</button>`; }
 };
 
-window.onClientChange = function(el) {
-    const val = el.value;
-    const client = clients.find(c => c.name === val);
-    const jobSelect = document.getElementById('f_inc_job');
-    const jobDiv = document.getElementById('div_inc_job');
-    
-    if(client) {
-        const clientSessions = sessions.filter(s => s.cid === client.id);
-        if(clientSessions.length > 0) {
-            jobDiv.style.display = 'block';
-            let opts = `<option value="">Seçiniz...</option>`;
-            clientSessions.forEach(s => {
-                const debt = s.total - s.paid;
-                opts += `<option value="${s.id}" data-pkg="${s.pkg}" data-debt="${debt}">${fmtDate(s.date)} - ${s.pkg} (Kalan: ₺${fm(debt)})</option>`;
-            });
-            jobSelect.innerHTML = opts;
-        } else {
-             jobDiv.style.display = 'none';
-             document.getElementById('f_desc').value = `${client.name} - Ödeme (Tel: ${client.phone})`;
-        }
-    } else {
-        jobDiv.style.display = 'none';
-    }
-}
-
-window.autoFillJobDesc = function() {
-    const clientName = document.getElementById('f_inc_client').value;
-    const client = clients.find(c => c.name === clientName);
-    const jobSelect = document.getElementById('f_inc_job');
-    const selectedOpt = jobSelect.options[jobSelect.selectedIndex];
-    
-    if(selectedOpt && selectedOpt.value) {
-        const pkg = selectedOpt.getAttribute('data-pkg');
-        document.getElementById('f_desc').value = `${clientName} - ${pkg} Ödemesi (Tel: ${client.phone})`;
-    } else if (client) {
-        document.getElementById('f_desc').value = `${clientName} - Genel Ödeme (Tel: ${client.phone})`;
-    }
-}
-
+// SUBMITS
 window.subAuth = async function(id) {
   const c=clients.find(x=>x.id===id); c.username=v('f_user'); c.password=v('f_pass');
   await persistOne('clients',c); closeModal(); render('client-auth');
 }
 window.subPanelMgmt = async function(id) {
   const c = clients.find(x=>x.id===id);
+  // Finansal Güncelleme
   c.total = Number(v('pm_total')); 
   c.paid = Number(v('pm_paid')); 
-  c.stage = Number(v('pm_stage')); 
+  c.stage = Number(v('pm_stage'));
+  
+  // Drive Klasör Linki
+  c.driveFolder = v('pm_drive');
+  
+  // Çekim Detayları Güncelleme (Müşteri Paneli İçin)
   c.session = {
     date: v('pm_date'),
     time: v('pm_time'),
     pkg: v('pm_pkg'),
     loc: v('pm_loc'),
-    status: v('pm_status') || 'Planlanıyor' 
+    status: v('pm_status') || 'Planlanıyor'
   };
+
   await persistOne('clients', c); closeModal(); render('panel-mgmt');
 }
 
+// SESSION SAVING WITH AUTOMATION (AUTO-INCOME & AUTO-CONTRACT)
 window.subSession = async function(id) {
   const cName = v('f_cname');
   if(!cName) { showToast('Müşteri adı gerekli!','error'); return; }
+  
   let cid;
   const existingClient = clients.find(c => c.name.toLowerCase() === cName.toLowerCase());
   
-  const total = Number(v('f_total'));
-  const paid = Number(v('f_paid'));
-
-  const date = v('f_date');
-  const time = v('f_time');
-  const pkg = v('f_pkg');
-  const loc = v('f_loc');
-  const desc = v('f_desc');
-
-  const sessionSummary = {
-    date: date, time: time, pkg: pkg, loc: loc, status: 'Planlanıyor'
-  };
-  
-  if (existingClient) { 
-    cid = existingClient.id;
-    existingClient.total = (existingClient.total || 0) + total;
-    existingClient.paid = (existingClient.paid || 0) + paid;
-    existingClient.session = sessionSummary;
-    await persistOne('clients', existingClient);
-  } else {
+  // 1. Müşteri Kontrol / Oluşturma
+  if (existingClient) { cid = existingClient.id; } 
+  else {
     cid = uid();
-    const newClient = { id: cid, name: cName, phone: v('f_cphone'), type: 'Genel', total: total, paid: paid, session: sessionSummary };
+    const newClient = { id: cid, name: cName, phone: v('f_cphone'), type: 'Genel', total: Number(v('f_total')), paid: Number(v('f_paid')) };
     await persistOne('clients', newClient, true);
     clients.push(newClient);
   }
-  
-  const obj = { id: id||uid(), cid: cid, date: date, time: time, total: total, paid: paid, pkg: pkg, loc: loc, desc: desc, status: 'upcoming' };
-  
+
+  const date = v('f_date');
+  const total = Number(v('f_total'));
+  const paid = Number(v('f_paid'));
+  const desc = v('f_desc');
+  const pkg = v('f_pkg');
+
+  const obj = {
+    id: id||uid(), cid: cid, date: date, time: v('f_time'),
+    total: total, paid: paid, pkg: pkg, loc: v('f_loc'), desc: desc, status: 'upcoming'
+  };
+
+  // 2. Session Kaydetme
   if(id){ const i=sessions.findIndex(x=>x.id===id); sessions[i]={...sessions[i],...obj}; await persistOne('sessions',sessions[i]); }
   else { 
     sessions.push(obj); await persistOne('sessions',obj,true); 
+    
+    // YENİ KAYIT İŞLEMLERİ (OTOMASYON)
+    // A. Otomatik Gelir Ekleme (Eğer kapora varsa)
     if(paid > 0) {
-      const inc = { id: uid(), date: date, desc: `${cName} - ${pkg} Kapora (Tel: ${existingClient ? existingClient.phone : v('f_cphone')})`, amt: paid, store: 'corlu' };
+      const inc = { id: uid(), date: date, desc: `${cName} - Kapora / Ön Ödeme`, amt: paid, store: 'corlu' }; // Varsayılan Şube
       incomes.push(inc); await persistOne('incomes', inc, true);
     }
-    const cont = { id: uid(), cid: cid, date: date, total: total, paid: paid, status: 'pending', terms: `Hizmet: ${pkg} \nLokasyon: ${loc} \nNotlar: ${desc}` };
+
+    // B. Otomatik Sözleşme Oluşturma
+    const cont = {
+      id: uid(), cid: cid, date: date, total: total, paid: paid, status: 'pending',
+      terms: `Hizmet: ${pkg} \nLokasyon: ${v('f_loc')} \nNotlar: ${desc}`
+    };
     contracts.push(cont); await persistOne('contracts', cont, true);
   }
+  
   closeModal(); render('sessions');
 }
 
@@ -1013,92 +978,45 @@ window.subTask = async function(id) {
   if(id){const i=tasks.findIndex(x=>x.id===id);tasks[i]={...tasks[i],...obj};await persistOne('tasks',tasks[i]);}
   else{tasks.push(obj);await persistOne('tasks',obj,true);} closeModal(); render('tasks');
 }
-
 window.subExpInc = async function(type, id) {
-  const arr = type==='expenses' ? expenses : incomes;
-  const clientName = (type==='incomes') ? document.getElementById('f_inc_client').value : '';
-  const jobId = (type==='incomes') ? document.getElementById('f_inc_job').value : ''; 
-  const amt = Number(v('f_amt'));
-  
-  const obj = { id: id || uid(), date: v('f_date'), desc: v('f_desc'), amt: amt, store: v('f_store') };
-
-  if(type === 'incomes' && clientName && !id) { 
-      const client = clients.find(c => c.name === clientName);
-      if(jobId) {
-          const session = sessions.find(s => s.id == jobId);
-          if(session) {
-              session.paid = (session.paid || 0) + amt;
-              await persistOne('sessions', session); 
-          }
-      }
-      if(client) {
-          client.paid = (client.paid || 0) + amt;
-          await persistOne('clients', client);
-          showToast(`${client.name} bakiyesi güncellendi.`, 'success');
-      }
-  }
-
-  if(id){ const i=arr.findIndex(x=>x.id===id); arr[i]={...arr[i],...obj}; await persistOne(type,arr[i]); }
-  else{ arr.push(obj); await persistOne(type,obj,true); } 
-  closeModal(); render(cur);
+  const arr=type==='expenses'?expenses:incomes;
+  const obj={id:id||uid(),date:v('f_date'),desc:v('f_desc'),amt:Number(v('f_amt')),store:v('f_store')};
+  if(id){const i=arr.findIndex(x=>x.id===id);arr[i]={...arr[i],...obj};await persistOne(type,arr[i]);}
+  else{arr.push(obj);await persistOne(type,obj,true);} closeModal(); render(cur);
 }
 
-// ─── YENİ SÖZLEŞME YAZDIRMA (MODAL) FONKSİYONU ───
-window.viewContractForPrint = function(id) {
+// PRINT FUNCTION
+window.openPrintContract = function(id) {
   const c = contracts.find(x => x.id === id);
-  if(!c) return;
-
   const client = clients.find(x => x.id === c.cid) || {};
   const remaining = c.total - c.paid;
-  const dateStr = new Date(c.date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
-
-  const htmlContent = `
-    <div class="ct-header">
-        <div class="ct-logo">PASOVART<span>Prodüksiyon</span></div>
-        <div style="font-size:12px; color:#555">${dateStr}</div>
+  
+  const content = `
+    <div class="print-row"><span class="print-label">Müşteri Adı:</span><span class="print-val">${client.name}</span></div>
+    <div class="print-row"><span class="print-label">Telefon:</span><span class="print-val">${client.phone || ''}</span></div>
+    <div class="print-row"><span class="print-label">Tarih:</span><span class="print-val">${fmtDate(c.date)}</span></div>
+    <div class="print-box">
+      <div class="print-title">Hizmet Detayları</div>
+      <p>${c.terms.replace(/\n/g, '<br>')}</p>
     </div>
-
-    <div class="ct-row"><span class="ct-lbl">Müşteri Adı:</span><span class="ct-val">${client.name}</span></div>
-    <div class="ct-row"><span class="ct-lbl">Telefon:</span><span class="ct-val">${client.phone || '-'}</span></div>
-
-    <div class="ct-box">
-        <div class="ct-title">Hizmet Detayları</div>
-        <div class="ct-text">${(c.terms || '').replace(/\n/g, '<br>')}</div>
+    <div class="print-box">
+      <div class="print-title">Ödeme Tablosu</div>
+      <div class="print-row"><span class="print-label">Toplam Tutar:</span><span class="print-val">₺${fm(c.total)}</span></div>
+      <div class="print-row"><span class="print-label">Alınan Kapora:</span><span class="print-val">₺${fm(c.paid)}</span></div>
+      <div class="print-row"><span class="print-label">Kalan Bakiye:</span><span class="print-val">₺${fm(remaining)}</span></div>
     </div>
-
-    <div class="ct-box">
-        <div class="ct-title">Ödeme Tablosu</div>
-        <div class="ct-row"><span class="ct-lbl">Toplam Tutar:</span><span class="ct-val">₺${Number(c.total).toLocaleString('tr-TR')}</span></div>
-        <div class="ct-row"><span class="ct-lbl">Alınan Kapora:</span><span class="ct-val">₺${Number(c.paid).toLocaleString('tr-TR')}</span></div>
-        <div class="ct-row"><span class="ct-lbl">Kalan Bakiye:</span><span class="ct-val" style="font-weight:800">₺${Number(remaining).toLocaleString('tr-TR')}</span></div>
+    <div style="font-size:12px; text-align:justify; margin-top:20px;">
+      İşbu sözleşme taraflar arasında yukarıda belirtilen şartlar dahilinde düzenlenmiştir.
+      Hizmet alan kişi, çekim tarihinden en geç 3 gün öncesine kadar iptal hakkına sahiptir. 
+      Kapora iadesi mücbir sebepler dışında yapılmamaktadır.
     </div>
-
-    <div style="font-size:11px; color:#555; margin-top:20px; text-align:justify; line-height:1.4">
-        İşbu sözleşme taraflar arasında yukarıda belirtilen şartlar dahilinde düzenlenmiştir.
-        Hizmet alan kişi, çekim tarihinden en geç 3 gün öncesine kadar iptal hakkına sahiptir. 
-        Kapora iadesi mücbir sebepler dışında yapılmamaktadır.
+    <div class="print-signatures">
+      <div class="sig-box">PASOVART Yetkilisi<br><br><br>İmza</div>
+      <div class="sig-box">Müşteri<br><br><br>İmza</div>
     </div>
   `;
-
-  document.getElementById('adminPrintArea').innerHTML = htmlContent;
-  document.getElementById('printModal').style.display = 'block';
-}
-
-window.closePrintModal = function() {
-    document.getElementById('printModal').style.display = 'none';
-}
-
-// Modal dışına tıklayınca kapatma
-window.onclick = function(event) {
-    const modal = document.getElementById('printModal');
-    if (event.target == modal) {
-        modal.style.display = "none";
-    }
-    // Diğer modal için de kontrol
-    const mo = document.getElementById('mo');
-    if (event.target == mo) {
-        closeModal();
-    }
+  document.getElementById('printContent').innerHTML = content;
+  window.print();
 }
 
 async function persistOne(col, obj, isNew = false) {
