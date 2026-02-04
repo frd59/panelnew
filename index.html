@@ -296,7 +296,7 @@ tr:last-child td{border-bottom:none}
     </div>
   </nav>
   <div class="sb-footer">
-    <span>PASOVART v2.9</span>
+    <span>PASOVART v3.0</span>
     <div class="sb-status"><div class="status-dot connecting" id="statusDot"></div><span id="statusTxt">Bağlanıyor…</span></div>
   </div>
 </aside>
@@ -633,14 +633,10 @@ const moForms={
   panelMgmt:(id)=>{
     const c = clients.find(x=>x.id===id);
     const s = c.session || {}; 
-    
-    // YENİ: Paket ismine göre seçenekleri belirle
     const pkgName = (s.pkg || "").toLowerCase();
     const isWedding = pkgName.includes("düğün");
     let stageOptions = "";
-    
     if(isWedding) {
-        // Düğün Akışı (5 Adım)
         const steps = ["Çekim", "Yedekleme", "Montaj", "Teslimata Hazır", "Teslim Edildi"];
         stageOptions = steps.map((label, i) => {
             const val = i + 1;
@@ -648,7 +644,6 @@ const moForms={
             return `<option value="${val}" ${sel}>${val}. ${label}</option>`;
         }).join('');
     } else {
-        // Standart Akış (6 Adım - Dış Çekim vb.)
         const steps = ["Çekim", "Yedekleme", "Düzenleme", "Baskı", "Teslimata Hazır", "Teslim Edildi"];
         stageOptions = steps.map((label, i) => {
             const val = i + 1;
@@ -656,28 +651,17 @@ const moForms={
             return `<option value="${val}" ${sel}>${val}. ${label}</option>`;
         }).join('');
     }
-
     return `
       <div class="fg"><label>Müşteri</label><input type="text" value="${c.name}" disabled style="background:#e2e8f0; font-weight:bold"/></div>
-      
       <div class="section-title">Finansal Durum</div>
       <div class="fr"><div class="fg"><label>Anlaşma Tutarı (₺)</label><input type="number" id="pm_total" value="${c.total||0}"/></div><div class="fg"><label>Ödenen Tutar (₺)</label><input type="number" id="pm_paid" value="${c.paid||0}"/></div></div>
-      
       <div class="section-title">İş Akışı (Durum Güncelle)</div>
-      <div class="fg">
-        <label>Mevcut Aşama (${isWedding ? 'Düğün Paketi' : 'Standart Paket'})</label>
-        <select id="pm_stage">${stageOptions}</select>
-      </div>
-
+      <div class="fg"><label>Mevcut Aşama (${isWedding ? 'Düğün Paketi' : 'Standart Paket'})</label><select id="pm_stage">${stageOptions}</select></div>
       <div class="section-title">Çekim Detayları (Müşteri Görünümü)</div>
-      <div class="fr">
-        <div class="fg"><label>Tarih</label><input type="date" id="pm_date" value="${s.date||''}"/></div>
-        <div class="fg"><label>Saat</label><input type="time" id="pm_time" value="${s.time||''}"/></div>
-      </div>
+      <div class="fr"><div class="fg"><label>Tarih</label><input type="date" id="pm_date" value="${s.date||''}"/></div><div class="fg"><label>Saat</label><input type="time" id="pm_time" value="${s.time||''}"/></div></div>
       <div class="fg"><label>Paket Adı</label><input type="text" id="pm_pkg" value="${s.pkg||''}"/></div>
       <div class="fg"><label>Konum</label><input type="text" id="pm_loc" value="${s.loc||''}"/></div>
       <div class="fg"><label>Durum Yazısı (Örn: Planlanıyor)</label><input type="text" id="pm_status" value="${s.status||'Planlanıyor'}"/></div>
-
       <button class="btn btn-p f-sub" onclick="subPanelMgmt(${id})">Bilgileri Güncelle</button>
     `;
   },
@@ -690,15 +674,9 @@ const moForms={
         <input type="text" id="f_cname" list="dl_clients" placeholder="Müşteri adı..." value="${cName}" autocomplete="off"/>
         <datalist id="dl_clients">${clients.map(c=>`<option value="${c.name}">`).join('')}</datalist>
       </div>
-      <div class="fr">
-        <div class="fg"><label>Tarih</label><input type="date" id="f_date" value="${o.date||''}"/></div>
-        <div class="fg"><label>Saat</label><input type="time" id="f_time" value="${o.time||''}"/></div>
-      </div>
+      <div class="fr"><div class="fg"><label>Tarih</label><input type="date" id="f_date" value="${o.date||''}"/></div><div class="fg"><label>Saat</label><input type="time" id="f_time" value="${o.time||''}"/></div></div>
       <div class="fg"><label>Telefon (Yeni Müşteri İçin)</label><input type="text" id="f_cphone" placeholder="05xx..."/></div>
-      <div class="fr">
-        <div class="fg"><label>Toplam Tutar (₺)</label><input type="number" id="f_total" value="${o.total||''}"/></div>
-        <div class="fg"><label>${id?'Ödenen Tutar':'Ön Ödeme (Kapora)'} (₺)</label><input type="number" id="f_paid" value="${o.paid||''}"/></div>
-      </div>
+      <div class="fr"><div class="fg"><label>Toplam Tutar (₺)</label><input type="number" id="f_total" value="${o.total||''}"/></div><div class="fg"><label>${id?'Ödenen Tutar':'Ön Ödeme (Kapora)'} (₺)</label><input type="number" id="f_paid" value="${o.paid||''}"/></div></div>
       <div class="fg"><label>Paket</label><input type="text" id="f_pkg" value="${o.pkg||''}"/></div>
       <div class="fg"><label>Konum</label><input type="text" id="f_loc" value="${o.loc||''}"/></div>
       <div class="fg"><label>Açıklama</label><textarea id="f_desc" placeholder="Detaylar...">${o.desc||''}</textarea></div>
@@ -709,8 +687,74 @@ const moForms={
   task:(id)=>{ const o=id?tasks.find(t=>t.id===id):{}; return `<div class="fg"><label>Başlık</label><input type="text" id="f_title" value="${o.title||''}"/></div><div class="fg"><label>Açıklama</label><textarea id="f_desc">${o.desc||''}</textarea></div><div class="fg"><label>Son Tarih</label><input type="date" id="f_due" value="${o.due||''}"/></div>${id?`<div class="fg"><label>Durum</label><select id="f_stat"><option value="todo" ${o.status=='todo'?'selected':''}>Yapılacak</option><option value="inprogress" ${o.status=='inprogress'?'selected':''}>Sürüyor</option><option value="done" ${o.status=='done'?'selected':''}>Bitti</option></select></div>`:''}<button class="btn btn-p f-sub" onclick="subTask(${id||0})">Kaydet</button>`; },
   contract:()=>{ return ``; }, 
   expense:(id)=>{ const o=id?expenses.find(x=>x.id===id):{}; return `<div class="fg"><label>Tarih</label><input type="date" id="f_date" value="${o.date||''}"/></div><div class="fg"><label>Açıklama</label><input type="text" id="f_desc" value="${o.desc||''}"/></div><div class="fr"><div class="fg"><label>Tutar</label><input type="number" id="f_amt" value="${o.amt||''}"/></div><div class="fg"><label>Şube</label><select id="f_store"><option value="">Genel</option><option value="corlu" ${o.store=='corlu'?'selected':''}>Çorlu</option><option value="ergene" ${o.store=='ergene'?'selected':''}>Ergene</option></select></div></div><button class="btn btn-p f-sub" onclick="subExpInc('expenses',${id||0})">Kaydet</button>`; },
-  income:(id)=>{ const o=id?incomes.find(x=>x.id===id):{}; return `<div class="fg"><label>Tarih</label><input type="date" id="f_date" value="${o.date||''}"/></div><div class="fg"><label>Açıklama</label><input type="text" id="f_desc" value="${o.desc||''}"/></div><div class="fr"><div class="fg"><label>Tutar</label><input type="number" id="f_amt" value="${o.amt||''}"/></div><div class="fg"><label>Şube</label><select id="f_store"><option value="">Genel</option><option value="corlu" ${o.store=='corlu'?'selected':''}>Çorlu</option><option value="ergene" ${o.store=='ergene'?'selected':''}>Ergene</option></select></div></div><button class="btn btn-p f-sub" onclick="subExpInc('incomes',${id||0})">Kaydet</button>`; }
+  
+  // ÖNEMLİ: GELİR EKLEME KISMI - İŞ SEÇİMİ VE OTOMATİK BORÇ DÜŞME
+  income:(id)=>{ 
+    const o=id?incomes.find(x=>x.id===id):{}; 
+    return `
+      <div class="fg">
+        <label>1. Müşteri Seç (Borçtan Düşmesi İçin)</label>
+        <input type="text" id="f_inc_client" list="dl_inc_clients" placeholder="Müşteri Ara..." onchange="onClientChange(this)" autocomplete="off"/>
+        <datalist id="dl_inc_clients">${clients.map(c=>`<option value="${c.name}">`).join('')}</datalist>
+      </div>
+      <div class="fg" id="div_inc_job" style="display:none">
+        <label>2. Hangi İş İçin Ödeme Alınıyor?</label>
+        <select id="f_inc_job" onchange="autoFillJobDesc()"></select>
+      </div>
+      <div class="fg"><label>Tarih</label><input type="date" id="f_date" value="${o.date||''}"/></div>
+      <div class="fg"><label>Açıklama (Otomatik Oluşur)</label><input type="text" id="f_desc" value="${o.desc||''}"/></div>
+      <div class="fr">
+        <div class="fg"><label>Tutar (₺)</label><input type="number" id="f_amt" value="${o.amt||''}"/></div>
+        <div class="fg"><label>Şube</label><select id="f_store"><option value="">Genel</option><option value="corlu" ${o.store=='corlu'?'selected':''}>Çorlu</option><option value="ergene" ${o.store=='ergene'?'selected':''}>Ergene</option></select></div>
+      </div>
+      <button class="btn btn-p f-sub" onclick="subExpInc('incomes',${id||0})">Kaydet ve Bakiyeden Düş</button>
+    `; 
+  }
 };
+
+// YENİ: Müşteri Seçilince İşlerini Getir
+window.onClientChange = function(el) {
+    const val = el.value;
+    const client = clients.find(c => c.name === val);
+    const jobSelect = document.getElementById('f_inc_job');
+    const jobDiv = document.getElementById('div_inc_job');
+    
+    if(client) {
+        // Müşterinin sessionlarını bul
+        const clientSessions = sessions.filter(s => s.cid === client.id);
+        
+        if(clientSessions.length > 0) {
+            jobDiv.style.display = 'block';
+            let opts = `<option value="">Seçiniz...</option>`;
+            clientSessions.forEach(s => {
+                const debt = s.total - s.paid;
+                opts += `<option value="${s.id}" data-pkg="${s.pkg}" data-debt="${debt}">${fmtDate(s.date)} - ${s.pkg} (Kalan: ₺${fm(debt)})</option>`;
+            });
+            jobSelect.innerHTML = opts;
+        } else {
+             // İş yoksa sadece isimle doldur
+             jobDiv.style.display = 'none';
+             document.getElementById('f_desc').value = `${client.name} - Ödeme (Tel: ${client.phone})`;
+        }
+    } else {
+        jobDiv.style.display = 'none';
+    }
+}
+
+// YENİ: İş Seçilince Açıklamayı Doldur
+window.autoFillJobDesc = function() {
+    const clientName = document.getElementById('f_inc_client').value;
+    const client = clients.find(c => c.name === clientName);
+    const jobSelect = document.getElementById('f_inc_job');
+    const selectedOpt = jobSelect.options[jobSelect.selectedIndex];
+    
+    if(selectedOpt && selectedOpt.value) {
+        const pkg = selectedOpt.getAttribute('data-pkg');
+        document.getElementById('f_desc').value = `${clientName} - ${pkg} Ödemesi (Tel: ${client.phone})`;
+    } else if (client) {
+        document.getElementById('f_desc').value = `${clientName} - Genel Ödeme (Tel: ${client.phone})`;
+    }
+}
 
 // SUBMITS
 window.subAuth = async function(id) {
@@ -721,7 +765,7 @@ window.subPanelMgmt = async function(id) {
   const c = clients.find(x=>x.id===id);
   c.total = Number(v('pm_total')); 
   c.paid = Number(v('pm_paid')); 
-  c.stage = Number(v('pm_stage')); // Bu kısım artık dinamik seçilen değeri alır
+  c.stage = Number(v('pm_stage')); 
   c.session = {
     date: v('pm_date'),
     time: v('pm_time'),
@@ -754,7 +798,7 @@ window.subSession = async function(id) {
   else { 
     sessions.push(obj); await persistOne('sessions',obj,true); 
     if(paid > 0) {
-      const inc = { id: uid(), date: date, desc: `${cName} - Kapora / Ön Ödeme`, amt: paid, store: 'corlu' };
+      const inc = { id: uid(), date: date, desc: `${cName} - ${pkg} Kapora (Tel: ${existingClient ? existingClient.phone : v('f_cphone')})`, amt: paid, store: 'corlu' };
       incomes.push(inc); await persistOne('incomes', inc, true);
     }
     const cont = { id: uid(), cid: cid, date: date, total: total, paid: paid, status: 'pending', terms: `Hizmet: ${pkg} \nLokasyon: ${v('f_loc')} \nNotlar: ${desc}` };
@@ -773,11 +817,42 @@ window.subTask = async function(id) {
   if(id){const i=tasks.findIndex(x=>x.id===id);tasks[i]={...tasks[i],...obj};await persistOne('tasks',tasks[i]);}
   else{tasks.push(obj);await persistOne('tasks',obj,true);} closeModal(); render('tasks');
 }
+
+// !!! ÖNEMLİ GÜNCELLEME: GELİR EKLEME VE BORÇ DÜŞME MANTIĞI !!!
 window.subExpInc = async function(type, id) {
-  const arr=type==='expenses'?expenses:incomes;
-  const obj={id:id||uid(),date:v('f_date'),desc:v('f_desc'),amt:Number(v('f_amt')),store:v('f_store')};
-  if(id){const i=arr.findIndex(x=>x.id===id);arr[i]={...arr[i],...obj};await persistOne(type,arr[i]);}
-  else{arr.push(obj);await persistOne(type,obj,true);} closeModal(); render(cur);
+  const arr = type==='expenses' ? expenses : incomes;
+  const clientName = (type==='incomes') ? document.getElementById('f_inc_client').value : '';
+  const jobId = (type==='incomes') ? document.getElementById('f_inc_job').value : ''; // Seçilen işin ID'si
+  const amt = Number(v('f_amt'));
+  
+  const obj = { id: id || uid(), date: v('f_date'), desc: v('f_desc'), amt: amt, store: v('f_store') };
+
+  // EĞER GELİR İSE VE BİR İŞ SEÇİLDİYSE -> O İŞİN BORCUNDAN VE MÜŞTERİNİN TOPLAM BORCUNDAN DÜŞ
+  if(type === 'incomes' && clientName && !id) { 
+      const client = clients.find(c => c.name === clientName);
+      
+      // 1. Specific İş Seçildiyse
+      if(jobId) {
+          const session = sessions.find(s => s.id == jobId);
+          if(session) {
+              session.paid = (session.paid || 0) + amt; // İşin ödenen miktarını artır
+              await persistOne('sessions', session); // Kaydet
+          }
+      }
+
+      // 2. Müşterinin Genel Toplamını Güncelle
+      if(client) {
+          client.paid = (client.paid || 0) + amt;
+          await persistOne('clients', client);
+          showToast(`${client.name} bakiyesi güncellendi.`, 'success');
+      }
+  }
+
+  if(id){ const i=arr.findIndex(x=>x.id===id); arr[i]={...arr[i],...obj}; await persistOne(type,arr[i]); }
+  else{ arr.push(obj); await persistOne(type,obj,true); } 
+  
+  closeModal(); 
+  render(cur);
 }
 
 window.openPrintContract = function(id) {
