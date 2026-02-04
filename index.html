@@ -782,38 +782,68 @@ window.subPanelMgmt = async function(id) {
 window.subSession = async function(id) {
   const cName = v('f_cname');
   if(!cName) { showToast('Müşteri adı gerekli!','error'); return; }
+  
   let cid;
   const existingClient = clients.find(c => c.name.toLowerCase() === cName.toLowerCase());
   
   const total = Number(v('f_total'));
   const paid = Number(v('f_paid'));
   
+  // Formdan verileri al
+  const date = v('f_date');
+  const time = v('f_time');
+  const pkg = v('f_pkg');
+  const loc = v('f_loc');
+  const desc = v('f_desc');
+
+  // Müşteriye eklenecek session özeti (Müşteri panelinde görünmesi için)
+  const sessionSummary = {
+    date: date,
+    time: time,
+    pkg: pkg,
+    loc: loc,
+    status: 'Planlanıyor' // Varsayılan durum
+  };
+  
   if (existingClient) { 
     cid = existingClient.id;
-    // YENİ: Müşteri zaten varsa, bakiyesine ekle!
+    // YENİ EKLENEN KISIM: Bakiyeyi güncelle VE Session detaylarını müşteri kartına işle
     existingClient.total = (existingClient.total || 0) + total;
     existingClient.paid = (existingClient.paid || 0) + paid;
+    existingClient.session = sessionSummary; // <--- BU SATIR EKSİKTİ
+    
     await persistOne('clients', existingClient);
   } else {
     cid = uid();
-    const newClient = { id: cid, name: cName, phone: v('f_cphone'), type: 'Genel', total: total, paid: paid };
+    // Yeni müşteri oluştururken de session bilgisini ekliyoruz
+    const newClient = { 
+        id: cid, 
+        name: cName, 
+        phone: v('f_cphone'), 
+        type: 'Genel', 
+        total: total, 
+        paid: paid,
+        session: sessionSummary // <--- BU SATIR EKSİKTİ
+    };
     await persistOne('clients', newClient, true);
     clients.push(newClient);
   }
   
-  const date = v('f_date');
-  const desc = v('f_desc');
-  const pkg = v('f_pkg');
-  const obj = { id: id||uid(), cid: cid, date: date, time: v('f_time'), total: total, paid: paid, pkg: pkg, loc: v('f_loc'), desc: desc, status: 'upcoming' };
+  // Sessions koleksiyonuna kayıt (Admin tarafındaki çekimler listesi için)
+  const obj = { id: id||uid(), cid: cid, date: date, time: time, total: total, paid: paid, pkg: pkg, loc: loc, desc: desc, status: 'upcoming' };
   
-  if(id){ const i=sessions.findIndex(x=>x.id===id); sessions[i]={...sessions[i],...obj}; await persistOne('sessions',sessions[i]); }
-  else { 
-    sessions.push(obj); await persistOne('sessions',obj,true); 
+  if(id){ 
+      const i=sessions.findIndex(x=>x.id===id); 
+      sessions[i]={...sessions[i],...obj}; 
+      await persistOne('sessions',sessions[i]); 
+  } else { 
+    sessions.push(obj); 
+    await persistOne('sessions',obj,true); 
     if(paid > 0) {
       const inc = { id: uid(), date: date, desc: `${cName} - ${pkg} Kapora (Tel: ${existingClient ? existingClient.phone : v('f_cphone')})`, amt: paid, store: 'corlu' };
       incomes.push(inc); await persistOne('incomes', inc, true);
     }
-    const cont = { id: uid(), cid: cid, date: date, total: total, paid: paid, status: 'pending', terms: `Hizmet: ${pkg} \nLokasyon: ${v('f_loc')} \nNotlar: ${desc}` };
+    const cont = { id: uid(), cid: cid, date: date, total: total, paid: paid, status: 'pending', terms: `Hizmet: ${pkg} \nLokasyon: ${loc} \nNotlar: ${desc}` };
     contracts.push(cont); await persistOne('contracts', cont, true);
   }
   closeModal(); render('sessions');
