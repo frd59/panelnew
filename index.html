@@ -4,6 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 <title>PASOVART Yönetim Paneli</title>
+<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -439,8 +440,15 @@ function loadAllFromLocal() {
 
 // UI UTILS
 const uid = () => Date.now() + (Math.random()*9999|0);
-const cn = id => (clients.find(c=>c.id==id)||{}).name||'–';
-const cp = id => (clients.find(c=>c.id==id)||{}).phone||'';
+const cn = id => {
+    // String/Number conversion safety for finding clients
+    const c = clients.find(x => String(x.id) === String(id));
+    return c ? c.name : '–';
+};
+const cp = id => {
+    const c = clients.find(x => String(x.id) === String(id));
+    return c ? c.phone : '';
+};
 const fm = n => Number(n).toLocaleString('tr-TR');
 const fmtDate = d => {
   if(!d) return '-';
@@ -487,12 +495,30 @@ function render(k) {
     'store-corlu': ()=>rStore('corlu'), 'store-ergene': ()=>rStore('ergene'),
     trash: rTrash
   };
-  if(pages[k]) document.getElementById('pg-'+k).innerHTML = pages[k]();
+  
+  if(pages[k]) {
+      document.getElementById('pg-'+k).innerHTML = pages[k]();
+      // YENİ EKLENEN SATIRLAR: Sayfa yüklenince gridleri doldur
+      if(k === 'clients') {
+          setTimeout(() => renderClientGrid(), 50); 
+      }
+      if(k === 'client-auth') {
+          setTimeout(() => renderAuthGrid(), 50);
+      }
+  }
 }
 
 function rDash() {
-  const inc=incomes.reduce((a,i)=>a+i.amt,0), exp=expenses.reduce((a,e)=>a+e.amt,0);
-  const receivables = clients.reduce((acc, c) => acc + (c.total - c.paid), 0);
+  const inc = incomes.reduce((a, i) => a + (Number(i.amt) || 0), 0);
+  const exp = expenses.reduce((a, e) => a + (Number(e.amt) || 0), 0);
+  
+  // DÜZELTME: NaN HATASINI ENGELLEYEN HESAPLAMA
+  const receivables = clients.reduce((acc, c) => {
+      const t = Number(c.total) || 0; // Eğer total tanımsızsa 0 al
+      const p = Number(c.paid) || 0;  // Eğer paid tanımsızsa 0 al
+      return acc + (t - p);
+  }, 0);
+
   const up=sessions.filter(s=>s.status==='upcoming').sort((a,b)=>new Date(a.date)-new Date(b.date));
   
   return `<div class="stat-grid">
@@ -508,7 +534,7 @@ function rDash() {
     const clientName = cn(s.cid);
     const clientPhone = cp(s.cid);
     
-    return `<div class="click-row" onclick="openSessionDetail(${s.id})" style="display:flex;align-items:center;gap:13px;padding:11px 10px;border-bottom:1px solid #f1f5f9;border-radius:8px;">
+    return `<div class="click-row" onclick="openSessionDetail('${s.id}')" style="display:flex;align-items:center;gap:13px;padding:11px 10px;border-bottom:1px solid #f1f5f9;border-radius:8px;">
       <div style="width:50px;height:50px;border-radius:11px;background:linear-gradient(135deg,#dbeafe,#bfdbfe);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#1e40af;font-weight:800;line-height:1;flex-shrink:0;">
         <span style="font-size:18px">${day}</span>
       </div>
@@ -537,7 +563,7 @@ function rPanelMgmt() {
             <td style="font-weight:600">${c.name}</td>
             <td><span class="badge b-active">${c.stage || 1}. Adım</span></td>
             <td>${debt > 0 ? `<span style="color:var(--red)">₺${fm(debt)} Borç</span>` : '<span style="color:var(--grn)">Ödendi</span>'}</td>
-            <td><button class="btn btn-e btn-sm" onclick="openMo('panelMgmt', ${c.id})">${I.set} Yönet</button></td>
+            <td><button class="btn btn-e btn-sm" onclick="openMo('panelMgmt', '${c.id}')">${I.set} Yönet</button></td>
           </tr>`
         }).join('')}
       </tbody>
@@ -546,7 +572,28 @@ function rPanelMgmt() {
 }
 
 function rCliAuth() {
-  return `<div class="ph"><h2>🔐 Müşteri Giriş Yönetimi</h2></div><div class="card card-p"><div class="tbl-wrap"><table><thead><tr><th>Müşteri</th><th>Kullanıcı Adı</th><th>Durum</th><th>İşlem</th></tr></thead><tbody>${clients.map(c=>`<tr><td style="font-weight:600">${c.name}</td><td>${c.username||'<em style="color:#94a3b8">Yok</em>'}</td><td>${c.username?'<span class="badge b-active">Aktif</span>':'<span class="badge b-pending">Pasif</span>'}</td><td><button class="btn btn-e btn-sm" onclick="openMo('auth',${c.id})">${I.key} Düzenle</button></td></tr>`).join('')}</tbody></table></div></div>`;
+  return `
+  <div class="ph"><h2>🔐 Müşteri Giriş Yönetimi</h2></div>
+  
+  <div style="margin-bottom:20px; position:relative">
+    <svg style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#94a3b8" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="authSearch" placeholder="İsim ile arayın..." 
+           onkeyup="renderAuthGrid(this.value)"
+           style="width:100%; padding:12px 12px 12px 40px; border-radius:12px; border:1px solid var(--bdr); outline:none; font-size:14px; box-shadow:0 2px 5px rgba(0,0,0,0.03)">
+  </div>
+
+  <div class="card card-p">
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Müşteri</th><th>Kullanıcı Adı</th><th>Durum</th><th>İşlem</th></tr></thead>
+        <tbody id="authTableBody">
+           </tbody>
+      </table>
+    </div>
+    <div id="authLoadMoreBtn" style="text-align:center; margin-top:15px; display:none">
+       <button class="btn btn-e" onclick="loadMoreAuth()">Daha Fazla Göster</button>
+    </div>
+  </div>`;
 }
 
 function rStore(code) {
@@ -559,20 +606,57 @@ function rStore(code) {
 
 function rTask() {
   const cols = [{k:'todo',l:'Yapılacak',c:'#7c3aed'},{k:'inprogress',l:'Sürüyor',c:'#d97706'},{k:'done',l:'Bitti',c:'#16a34a'}];
-  return `<div class="ph"><h2>📌 Görevler</h2><button class="btn btn-p" onclick="openMo('task')">${I.plus} Yeni</button></div><div class="kanban">${cols.map(col => { const its=tasks.filter(t=>t.status===col.k); return `<div class="kb-col"><div class="kb-head"><strong style="color:${col.c}">${col.l}</strong><span style="font-size:11px;padding:2px 8px;border-radius:10px;background:${col.c}1a;color:${col.c}">${its.length}</span></div><div class="kb-cards">${its.map(t=>`<div class="kb-card"><div style="display:flex;justify-content:space-between;font-weight:600;font-size:13px">${t.title}</div>${t.desc?`<div style="font-size:11px;color:var(--txt2);margin-top:4px;line-height:1.4">${t.desc}</div>`:''}<div style="font-size:10px;color:var(--txt3);margin-top:6px;font-weight:700">${fmtDate(t.due)}</div><div style="margin-top:8px;display:flex;gap:5px"><button class="btn btn-e btn-sm" onclick="openMo('task',${t.id})">${I.edit}</button><button class="btn btn-d btn-sm" onclick="del('task',${t.id})">${I.trash}</button></div></div>`).join('')}</div></div>`; }).join('')}</div>`;
+  return `<div class="ph"><h2>📌 Görevler</h2><button class="btn btn-p" onclick="openMo('task')">${I.plus} Yeni</button></div><div class="kanban">${cols.map(col => { const its=tasks.filter(t=>t.status===col.k); return `<div class="kb-col"><div class="kb-head"><strong style="color:${col.c}">${col.l}</strong><span style="font-size:11px;padding:2px 8px;border-radius:10px;background:${col.c}1a;color:${col.c}">${its.length}</span></div><div class="kb-cards">${its.map(t=>`<div class="kb-card"><div style="display:flex;justify-content:space-between;font-weight:600;font-size:13px">${t.title}</div>${t.desc?`<div style="font-size:11px;color:var(--txt2);margin-top:4px;line-height:1.4">${t.desc}</div>`:''}<div style="font-size:10px;color:var(--txt3);margin-top:6px;font-weight:700">${fmtDate(t.due)}</div><div style="margin-top:8px;display:flex;gap:5px"><button class="btn btn-e btn-sm" onclick="openMo('task','${t.id}')">${I.edit}</button><button class="btn btn-d btn-sm" onclick="del('task','${t.id}')">${I.trash}</button></div></div>`).join('')}</div></div>`; }).join('')}</div>`;
 }
 
 function rCont() {
   return `<div class="ph"><h2>📄 Sözleşmeler</h2></div><div class="tbl-wrap"><table><thead><tr><th>Müşteri (Detay)</th><th>Oluşturma</th><th>Bakiye</th><th>İşlem</th></tr></thead><tbody>${contracts.map(c=>{
     const sess = sessions.find(s => s.cid === c.cid && s.date === c.date) || {};
-    const detailAction = sess.id ? `onclick="openSessionDetail(${sess.id})"` : '';
-    return `<tr><td style="font-weight:600; cursor:pointer; color:var(--acc);" ${detailAction}>${cn(c.cid)} ${I.eye}</td><td>${fmtDate(c.date)}</td><td>${(c.total-c.paid)>0 ? '<span style="color:var(--red)">Borçlu</span>' : '<span style="color:var(--grn)">Ödendi</span>'}</td><td style="display:flex;gap:5px"><button class="btn btn-e btn-sm" onclick="openPrintContract(${c.id})">${I.print} Yazdır</button><button class="btn btn-d btn-sm" onclick="del('contract',${c.id})">${I.trash}</button></td></tr>`;
+    const detailAction = sess.id ? `onclick="openSessionDetail('${sess.id}')"` : '';
+    return `<tr><td style="font-weight:600; cursor:pointer; color:var(--acc);" ${detailAction}>${cn(c.cid)} ${I.eye}</td><td>${fmtDate(c.date)}</td><td>${(c.total-c.paid)>0 ? '<span style="color:var(--red)">Borçlu</span>' : '<span style="color:var(--grn)">Ödendi</span>'}</td><td style="display:flex;gap:5px"><button class="btn btn-e btn-sm" onclick="openPrintContract('${c.id}')">${I.print} Yazdır</button><button class="btn btn-d btn-sm" onclick="del('contract','${c.id}')">${I.trash}</button></td></tr>`;
   }).join('')}</tbody></table></div>`;
 }
 
-function rSess() { return `<div class="ph"><h2>📷 Çekimler</h2><button class="btn btn-p" onclick="openMo('session')">${I.plus} Yeni</button></div><div class="tbl-wrap"><table><thead><tr><th>Müşteri</th><th>Tarih</th><th>Paket</th><th>Tutar</th><th>İşlem</th></tr></thead><tbody>${sessions.map(s=>`<tr><td style="font-weight:600">${cn(s.cid)}</td><td>${fmtDate(s.date)}</td><td>${s.pkg}</td><td>₺${fm(s.total)}</td><td style="display:flex;gap:5px"><button class="btn btn-e btn-sm" onclick="openSessionDetail(${s.id})">${I.eye}</button><button class="btn btn-e btn-sm" onclick="openMo('session',${s.id})">${I.edit}</button><button class="btn btn-d btn-sm" onclick="del('session',${s.id})">${I.trash}</button></td></tr>`).join('')}</tbody></table></div>`; }
-function rCli() { return `<div class="ph"><h2>👤 Müşteriler</h2><button class="btn btn-p" onclick="openMo('client')">${I.plus} Yeni</button></div><div class="cl-grid">${clients.map(c=>`<div class="card cl-card"><div class="cl-head"><div class="cl-ava">${I.edit}</div><div><div style="font-weight:700">${c.name}</div><div style="font-size:12px">${c.phone}</div></div><button class="btn btn-d btn-sm" onclick="del('client',${c.id})">${I.trash}</button></div></div>`).join('')}</div>`; }
-function rFin() { return `<div class="ph"><h2>💰 Gelir / Gider</h2><div style="display:flex;gap:8px"><button class="btn btn-p" onclick="openMo('income')">${I.plus} Gelir</button><button class="btn btn-p" style="background:linear-gradient(135deg,#dc2626,#ef4444);box-shadow:0 2px 8px rgba(239,68,68,.3)" onclick="openMo('expense')">${I.plus} Gider</button></div></div><div class="card card-p"><div class="tbl-wrap"><table><thead><tr><th>Tarih</th><th>Açıklama</th><th>Tutar</th><th>İşlem</th></tr></thead><tbody>${[...incomes.map(i=>({...i,t:'inc'})),...expenses.map(e=>({...e,t:'exp'}))].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,10).map(x=>`<tr><td>${fmtDate(x.date)}</td><td>${x.desc}</td><td style="font-weight:700;color:${x.t==='inc'?'var(--grn)':'var(--red)'}">${x.t==='inc'?'+':'-'}₺${fm(x.amt)}</td><td><button class="btn btn-d btn-sm" onclick="del('${x.t==='inc'?'income':'expense'}',${x.id})">${I.trash}</button></td></tr>`).join('')}</tbody></table></div></div>`; }
+function rSess() { return `<div class="ph"><h2>📷 Çekimler</h2><button class="btn btn-p" onclick="openMo('session')">${I.plus} Yeni</button></div><div class="tbl-wrap"><table><thead><tr><th>Müşteri</th><th>Tarih</th><th>Paket</th><th>Tutar</th><th>İşlem</th></tr></thead><tbody>${sessions.map(s=>`<tr><td style="font-weight:600">${cn(s.cid)}</td><td>${fmtDate(s.date)}</td><td>${s.pkg}</td><td>₺${fm(s.total)}</td><td style="display:flex;gap:5px"><button class="btn btn-e btn-sm" onclick="openSessionDetail('${s.id}')">${I.eye}</button><button class="btn btn-e btn-sm" onclick="openMo('session','${s.id}')">${I.edit}</button><button class="btn btn-d btn-sm" onclick="del('session','${s.id}')">${I.trash}</button></td></tr>`).join('')}</tbody></table></div>`; }
+// --- YENİ MÜŞTERİ SAYFASI (ARAMA + SIRALAMA + EXCEL) ---
+let renderLimit = 50; // Performans için başlangıç limiti
+let authLimit = 50; // Müşteri Girişleri için limit
+
+function rCli() {
+  // Gizli dosya inputu (Excel için)
+  const fileInput = `<input type="file" id="excelInput" accept=".xlsx, .xls" style="display:none" onchange="processExcel(this)"/>`;
+  
+  return `
+  ${fileInput}
+  <div class="ph">
+    <h2>👤 Müşteriler</h2>
+    <div style="display:flex; gap:10px">
+        <button class="btn btn-e" onclick="document.getElementById('excelInput').click()" style="background:#dbeafe; color:#1e40af">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Excel Yükle
+        </button>
+        <button class="btn btn-p" onclick="openMo('client')">${I.plus} Yeni</button>
+    </div>
+  </div>
+
+  <div style="margin-bottom:20px; position:relative">
+    <svg style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#94a3b8" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="clientSearch" placeholder="İsim veya telefon ile arayın..." 
+           onkeyup="renderClientGrid(this.value)"
+           style="width:100%; padding:12px 12px 12px 40px; border-radius:12px; border:1px solid var(--bdr); outline:none; font-size:14px; box-shadow:0 2px 5px rgba(0,0,0,0.03)">
+    <div style="font-size:11px; color:var(--txt3); margin-top:5px; text-align:right">Toplam: <span id="totalClientCount">${clients.length}</span> Kayıt</div>
+  </div>
+
+  <div class="cl-grid" id="clientGrid">
+    </div>
+  
+  <div id="loadMoreBtn" style="text-align:center; margin-top:20px; display:none">
+    <button class="btn btn-e" onclick="loadMoreClients()">Daha Fazla Göster</button>
+  </div>
+  `;
+}
+
+function rFin() { return `<div class="ph"><h2>💰 Gelir / Gider</h2><div style="display:flex;gap:8px"><button class="btn btn-p" onclick="openMo('income')">${I.plus} Gelir</button><button class="btn btn-p" style="background:linear-gradient(135deg,#dc2626,#ef4444);box-shadow:0 2px 8px rgba(239,68,68,.3)" onclick="openMo('expense')">${I.plus} Gider</button></div></div><div class="card card-p"><div class="tbl-wrap"><table><thead><tr><th>Tarih</th><th>Açıklama</th><th>Tutar</th><th>İşlem</th></tr></thead><tbody>${[...incomes.map(i=>({...i,t:'inc'})),...expenses.map(e=>({...e,t:'exp'}))].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,10).map(x=>`<tr><td>${fmtDate(x.date)}</td><td>${x.desc}</td><td style="font-weight:700;color:${x.t==='inc'?'var(--grn)':'var(--red)'}">${x.t==='inc'?'+':'-'}₺${fm(x.amt)}</td><td><button class="btn btn-d btn-sm" onclick="del('${x.t==='inc'?'income':'expense'}','${x.id}')">${I.trash}</button></td></tr>`).join('')}</tbody></table></div></div>`; }
 
 // TRASH RENDERER
 function rTrash() {
@@ -694,7 +778,7 @@ window.checkPermDelete = async function() {
 window.del = async function(type, id) {
   const map={session:'sessions',client:'clients',task:'tasks',contract:'contracts',expense:'expenses',income:'incomes'};
   const col=map[type];
-  const item=eval(col).find(x=>x.id===id);
+  const item=eval(col).find(x=>String(x.id)===String(id));
   
   if(!item) return;
   
@@ -709,7 +793,7 @@ window.del = async function(type, id) {
   
   // 3. Delete from Original
   if(useFirebase && item._fbId) await fbDelete(col, item._fbId);
-  eval(`${col}=${col}.filter(x=>x.id!==${id})`); 
+  eval(`${col}=${col}.filter(x=>String(x.id)!==String(id))`); 
   
   if(!useFirebase) sv(); 
   
@@ -772,9 +856,9 @@ window.openReceivablesList = function() {
 
 // NEW: FULL DETAIL VIEW FUNCTION
 window.openSessionDetail = function(id) {
-  const s = sessions.find(x => x.id === id);
+  const s = sessions.find(x => String(x.id) === String(id));
   if(!s) return;
-  const c = clients.find(x => x.id === s.cid) || {};
+  const c = clients.find(x => String(x.id) === String(s.cid)) || {};
   
   const content = `
     <div style="padding-bottom:10px; border-bottom:1px solid #e2e8f0; margin-bottom:15px; text-align:center;">
@@ -818,11 +902,11 @@ const moForms={
       `;
   },
   auth:(id)=>{
-    const c=clients.find(x=>x.id===id);
-    return `<div class="fg"><label>Müşteri</label><input type="text" value="${c.name}" disabled style="background:#e2e8f0"/></div><div class="fg"><label>Kullanıcı Adı</label><input type="text" id="f_user" value="${c.username||''}"/></div><div class="fg"><label>Şifre</label><input type="text" id="f_pass" value="${c.password||''}"/></div><button class="btn btn-p f-sub" onclick="subAuth(${id})">Kaydet</button>`;
+    const c=clients.find(x=>String(x.id)===String(id));
+    return `<div class="fg"><label>Müşteri</label><input type="text" value="${c.name}" disabled style="background:#e2e8f0"/></div><div class="fg"><label>Kullanıcı Adı</label><input type="text" id="f_user" value="${c.username||''}"/></div><div class="fg"><label>Şifre</label><input type="text" id="f_pass" value="${c.password||''}"/></div><button class="btn btn-p f-sub" onclick="subAuth('${id}')">Kaydet</button>`;
   },
   panelMgmt:(id)=>{
-    const c = clients.find(x=>x.id===id);
+    const c = clients.find(x=>String(x.id)===String(id));
     const s = c.session || {}; // Müşteriye ait session verisi
     return `
       <div class="fg"><label>Müşteri</label><input type="text" value="${c.name}" disabled style="background:#e2e8f0; font-weight:bold"/></div>
@@ -856,11 +940,11 @@ const moForms={
       <div class="fg"><label>Konum</label><input type="text" id="pm_loc" value="${s.loc||''}"/></div>
       <div class="fg"><label>Durum Yazısı (Örn: Planlanıyor)</label><input type="text" id="pm_status" value="${s.status||'Planlanıyor'}"/></div>
 
-      <button class="btn btn-p f-sub" onclick="subPanelMgmt(${id})">Bilgileri Güncelle</button>
+      <button class="btn btn-p f-sub" onclick="subPanelMgmt('${id}')">Bilgileri Güncelle</button>
     `;
   },
   session:(id)=>{
-    const o=id?sessions.find(s=>s.id===id):{};
+    const o=id?sessions.find(s=>String(s.id)===String(id)):{};
     const cName = o.cid ? cn(o.cid) : '';
     return `
       <div class="fg">
@@ -880,23 +964,27 @@ const moForms={
       <div class="fg"><label>Paket</label><input type="text" id="f_pkg" value="${o.pkg||''}"/></div>
       <div class="fg"><label>Konum</label><input type="text" id="f_loc" value="${o.loc||''}"/></div>
       <div class="fg"><label>Açıklama</label><textarea id="f_desc" placeholder="Detaylar...">${o.desc||''}</textarea></div>
-      <button class="btn btn-p f-sub" onclick="subSession(${id||0})">Kaydet</button>
+      <button class="btn btn-p f-sub" onclick="subSession('${id||0}')">Kaydet</button>
     `;
   },
-  client:(id)=>{ const o=id?clients.find(c=>c.id===id):{}; return `<div class="fg"><label>Ad</label><input type="text" id="f_name" value="${o.name||''}"/></div><div class="fg"><label>Tel</label><input type="text" id="f_phone" value="${o.phone||''}"/></div><button class="btn btn-p f-sub" onclick="subClient(${id||0})">Kaydet</button>`; },
-  task:(id)=>{ const o=id?tasks.find(t=>t.id===id):{}; return `<div class="fg"><label>Başlık</label><input type="text" id="f_title" value="${o.title||''}"/></div><div class="fg"><label>Açıklama</label><textarea id="f_desc">${o.desc||''}</textarea></div><div class="fg"><label>Son Tarih</label><input type="date" id="f_due" value="${o.due||''}"/></div>${id?`<div class="fg"><label>Durum</label><select id="f_stat"><option value="todo" ${o.status=='todo'?'selected':''}>Yapılacak</option><option value="inprogress" ${o.status=='inprogress'?'selected':''}>Sürüyor</option><option value="done" ${o.status=='done'?'selected':''}>Bitti</option></select></div>`:''}<button class="btn btn-p f-sub" onclick="subTask(${id||0})">Kaydet</button>`; },
+  client:(id)=>{ const o=id?clients.find(c=>String(c.id)===String(id)):{}; return `<div class="fg"><label>Ad</label><input type="text" id="f_name" value="${o.name||''}"/></div><div class="fg"><label>Tel</label><input type="text" id="f_phone" value="${o.phone||''}"/></div><button class="btn btn-p f-sub" onclick="subClient('${id||0}')">Kaydet</button>`; },
+  task:(id)=>{ const o=id?tasks.find(t=>String(t.id)===String(id)):{}; return `<div class="fg"><label>Başlık</label><input type="text" id="f_title" value="${o.title||''}"/></div><div class="fg"><label>Açıklama</label><textarea id="f_desc">${o.desc||''}</textarea></div><div class="fg"><label>Son Tarih</label><input type="date" id="f_due" value="${o.due||''}"/></div>${id?`<div class="fg"><label>Durum</label><select id="f_stat"><option value="todo" ${o.status=='todo'?'selected':''}>Yapılacak</option><option value="inprogress" ${o.status=='inprogress'?'selected':''}>Sürüyor</option><option value="done" ${o.status=='done'?'selected':''}>Bitti</option></select></div>`:''}<button class="btn btn-p f-sub" onclick="subTask('${id||0}')">Kaydet</button>`; },
   contract:()=>{ return ``; }, 
-  expense:(id)=>{ const o=id?expenses.find(x=>x.id===id):{}; return `<div class="fg"><label>Tarih</label><input type="date" id="f_date" value="${o.date||''}"/></div><div class="fg"><label>Açıklama</label><input type="text" id="f_desc" value="${o.desc||''}"/></div><div class="fr"><div class="fg"><label>Tutar</label><input type="number" id="f_amt" value="${o.amt||''}"/></div><div class="fg"><label>Şube</label><select id="f_store"><option value="">Genel</option><option value="corlu" ${o.store=='corlu'?'selected':''}>Çorlu</option><option value="ergene" ${o.store=='ergene'?'selected':''}>Ergene</option></select></div></div><button class="btn btn-p f-sub" onclick="subExpInc('expenses',${id||0})">Kaydet</button>`; },
-  income:(id)=>{ const o=id?incomes.find(x=>x.id===id):{}; return `<div class="fg"><label>Tarih</label><input type="date" id="f_date" value="${o.date||''}"/></div><div class="fg"><label>Açıklama</label><input type="text" id="f_desc" value="${o.desc||''}"/></div><div class="fr"><div class="fg"><label>Tutar</label><input type="number" id="f_amt" value="${o.amt||''}"/></div><div class="fg"><label>Şube</label><select id="f_store"><option value="">Genel</option><option value="corlu" ${o.store=='corlu'?'selected':''}>Çorlu</option><option value="ergene" ${o.store=='ergene'?'selected':''}>Ergene</option></select></div></div><button class="btn btn-p f-sub" onclick="subExpInc('incomes',${id||0})">Kaydet</button>`; }
+  expense:(id)=>{ const o=id?expenses.find(x=>String(x.id)===String(id)):{}; return `<div class="fg"><label>Tarih</label><input type="date" id="f_date" value="${o.date||''}"/></div><div class="fg"><label>Açıklama</label><input type="text" id="f_desc" value="${o.desc||''}"/></div><div class="fr"><div class="fg"><label>Tutar</label><input type="number" id="f_amt" value="${o.amt||''}"/></div><div class="fg"><label>Şube</label><select id="f_store"><option value="">Genel</option><option value="corlu" ${o.store=='corlu'?'selected':''}>Çorlu</option><option value="ergene" ${o.store=='ergene'?'selected':''}>Ergene</option></select></div></div><button class="btn btn-p f-sub" onclick="subExpInc('expenses','${id||0}')">Kaydet</button>`; },
+  income:(id)=>{ const o=id?incomes.find(x=>String(x.id)===String(id)):{}; return `<div class="fg"><label>Tarih</label><input type="date" id="f_date" value="${o.date||''}"/></div><div class="fg"><label>Açıklama</label><input type="text" id="f_desc" value="${o.desc||''}"/></div><div class="fr"><div class="fg"><label>Tutar</label><input type="number" id="f_amt" value="${o.amt||''}"/></div><div class="fg"><label>Şube</label><select id="f_store"><option value="">Genel</option><option value="corlu" ${o.store=='corlu'?'selected':''}>Çorlu</option><option value="ergene" ${o.store=='ergene'?'selected':''}>Ergene</option></select></div></div><button class="btn btn-p f-sub" onclick="subExpInc('incomes','${id||0}')">Kaydet</button>`; }
 };
 
 // SUBMITS
 window.subAuth = async function(id) {
-  const c=clients.find(x=>x.id===id); c.username=v('f_user'); c.password=v('f_pass');
-  await persistOne('clients',c); closeModal(); render('client-auth');
+  const c=clients.find(x=>String(x.id)===String(id)); 
+  c.username=v('f_user'); c.password=v('f_pass');
+  await persistOne('clients',c); closeModal(); 
+  
+  // Tabloyu güncelle (Limit sıfırlanmasın diye sadece render çağırıyoruz)
+  renderAuthGrid(document.getElementById('authSearch').value);
 }
 window.subPanelMgmt = async function(id) {
-  const c = clients.find(x=>x.id===id);
+  const c = clients.find(x=>String(x.id)===String(id));
   // Finansal Güncelleme
   c.total = Number(v('pm_total')); 
   c.paid = Number(v('pm_paid')); 
@@ -919,47 +1007,58 @@ window.subPanelMgmt = async function(id) {
 
 // SESSION SAVING WITH AUTOMATION (AUTO-INCOME & AUTO-CONTRACT)
 window.subSession = async function(id) {
+  // Eğer id varsa string'e çevir, yoksa 0 (string olarak '0' değil, boolean check için 0)
+  const safeId = id ? String(id) : 0;
+  
   const cName = v('f_cname');
   if(!cName) { showToast('Müşteri adı gerekli!','error'); return; }
   
-  let cid;
-  const existingClient = clients.find(c => c.name.toLowerCase() === cName.toLowerCase());
-  
-  // 1. Müşteri Kontrol / Oluşturma
-  if (existingClient) { cid = existingClient.id; } 
-  else {
-    cid = uid();
-    const newClient = { id: cid, name: cName, phone: v('f_cphone'), type: 'Genel', total: Number(v('f_total')), paid: Number(v('f_paid')) };
-    await persistOne('clients', newClient, true);
-    clients.push(newClient);
-  }
-
   const date = v('f_date');
   const total = Number(v('f_total'));
   const paid = Number(v('f_paid'));
   const desc = v('f_desc');
   const pkg = v('f_pkg');
+  
+  let cid;
+  const existingClient = clients.find(c => c.name.toLowerCase() === cName.toLowerCase());
+  
+  // 1. Müşteri Kontrol / Oluşturma
+  if (existingClient) { 
+      cid = existingClient.id;
+      // DÜZELTME: Eğer yeni çekim ekleniyorsa, mevcut müşterinin borcuna ekle
+      if(!safeId) {
+         existingClient.total = (existingClient.total || 0) + total;
+         existingClient.paid = (existingClient.paid || 0) + paid;
+         await persistOne('clients', existingClient); // Veritabanına kaydet
+      }
+  } else {
+    cid = uid();
+    // Yeni müşteri oluştururken ID'yi string'e çevirerek sakla (tutarlılık için)
+    const newClient = { id: String(cid), name: cName, phone: v('f_cphone'), type: 'Genel', total: total, paid: paid };
+    await persistOne('clients', newClient, true);
+    clients.push(newClient);
+  }
 
   const obj = {
-    id: id||uid(), cid: cid, date: date, time: v('f_time'),
+    id: safeId || String(uid()), cid: cid, date: date, time: v('f_time'),
     total: total, paid: paid, pkg: pkg, loc: v('f_loc'), desc: desc, status: 'upcoming'
   };
 
   // 2. Session Kaydetme
-  if(id){ const i=sessions.findIndex(x=>x.id===id); sessions[i]={...sessions[i],...obj}; await persistOne('sessions',sessions[i]); }
+  if(safeId){ const i=sessions.findIndex(x=>String(x.id)===safeId); sessions[i]={...sessions[i],...obj}; await persistOne('sessions',sessions[i]); }
   else { 
     sessions.push(obj); await persistOne('sessions',obj,true); 
     
     // YENİ KAYIT İŞLEMLERİ (OTOMASYON)
     // A. Otomatik Gelir Ekleme (Eğer kapora varsa)
     if(paid > 0) {
-      const inc = { id: uid(), date: date, desc: `${cName} - Kapora / Ön Ödeme`, amt: paid, store: 'corlu' }; // Varsayılan Şube
+      const inc = { id: String(uid()), date: date, desc: `${cName} - Kapora / Ön Ödeme`, amt: paid, store: 'corlu' }; // Varsayılan Şube
       incomes.push(inc); await persistOne('incomes', inc, true);
     }
 
     // B. Otomatik Sözleşme Oluşturma
     const cont = {
-      id: uid(), cid: cid, date: date, total: total, paid: paid, status: 'pending',
+      id: String(uid()), cid: cid, date: date, total: total, paid: paid, status: 'pending',
       terms: `Hizmet: ${pkg} \nLokasyon: ${v('f_loc')} \nNotlar: ${desc}`
     };
     contracts.push(cont); await persistOne('contracts', cont, true);
@@ -969,26 +1068,29 @@ window.subSession = async function(id) {
 }
 
 window.subClient = async function(id) {
-  const obj={id:id||uid(),name:v('f_name'),phone:v('f_phone')};
-  if(id){const i=clients.findIndex(x=>x.id===id);clients[i]={...clients[i],...obj};await persistOne('clients',clients[i]);}
+  const safeId = id ? String(id) : 0;
+  const obj={id:safeId||String(uid()),name:v('f_name'),phone:v('f_phone')};
+  if(safeId){const i=clients.findIndex(x=>String(x.id)===safeId);clients[i]={...clients[i],...obj};await persistOne('clients',clients[i]);}
   else{clients.push(obj);await persistOne('clients',obj,true);} closeModal(); render('clients');
 }
 window.subTask = async function(id) {
-  const obj={id:id||uid(),title:v('f_title'),desc:v('f_desc'),due:v('f_due'),status:v('f_stat')||'todo'};
-  if(id){const i=tasks.findIndex(x=>x.id===id);tasks[i]={...tasks[i],...obj};await persistOne('tasks',tasks[i]);}
+  const safeId = id ? String(id) : 0;
+  const obj={id:safeId||String(uid()),title:v('f_title'),desc:v('f_desc'),due:v('f_due'),status:v('f_stat')||'todo'};
+  if(safeId){const i=tasks.findIndex(x=>String(x.id)===safeId);tasks[i]={...tasks[i],...obj};await persistOne('tasks',tasks[i]);}
   else{tasks.push(obj);await persistOne('tasks',obj,true);} closeModal(); render('tasks');
 }
 window.subExpInc = async function(type, id) {
+  const safeId = id ? String(id) : 0;
   const arr=type==='expenses'?expenses:incomes;
-  const obj={id:id||uid(),date:v('f_date'),desc:v('f_desc'),amt:Number(v('f_amt')),store:v('f_store')};
-  if(id){const i=arr.findIndex(x=>x.id===id);arr[i]={...arr[i],...obj};await persistOne(type,arr[i]);}
+  const obj={id:safeId||String(uid()),date:v('f_date'),desc:v('f_desc'),amt:Number(v('f_amt')),store:v('f_store')};
+  if(safeId){const i=arr.findIndex(x=>String(x.id)===safeId);arr[i]={...arr[i],...obj};await persistOne(type,arr[i]);}
   else{arr.push(obj);await persistOne(type,obj,true);} closeModal(); render(cur);
 }
 
 // PRINT FUNCTION
 window.openPrintContract = function(id) {
-  const c = contracts.find(x => x.id === id);
-  const client = clients.find(x => x.id === c.cid) || {};
+  const c = contracts.find(x => String(x.id) === String(id));
+  const client = clients.find(x => String(x.id) === String(c.cid)) || {};
   const remaining = c.total - c.paid;
   
   const content = `
@@ -1023,6 +1125,212 @@ async function persistOne(col, obj, isNew = false) {
   if(useFirebase) { if(isNew||!obj._fbId) await fbAdd(col,obj); else await fbUpdate(col,obj); } else { sv(); }
 }
 window.showToast = function(msg,type){const t=document.getElementById('toast');t.textContent=msg;t.className='toast on '+type;setTimeout(()=>t.classList.remove('on'),2400);}
+
+// --- MÜŞTERİ LİSTELEME MANTIĞI (FİLTRE + SIRALAMA) ---
+function renderClientGrid(query = '') {
+    const grid = document.getElementById('clientGrid');
+    if (!grid) return;
+
+    query = query.toLowerCase();
+    
+    // 1. Alfabetik Sıralama (Türkçe Karakter Uyumlu)
+    let filtered = clients.sort((a, b) => a.name.localeCompare(b.name, 'tr'));
+
+    // 2. Arama Filtresi
+    if (query) {
+        filtered = filtered.filter(c => 
+            (c.name && c.name.toLowerCase().includes(query)) || 
+            (c.phone && c.phone.includes(query))
+        );
+    }
+
+    // Toplam sayıyı güncelle
+    const countSpan = document.getElementById('totalClientCount');
+    if(countSpan) countSpan.textContent = filtered.length;
+
+    // 3. Performans için limit (Pagination)
+    const showList = filtered.slice(0, renderLimit);
+    
+    // HTML Oluştur
+    grid.innerHTML = showList.map(c => `
+        <div class="card cl-card">
+            <div class="cl-head">
+                <div class="cl-ava" style="background:${getRandomColor(c.name)}">${c.name.charAt(0).toUpperCase()}</div>
+                <div style="flex:1; margin-left:12px; overflow:hidden">
+                    <div style="font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">${c.name}</div>
+                    <div style="font-size:12px; color:var(--txt2)">${c.phone || 'Tel yok'}</div>
+                </div>
+                <div style="display:flex; gap:5px">
+                   <button class="btn btn-e btn-sm" onclick="openMo('client','${c.id}')">${I.edit}</button>
+                   <button class="btn btn-d btn-sm" onclick="del('client','${c.id}')">${I.trash}</button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+
+    // "Daha Fazla Göster" butonunu yönet
+    const loadBtn = document.getElementById('loadMoreBtn');
+    if(loadBtn) {
+        loadBtn.style.display = (filtered.length > renderLimit) ? 'block' : 'none';
+    }
+}
+
+// --- MÜŞTERİ GİRİŞLERİ (AUTH) LİSTELEME MANTIĞI (YENİ) ---
+window.renderAuthGrid = function(query = '') {
+    const tbody = document.getElementById('authTableBody');
+    if(!tbody) return;
+
+    query = query.toLowerCase();
+    
+    // 1. Filtrele
+    let filtered = clients.filter(c => c.name.toLowerCase().includes(query));
+    
+    // 2. Sırala (A-Z)
+    filtered.sort((a,b) => a.name.localeCompare(b.name, 'tr'));
+
+    // 3. Dilimle (Pagination)
+    const showList = filtered.slice(0, authLimit);
+
+    // 4. HTML Bas
+    tbody.innerHTML = showList.map(c => `
+        <tr>
+            <td style="font-weight:600">${c.name}</td>
+            <td>${c.username || '<em style="color:#94a3b8">Yok</em>'}</td>
+            <td>${c.username ? '<span class="badge b-active">Aktif</span>' : '<span class="badge b-pending">Pasif</span>'}</td>
+            <td><button class="btn btn-e btn-sm" onclick="openMo('auth','${c.id}')">${I.key} Düzenle</button></td>
+        </tr>
+    `).join('');
+
+    // Daha Fazla butonu kontrolü
+    const btn = document.getElementById('authLoadMoreBtn');
+    if(btn) btn.style.display = (filtered.length > authLimit) ? 'block' : 'none';
+}
+
+// Limit arttırma (Auth)
+window.loadMoreAuth = function() {
+    authLimit += 50;
+    renderAuthGrid(document.getElementById('authSearch').value);
+}
+
+// Limit arttırma (Client)
+window.loadMoreClients = function() {
+    renderLimit += 50;
+    const q = document.getElementById('clientSearch').value;
+    renderClientGrid(q);
+}
+
+// Rastgele avatar rengi (Görsellik için)
+function getRandomColor(name) {
+    const colors = ['#eff6ff', '#f0fdf4', '#fef2f2', '#fffbeb', '#f5f3ff'];
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    return colors[Math.abs(hash) % colors.length];
+}
+
+// --- EXCEL İÇE AKTARMA (IMPORT) ---
+window.processExcel = function(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    
+    reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        
+        // İlk sayfayı al
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+        
+        // JSON'a çevir
+        const json = XLSX.utils.sheet_to_json(worksheet);
+        
+        if(json.length > 0) {
+            if(confirm(`${json.length} adet müşteri bulundu. İçe aktarmak istiyor musunuz? (Bu işlem biraz sürebilir)`)) {
+                importClients(json);
+            }
+        } else {
+            showToast('Excel dosyası boş veya okunamadı.', 'error');
+        }
+        
+        // Inputu temizle
+        input.value = '';
+    };
+    
+    reader.readAsArrayBuffer(file);
+}
+
+async function importClients(data) {
+    showToast('İçe aktarma başladı...', 'pending');
+    
+    let addedCount = 0;
+    
+    // Excel sütunlarını kontrol et
+    
+    for (const row of data) {
+        // Excel satırındaki verileri al (Eğer başlık yoksa pozisyonel bakar)
+        
+        // İsim bulmaya çalış (Görseldeki ADI SOYADI başlığı için özel kontrol)
+        let name = row['ADI SOYADI'] || row['Adı Soyadı'] || row['Ad'] || row['Ad Soyad'] || row['İsim'] || row['Müşteri'];
+        
+        // Telefon bulmaya çalış (Görseldeki İletişim başlığı için özel kontrol)
+        let phone = row['İletişim'] || row['Iletişim'] || row['Tel'] || row['Telefon'] || row['Gsm'] || row['Cep'];
+
+        // Eğer başlıklar eşleşmediyse ve sadece sütunlar geldiyse (Fallback)
+        // Görselde en başta "1" gibi sıra numarası var. Bunu engellemek için kontrol:
+        if (!name && !phone) {
+             const values = Object.values(row);
+             // Eğer ilk sütun bir sayıysa (Sıra No) ve ikinci sütun yazıysa, 2. ve 3. sütunu al
+             if (values.length >= 3 && !isNaN(values[0]) && (typeof values[1] === 'string')) {
+                 name = values[1]; // Sütun B (İsim)
+                 phone = values[2]; // Sütun C (Tel)
+             } else {
+                 name = values[0]; // Sütun A
+                 phone = values.length > 1 ? values[1] : ''; // Sütun B
+             }
+        }
+
+        if (name) {
+            const newClient = {
+                // String ID oluşturma (Date.now + Random)
+                id: String(Date.now()) + Math.random().toString().slice(2,8),
+                name: String(name).trim(),
+                phone: phone ? String(phone).trim() : '',
+                total: 0,
+                paid: 0,
+                type: 'Excel Import'
+            };
+            
+            clients.push(newClient);
+            addedCount++;
+        }
+    }
+    
+    // Toplu Kayıt
+    if(useFirebase) {
+         showToast(`${addedCount} kişi veritabanına işleniyor. Sayfayı kapatmayın!`, 'pending');
+         
+         // Chunk chunk kaydetme (Tarayıcı donmasın diye)
+         for (let i = 0; i < clients.length; i++) {
+             if (!clients[i]._fbId && clients[i].type === 'Excel Import') {
+                 await persistOne('clients', clients[i], true);
+             }
+         }
+    } else {
+        sv(); // LocalStorage kaydet
+    }
+
+    renderClientGrid(); // Listeyi yenile
+    showToast(`${addedCount} müşteri başarıyla eklendi!`, 'success');
+}
+
+// Global'e aktar (Module fix)
+window.renderClientGrid = renderClientGrid;
+window.renderAuthGrid = renderAuthGrid; 
+window.loadMoreAuth = loadMoreAuth;     
+window.processExcel = processExcel;
+window.loadMoreClients = loadMoreClients;
+
 initFirebase();
 </script>
 </body>
