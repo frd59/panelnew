@@ -1024,7 +1024,10 @@ const moForms={
     `;
   },
 client: (id) => {
-    const o = id ? clients.find(c => String(c.id) === String(id)) : {};
+    // DÜZELTME: Artık hem veritabanında (clients) hem de Google kişilerinde (gcContacts) arıyoruz
+    const allContacts = [...clients, ...gcContacts];
+    const o = id ? allContacts.find(c => String(c.id) === String(id)) : {};
+    
     return `
       <div class="fr">
         <div class="fg"><label>Ad Soyad</label>
