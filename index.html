@@ -421,38 +421,76 @@ function checkLogin() {
   if (saved) { currentUser = JSON.parse(saved); document.getElementById('loginScreen').style.display = 'none'; document.getElementById('mainApp').style.display = 'flex'; }
 }
 
-// FIREBASE
-let db = null; let useFirebase = false; let _doc, _collection, _setDoc, _deleteDoc, _getDocs;
+// --- KENDİ SUNUCUMUZ (cPanel MySQL Bağlantısı) ---
+// DİKKAT: Aşağıdaki site adresini kendi web sitenin adresiyle değiştir (örn: https://pasovart.com/api.php)
+const API_URL = "https://SENIN_SITEN.com/api.php"; 
+let useFirebase = true; // Sistemin geri kalanını bozmamak için true bırakıyoruz ama artık kendi sunucumuza gidecek.
+
 async function initFirebase() {
-  try {
-    const { initializeApp } = await import('https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js');
-    const { getFirestore, doc, collection, setDoc, deleteDoc, getDocs } = await import('https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js');
-    db = getFirestore(initializeApp(firebaseConfig));
-    _doc=doc; _collection=collection; _setDoc=setDoc; _deleteDoc=deleteDoc; _getDocs=getDocs;
-    useFirebase = true; setStatus('online', 'Çevrimiçi'); await loadAllFromFirebase();
-  } catch (e) { useFirebase = false; setStatus('offline', 'Çevrimdışı (Yerel)'); loadAllFromLocal(); }
-  checkLogin(); render('dashboard');
-}
-function setStatus(state, txt) {
-  document.getElementById('statusDot').className = 'status-dot'+(state==='online'?'':' offline');
-  document.getElementById('statusTxt').textContent = txt;
+  setStatus('online', 'Çevrimiçi (MySQL)'); 
+  await loadAllFromFirebase();
+  checkLogin(); 
+  render('dashboard');
 }
 
-// DATA
+// DATA (API'den Çekme İşlemleri)
 let clients=[], sessions=[], tasks=[], contracts=[], expenses=[], incomes=[], trash=[];
+
 async function loadAllFromFirebase() {
   clients = await fbGetAll('clients'); sessions = await fbGetAll('sessions');
   tasks = await fbGetAll('tasks'); contracts = await fbGetAll('contracts');
   expenses = await fbGetAll('expenses'); incomes = await fbGetAll('incomes');
-  trash = await fbGetAll('trash'); // TRASH LOAD
+  trash = await fbGetAll('trash'); 
 }
-async function fbGetAll(col) { try { const snap = await _getDocs(_collection(db, col)); return snap.docs.map(d=>({...d.data(),_fbId:d.id})); } catch{return[]} }
+
+// GET İşlemi
+async function fbGetAll(col) { 
+    try { 
+        const res = await fetch(`${API_URL}?action=get&collection=${col}`);
+        if(!res.ok) return [];
+        return await res.json();
+    } catch{ return []; } 
+}
+
+// ADD İşlemi
 async function fbAdd(col, obj) {
-  if(!useFirebase) return obj;
-  try{ const id=(crypto&&crypto.randomUUID)?crypto.randomUUID():String(Date.now()); await _setDoc(_doc(db,col,id),{...obj}); obj._fbId=id; showToast('Kaydedildi ✓','success'); }catch(e){showToast('Hata','error')} return obj;
+  try { 
+      const id = obj.id || ((crypto&&crypto.randomUUID)?crypto.randomUUID():String(Date.now())); 
+      obj._fbId = id; 
+      await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'save', collection: col, id: id, data: obj })
+      });
+      showToast('Kaydedildi ✓', 'success'); 
+      return obj;
+  } catch(e) { showToast('Hata', 'error'); return obj; }
 }
-async function fbUpdate(col, obj) { if(useFirebase&&obj._fbId) await _setDoc(_doc(db,col,obj._fbId),{...obj}); showToast('Güncellendi ✓','success'); }
-async function fbDelete(col, fbId) { if(useFirebase&&fbId) await _deleteDoc(_doc(db,col,fbId)); showToast('Silindi ✓','success'); }
+
+// UPDATE İşlemi
+async function fbUpdate(col, obj) { 
+  try {
+      const id = obj._fbId || obj.id;
+      await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'save', collection: col, id: id, data: obj })
+      });
+      showToast('Güncellendi ✓', 'success'); 
+  } catch(e) {} 
+}
+
+// DELETE İşlemi
+async function fbDelete(col, fbId) { 
+  try {
+      await fetch(API_URL, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'delete', collection: col, id: fbId })
+      });
+      showToast('Silindi ✓', 'success'); 
+  } catch(e) {} 
+}
 
 // LOCAL STORAGE
 const ld = (k, fb) => { try { return JSON.parse(localStorage.getItem('pf_'+k))||fb; } catch { return fb; } };
