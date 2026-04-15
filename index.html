@@ -427,7 +427,14 @@ const API_URL = "https://pasov.art/api.php";
 let useFirebase = true; // Sistemin geri kalanını bozmamak için true bırakıyoruz ama artık kendi sunucumuza gidecek.
 
 async function initFirebase() {
-  setStatus('online', 'Çevrimiçi (MySQL)'); 
+  // Sistem burada setStatus komutunu bulamadığı için çöküyordu. 
+  // O yüzden bu kısmı güvenli hale getirdik:
+  const dot = document.getElementById('statusDot');
+  const txt = document.getElementById('statusTxt');
+  if(dot) dot.className = 'status-dot online';
+  if(txt) txt.textContent = 'Çevrimiçi (MySQL)';
+
+  // Artık kod çökmediği için cPanel'deki verileriniz başarıyla çekilecek:
   await loadAllFromFirebase();
   checkLogin(); 
   render('dashboard');
