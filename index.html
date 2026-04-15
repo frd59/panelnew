@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 <title>PASOVART Yönetim Paneli</title>
-<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -237,6 +237,23 @@ tr:last-child td{border-bottom:none}
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}
+
+/* Google Contacts Stilleri */
+.gc-tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;background:#dbeafe;color:#1e40af;margin:2px}
+.gc-note{font-size:11px;color:var(--txt2);margin-top:6px;line-height:1.5;background:#f8fafc;padding:6px 10px;border-radius:6px;border-left:2px solid var(--acc)}
+.gc-bday{font-size:11px;color:var(--grn);font-weight:600;margin-top:4px}
+.gc-email{font-size:11px;color:var(--txt2);margin-top:2px}
+.gc-discount{display:inline-flex;align-items:center;gap:4px;background:#fef3c7;color:#92400e;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;margin-top:4px}
+.google-connect-bar{background:linear-gradient(135deg,#eff6ff,#dbeafe);border:1px solid #bfdbfe;border-radius:12px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.google-connect-bar .gb-icon{width:36px;height:36px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.google-connect-bar .gb-info{flex:1;min-width:150px}
+.google-connect-bar .gb-title{font-size:13px;font-weight:700;color:#1e40af}
+.google-connect-bar .gb-sub{font-size:11px;color:#3b82f6;margin-top:1px}
+.btn-google{background:#4285f4;color:#fff;border:none;border-radius:9px;padding:8px 16px;font:600 13px var(--fn);cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:background .15s}
+.btn-google:hover{background:#3367d6}
+.btn-google svg{flex-shrink:0}
+
+
 </style>
 </head>
 <body>
@@ -371,6 +388,19 @@ const firebaseConfig = {
   appId: "1:1031606727169:web:bde71345525d0ec7c90600",
   measurementId: "G-GTR6KPH1CL"
 };
+
+
+
+// ─── GOOGLE CONTACTS YAPILANDIRMASI ───────────────────────────────
+const GOOGLE_CLIENT_ID = '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.apps.googleusercontent.com';
+const GOOGLE_SCOPES = 'https://www.googleapis.com/auth/contacts'; // .readonly kısmını sildik!
+let gcAccessToken = null;
+let gcContacts = [];
+let gcImportModalOpen = false;
+// ──────────────────────────────────────────────────────────────────
+
+
+
 
 // LOGIN
 const USERS = { 'ferdi': { pass: '123456', name: 'Ferdi' }, 'eren': { pass: '123456', name: 'Eren' }, 'muharrem': { pass: '123456', name: 'Muharrem' } };
@@ -623,19 +653,22 @@ let renderLimit = 50; // Performans için başlangıç limiti
 let authLimit = 50; // Müşteri Girişleri için limit
 
 function rCli() {
-  // Gizli dosya inputu (Excel için)
-  const fileInput = `<input type="file" id="excelInput" accept=".xlsx, .xls" style="display:none" onchange="processExcel(this)"/>`;
-  
   return `
-  ${fileInput}
   <div class="ph">
     <h2>👤 Müşteriler</h2>
-    <div style="display:flex; gap:10px">
-        <button class="btn btn-e" onclick="document.getElementById('excelInput').click()" style="background:#dbeafe; color:#1e40af">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Excel Yükle
-        </button>
-        <button class="btn btn-p" onclick="openMo('client')">${I.plus} Yeni</button>
+    <div style="display:flex; gap:10px; flex-wrap:wrap">
+      
+      <button class="btn btn-google" onclick="connectGoogleContacts()" style="background:#4285f4; color:#fff; gap:7px; padding:9px 16px; display:flex; align-items:center; border:none; border-radius:10px; font-weight:600; cursor:pointer;">
+        <svg width="16" height="16" viewBox="0 0 48 48" style="margin-right:4px;">
+          <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
+          <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/>
+          <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/>
+          <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/>
+        </svg>
+        ${gcAccessToken ? "Contacts'ı Güncelle" : "Google Contacts"}
+      </button>
+      
+      <button class="btn btn-p" onclick="openMo('client')">${I.plus} Yeni</button>
     </div>
   </div>
 
@@ -647,8 +680,7 @@ function rCli() {
     <div style="font-size:11px; color:var(--txt3); margin-top:5px; text-align:right">Toplam: <span id="totalClientCount">${clients.length}</span> Kayıt</div>
   </div>
 
-  <div class="cl-grid" id="clientGrid">
-    </div>
+  <div class="cl-grid" id="clientGrid"></div>
   
   <div id="loadMoreBtn" style="text-align:center; margin-top:20px; display:none">
     <button class="btn btn-e" onclick="loadMoreClients()">Daha Fazla Göster</button>
@@ -774,24 +806,47 @@ window.checkPermDelete = async function() {
     render('trash');
 }
 
-// MODIFIED DELETE ACTION (SOFT DELETE)
+// MODIFIED DELETE ACTION (GOOGLE + SOFT DELETE)
 window.del = async function(type, id) {
+  // 1. GOOGLE KİŞİSİ SİLME KONTROLÜ
+  if (type === 'client' && String(id).startsWith('gc_')) {
+    if (!gcAccessToken) { showToast('Önce Google ile bağlanın', 'error'); return; }
+    if (!confirm('Bu kişiyi Google Rehberinizden tamamen silmek istediğinize emin misiniz?')) return;
+
+    const gcItem = gcContacts.find(x => x.id === String(id));
+    if (gcItem) {
+      showToast('Google\'dan siliniyor...', '');
+      try {
+        const res = await fetch(`https://people.googleapis.com/v1/${gcItem._resourceName}:deleteContact`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${gcAccessToken}` }
+        });
+        if (!res.ok) throw new Error('Google silme hatası');
+
+        // Başarılıysa hafızadan çıkar ve arayüzü yenile
+        gcContacts = gcContacts.filter(x => x.id !== String(id));
+        showToast('Google Kişiler\'den silindi ✓', 'success');
+        renderClientGrid(document.getElementById('clientSearch')?.value || '');
+      } catch(e) {
+        showToast('Google\'dan silinemedi!', 'error');
+      }
+    }
+    return; // İşlem bitti, aşağıdaki veritabanı silme koduna geçme
+  }
+
+  // 2. STANDART VERİTABANI SİLME İŞLEMİ (Çöp kutusuna taşıma)
   const map={session:'sessions',client:'clients',task:'tasks',contract:'contracts',expense:'expenses',income:'incomes'};
   const col=map[type];
   const item=eval(col).find(x=>String(x.id)===String(id));
   
   if(!item) return;
   
-  // 1. Create Trash Object
   const trashItem = { ...item, _origin: col, _deletedAt: new Date().toISOString() };
-  // New ID for trash collection specifically if using FB to avoid conflict
   if(useFirebase) trashItem._fbId = null; 
   
-  // 2. Add to Trash
   trash.push(trashItem);
   await persistOne('trash', trashItem, true);
   
-  // 3. Delete from Original
   if(useFirebase && item._fbId) await fbDelete(col, item._fbId);
   eval(`${col}=${col}.filter(x=>String(x.id)!==String(id))`); 
   
@@ -800,6 +855,7 @@ window.del = async function(type, id) {
   showToast('Çöp kutusuna taşındı', 'success');
   render(cur);
 }
+
 
 // MODALS
 const moTitles={session:'Çekim Ekle',client:'Müşteri Ekle',task:'Görev Ekle',contract:'Sözleşme Ekle',expense:'Gider Ekle',income:'Gelir Ekle',auth:'Giriş Bilgileri', panelMgmt:'Panel Yönetimi', detail: 'Çekim Detayları', receivables: 'Alacak Listesi', permDeleteAuth: 'Kalıcı Silme Onayı'};
@@ -967,7 +1023,48 @@ const moForms={
       <button class="btn btn-p f-sub" onclick="subSession('${id||0}')">Kaydet</button>
     `;
   },
-  client:(id)=>{ const o=id?clients.find(c=>String(c.id)===String(id)):{}; return `<div class="fg"><label>Ad</label><input type="text" id="f_name" value="${o.name||''}"/></div><div class="fg"><label>Tel</label><input type="text" id="f_phone" value="${o.phone||''}"/></div><button class="btn btn-p f-sub" onclick="subClient('${id||0}')">Kaydet</button>`; },
+client: (id) => {
+    const o = id ? clients.find(c => String(c.id) === String(id)) : {};
+    return `
+      <div class="fr">
+        <div class="fg"><label>Ad Soyad</label>
+          <input type="text" id="f_name" value="${o.name || ''}" placeholder="Ad Soyad"/>
+        </div>
+        <div class="fg"><label>Telefon</label>
+          <input type="text" id="f_phone" value="${o.phone || ''}" placeholder="05xx..."/>
+        </div>
+      </div>
+      
+      <div class="fr">
+        <div class="fg"><label>E-posta</label>
+          <input type="email" id="f_email" value="${o.email || ''}" placeholder="ornek@mail.com"/>
+        </div>
+        <div class="fg"><label>Doğum Günü</label>
+          <input type="text" id="f_birthday" value="${o.birthday || ''}" placeholder="15 Mart 1990"/>
+        </div>
+      </div>
+      
+      <div class="fg">
+        <label>🏷️ Özel İndirim (Örn: %10, ₺500)</label>
+        <input type="text" id="f_discount" value="${o.discount || ''}" 
+               placeholder="Sadakat indirimi %10" 
+               style="background:linear-gradient(135deg,#fffbeb,#fef3c7); border-color:#fbbf24"/>
+      </div>
+      
+      <div class="fg">
+        <label>📝 Not / Açıklama</label>
+        <textarea id="f_notes" placeholder="Müşteri notu, tercihler... ">${o.notes || ''}</textarea>
+      </div>
+      
+      <div class="fg">
+        <label>🏷️ Etiketler (virgülle ayırın)</label>
+        <input type="text" id="f_labels" value="${(o.gcLabels || []).join(', ')}" 
+               placeholder="VIP Müşteri, Düğün Paketi, Kurumsal"/>
+      </div>
+      
+      <button class="btn btn-p f-sub" onclick="subClient('${id || 0}')">Kaydet</button>
+    `;
+  },
   task:(id)=>{ const o=id?tasks.find(t=>String(t.id)===String(id)):{}; return `<div class="fg"><label>Başlık</label><input type="text" id="f_title" value="${o.title||''}"/></div><div class="fg"><label>Açıklama</label><textarea id="f_desc">${o.desc||''}</textarea></div><div class="fg"><label>Son Tarih</label><input type="date" id="f_due" value="${o.due||''}"/></div>${id?`<div class="fg"><label>Durum</label><select id="f_stat"><option value="todo" ${o.status=='todo'?'selected':''}>Yapılacak</option><option value="inprogress" ${o.status=='inprogress'?'selected':''}>Sürüyor</option><option value="done" ${o.status=='done'?'selected':''}>Bitti</option></select></div>`:''}<button class="btn btn-p f-sub" onclick="subTask('${id||0}')">Kaydet</button>`; },
   contract:()=>{ return ``; }, 
   expense:(id)=>{ const o=id?expenses.find(x=>String(x.id)===String(id)):{}; return `<div class="fg"><label>Tarih</label><input type="date" id="f_date" value="${o.date||''}"/></div><div class="fg"><label>Açıklama</label><input type="text" id="f_desc" value="${o.desc||''}"/></div><div class="fr"><div class="fg"><label>Tutar</label><input type="number" id="f_amt" value="${o.amt||''}"/></div><div class="fg"><label>Şube</label><select id="f_store"><option value="">Genel</option><option value="corlu" ${o.store=='corlu'?'selected':''}>Çorlu</option><option value="ergene" ${o.store=='ergene'?'selected':''}>Ergene</option></select></div></div><button class="btn btn-p f-sub" onclick="subExpInc('expenses','${id||0}')">Kaydet</button>`; },
@@ -1069,23 +1166,74 @@ window.subSession = async function(id) {
 
 window.subClient = async function(id) {
   const safeId = id ? String(id) : 0;
-  const obj={id:safeId||String(uid()),name:v('f_name'),phone:v('f_phone')};
-  if(safeId){const i=clients.findIndex(x=>String(x.id)===safeId);clients[i]={...clients[i],...obj};await persistOne('clients',clients[i]);}
-  else{clients.push(obj);await persistOne('clients',obj,true);} closeModal(); render('clients');
-}
-window.subTask = async function(id) {
-  const safeId = id ? String(id) : 0;
-  const obj={id:safeId||String(uid()),title:v('f_title'),desc:v('f_desc'),due:v('f_due'),status:v('f_stat')||'todo'};
-  if(safeId){const i=tasks.findIndex(x=>String(x.id)===safeId);tasks[i]={...tasks[i],...obj};await persistOne('tasks',tasks[i]);}
-  else{tasks.push(obj);await persistOne('tasks',obj,true);} closeModal(); render('tasks');
-}
-window.subExpInc = async function(type, id) {
-  const safeId = id ? String(id) : 0;
-  const arr=type==='expenses'?expenses:incomes;
-  const obj={id:safeId||String(uid()),date:v('f_date'),desc:v('f_desc'),amt:Number(v('f_amt')),store:v('f_store')};
-  if(safeId){const i=arr.findIndex(x=>String(x.id)===safeId);arr[i]={...arr[i],...obj};await persistOne(type,arr[i]);}
-  else{arr.push(obj);await persistOne(type,obj,true);} closeModal(); render(cur);
-}
+  const labelsRaw = v('f_labels');
+  const gcLabels = labelsRaw ? labelsRaw.split(',').map(l => l.trim()).filter(Boolean) : [];
+
+  const obj = {
+    name: v('f_name'), phone: v('f_phone'), email: v('f_email'),
+    birthday: v('f_birthday'), discount: v('f_discount'),
+    notes: v('f_notes'), gcLabels
+  };
+
+  // 1. EĞER GOOGLE BAĞLIYSA: Google'a Kaydet / Güncelle
+  const isGoogleUpdate = safeId && safeId.startsWith('gc_');
+  const isNewRecord = !safeId;
+
+  if (gcAccessToken && (isGoogleUpdate || isNewRecord)) {
+    showToast('Google Rehbere kaydediliyor...', '');
+    try {
+      const personBody = {
+        names: [{ givenName: obj.name }],
+        phoneNumbers: obj.phone ? [{ value: obj.phone }] : [],
+        emailAddresses: obj.email ? [{ value: obj.email }] : [],
+        biographies: obj.notes || obj.discount ? [{ value: (obj.notes + (obj.discount ? ' | ' + obj.discount : '')).trim() }] : []
+      };
+
+      let url = 'https://people.googleapis.com/v1/people:createContact';
+      let method = 'POST';
+
+      if (isGoogleUpdate) {
+        const existingGc = gcContacts.find(c => c.id === safeId);
+        if(existingGc) {
+            personBody.etag = existingGc._etag; // Güncelleme için etag zorunlu
+            url = `https://people.googleapis.com/v1/${existingGc._resourceName}:updateContact?updatePersonFields=names,phoneNumbers,emailAddresses,biographies`;
+            method = 'PATCH';
+        }
+      }
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Authorization': `Bearer ${gcAccessToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(personBody)
+      });
+
+      if(!res.ok) throw new Error('Google API Hatası');
+
+      showToast('Google Kişiler güncellendi ✓', 'success');
+      closeModal();
+      await fetchGoogleContacts(); // Listeyi güncel verilerle yenile
+      return;
+    } catch(e) {
+      showToast('Google\'a kaydedilemedi!', 'error');
+      console.error(e);
+      return;
+    }
+  }
+
+  // 2. GOOGLE BAĞLI DEĞİLSE: Yerel Veritabanına (Firebase/Local) Kaydet
+  obj.id = safeId || String(uid());
+  if (safeId && !safeId.startsWith('gc_')) {
+    const i = clients.findIndex(x => String(x.id) === safeId);
+    clients[i] = {...clients[i], ...obj};
+    await persistOne('clients', clients[i]);
+  } else if(!safeId) {
+    clients.push(obj);
+    await persistOne('clients', obj, true);
+  }
+
+  closeModal();
+  render('clients');
+};
 
 // PRINT FUNCTION
 window.openPrintContract = function(id) {
@@ -1126,17 +1274,299 @@ async function persistOne(col, obj, isNew = false) {
 }
 window.showToast = function(msg,type){const t=document.getElementById('toast');t.textContent=msg;t.className='toast on '+type;setTimeout(()=>t.classList.remove('on'),2400);}
 
-// --- MÜŞTERİ LİSTELEME MANTIĞI (FİLTRE + SIRALAMA) ---
+
+// ═══════════════════════════════════════════════════════════════════
+// GOOGLE CONTACTS ENTEGRASYONU
+// ═══════════════════════════════════════════════════════════════════
+
+// 1. OAuth ile giriş yap ve token al
+window.connectGoogleContacts = function() {
+  if (!window.google) {
+    showToast('Google GSI yüklenmedi, sayfayı yenileyin.', 'error');
+    return;
+  }
+  
+  const client = google.accounts.oauth2.initTokenClient({
+    client_id: GOOGLE_CLIENT_ID,
+    scope: GOOGLE_SCOPES,
+    callback: async (response) => {
+      if (response.error) {
+        showToast('Google bağlantısı başarısız: ' + response.error, 'error');
+        return;
+      }
+      gcAccessToken = response.access_token;
+      sessionStorage.setItem('gc_token', gcAccessToken);
+      showToast('Google Contacts bağlandı ✓', 'success');
+      await fetchGoogleContacts();
+    }
+  });
+  
+  client.requestAccessToken();
+};
+
+// 2. Tüm kişileri çek (sayfalama dahil)
+window.fetchGoogleContacts = async function(pageToken = null) {
+  if (!gcAccessToken) { showToast('Önce Google ile bağlanın', 'error'); return; }
+  
+  showToast('Kişiler yükleniyor…', '');
+  
+  try {
+    let url = `https://people.googleapis.com/v1/people/me/connections?personFields=names,phoneNumbers,emailAddresses,birthdays,biographies,memberships&pageSize=200` + (pageToken ? `&pageToken=${pageToken}` : '');
+    
+    const resp = await fetch(url, {
+      headers: { Authorization: `Bearer ${gcAccessToken}` }
+    });
+    
+    if (!resp.ok) {
+      if (resp.status === 401) {
+        gcAccessToken = null; sessionStorage.removeItem('gc_token');
+        showToast('Oturum süresi doldu, tekrar bağlanın.', 'error');
+        render('clients'); return;
+      }
+      throw new Error('API Hatası: ' + resp.status);
+    }
+    
+    const data = await resp.json();
+    const newContacts = (data.connections || []).map(parseGContact);
+    
+    if (!pageToken) gcContacts = []; // İlk sayfada sıfırla
+    gcContacts = [...gcContacts, ...newContacts];
+    
+    // Sonraki sayfa varsa devam et
+    if (data.nextPageToken) {
+      await fetchGoogleContacts(data.nextPageToken);
+    } else {
+      showToast(`${gcContacts.length} kişi Google'dan yüklendi`, 'success');
+      openGoogleContactsModal();
+    }
+  } catch(e) {
+    showToast('Hata: ' + e.message, 'error');
+  }
+};
+
+// 3. Ham People API verisini PASOVART formatına çevir
+function parseGContact(person) {
+  const name = (person.names?.[0]?.displayName) || '';
+  const phone = (person.phoneNumbers?.[0]?.canonicalForm || person.phoneNumbers?.[0]?.value || '');
+  const email = person.emailAddresses?.[0]?.value || '';
+  
+  // Doğum günü
+  let birthday = '';
+  const bd = person.birthdays?.[0]?.date;
+  if (bd) {
+    const months = ['','Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+    birthday = `${bd.day || ''} ${months[bd.month] || ''} ${bd.year || ''}`.trim();
+  }
+  
+  // Biyografi = Notlar / İndirim açıklaması
+  const notes = person.biographies?.[0]?.value || '';
+  
+  // Etiketler (grup üyelikleri)
+  const labels = (person.memberships || [])
+    .map(m => m.contactGroupMembership?.contactGroupId || '')
+    .filter(l => l && !l.startsWith('contactGroup/')); // sistem gruplarını dışla
+  
+  // İndirim: notlarda "%XX" veya "indirim" geçiyorsa yakala
+  const discountMatch = notes.match(/(%\d+|₺\d+[\s]?indirim|\d+%)/i);
+  const discount = discountMatch ? discountMatch[0] : '';
+  
+return {
+    id: 'gc_' + (person.resourceName || '').replace('people/', ''),
+    _resourceName: person.resourceName, // YENİ: Silme/Düzenleme için gizli kod
+    _etag: person.etag,                 // YENİ: Düzenleme için güvenlik kodu
+    name, phone, email, birthday, notes, gcLabels: labels, discount,
+    type: 'Google Contacts',
+    _fromGoogle: true
+  };
+}
+
+// 4. Seçim modalını aç (Google kişileri listele)
+window.openGoogleContactsModal = function() {
+  if (gcContacts.length === 0) {
+    showToast('Kişi bulunamadı.', 'error'); return;
+  }
+  
+  gcImportModalOpen = true;
+  document.getElementById('moTitle').textContent = `Google Contacts (${gcContacts.length} kişi)`;
+  
+  let html = `
+    <div style="margin-bottom:12px; position:relative">
+      <input type="text" id="gc_search" placeholder="Google kişilerinde ara..."
+        onkeyup="filterGcContacts(this.value)"
+        style="width:100%; padding:10px 10px 10px 36px; border-radius:10px; border:1.5px solid var(--bdr2); 
+               outline:none; font:14px var(--fn); background:#fafafa"/>
+      <svg style="position:absolute;left:11px;top:50%;transform:translateY(-50%)" width="15" height="15" 
+           viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+    </div>
+    <div style="max-height:380px;overflow-y:auto" id="gc_list">
+  `;
+  
+  html += renderGcList(gcContacts);
+  html += `</div>
+    <div style="margin-top:15px;display:flex;gap:8px;border-top:1px solid #f1f5f9;padding-top:12px">
+      <button class="btn btn-p" onclick="importAllGc()" style="flex:1">
+        Tüm Kişileri Ekle (${gcContacts.length})
+      </button>
+      <button class="btn btn-g" onclick="closeModal()">Kapat</button>
+    </div>`;
+  
+  document.getElementById('moBody').innerHTML = html;
+  document.getElementById('mo').classList.add('on');
+};
+
+// 5. Google kişi listesini HTML'e çevir
+function renderGcList(contacts) {
+  if (contacts.length === 0) return '<div style="text-align:center;color:var(--txt3);padding:20px">Sonuç yok</div>';
+  
+  return contacts.map(c => {
+    const alreadyAdded = clients.some(cl => 
+      cl.name.toLowerCase() === c.name.toLowerCase() || 
+      (c.phone && cl.phone === c.phone)
+    );
+    const initials = c.name.split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase();
+    
+    return `
+      <div style="display:flex;align-items:flex-start;gap:11px;padding:10px;border-bottom:1px solid #f1f5f9;border-radius:8px">
+        <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#dbeafe,#bfdbfe);
+                    display:flex;align-items:center;justify-content:center;color:#1e40af;font-weight:700;font-size:13px;flex-shrink:0">
+          ${initials || '?'}
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:14px;color:var(--txt)">${c.name || '(İsimsiz)'}</div>
+          <div style="font-size:11px;color:var(--txt2);margin-top:2px">
+            ${c.phone ? '📞 ' + c.phone : ''} 
+            ${c.email ? ' · ✉️ ' + c.email : ''}
+          </div>
+          ${c.birthday ? `<div class="gc-bday">🎂 ${c.birthday}</div>` : ''}
+          ${c.discount ? `<div class="gc-discount">🏷️ ${c.discount}</div>` : ''}
+          ${c.notes ? `<div class="gc-note">📝 ${c.notes.substring(0, 80)}${c.notes.length > 80 ? '…' : ''}</div>` : ''}
+        </div>
+        <div style="flex-shrink:0">
+          ${alreadyAdded 
+            ? '<span style="font-size:11px;color:var(--grn);font-weight:600">✓ Mevcut</span>' 
+            : `<button class="btn btn-p btn-sm" onclick="importOneGc('${encodeURIComponent(JSON.stringify(c))}')">+ Ekle</button>`
+          }
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// 6. Arama filtresi
+window.filterGcContacts = function(q) {
+  const filtered = q 
+    ? gcContacts.filter(c => 
+        c.name.toLowerCase().includes(q.toLowerCase()) || 
+        c.phone.includes(q) ||
+        c.email.toLowerCase().includes(q.toLowerCase())
+      )
+    : gcContacts;
+  
+  const list = document.getElementById('gc_list');
+  if (list) list.innerHTML = renderGcList(filtered);
+};
+
+// 7. Tek kişi ekle
+window.importOneGc = async function(encoded) {
+  const c = JSON.parse(decodeURIComponent(encoded));
+  if (!c.name) { showToast('İsim yok, eklenemedi.', 'error'); return; }
+  
+  const newClient = {
+    id: String(Date.now()) + Math.random().toString().slice(2,7),
+    name: c.name,
+    phone: c.phone || '',
+    email: c.email || '',
+    birthday: c.birthday || '',
+    notes: c.notes || '',
+    discount: c.discount || '',
+    gcLabels: c.labels || [],
+    total: 0,
+    paid: 0,
+    type: 'Google Contacts'
+  };
+  
+  clients.push(newClient);
+  await persistOne('clients', newClient, true);
+  
+  showToast(c.name + ' eklendi ✓', 'success');
+  
+  // Listedeki butonu "✓ Mevcut" olarak güncelle (Modalı kapatmadan)
+  const q = document.getElementById('gc_search')?.value || '';
+  filterGcContacts(q);
+};
+
+// 8. Tüm kişileri toplu ekle (zaten olanları atla)
+window.importAllGc = async function() {
+  const toAdd = gcContacts.filter(c => 
+    c.name &&
+    !clients.some(cl => cl.name.toLowerCase() === c.name.toLowerCase() || 
+                        (c.phone && cl.phone === c.phone))
+  );
+  
+  if (toAdd.length === 0) { showToast('Tüm kişiler zaten panelde mevcut.', 'success'); return; }
+  
+  if (!confirm(`${toAdd.length} yeni kişi eklenecek. Devam?`)) return;
+  
+  showToast('Yükleniyor… sayfayı kapatmayın!', '');
+  
+  for (const c of toAdd) {
+    const newClient = {
+      id: String(Date.now()) + Math.random().toString().slice(2,7),
+      name: c.name, phone: c.phone || '', email: c.email || '',
+      birthday: c.birthday || '', notes: c.notes || '', discount: c.discount || '',
+      gcLabels: c.labels || [], total: 0, paid: 0, type: 'Google Contacts'
+    };
+    clients.push(newClient);
+    await persistOne('clients', newClient, true);
+  }
+  
+  closeModal();
+  showToast(`${toAdd.length} kişi başarıyla eklendi!`, 'success');
+  render('clients');
+};
+
+// 9. Sayfa yüklenince kaydedilmiş token'ı kontrol et
+const savedGcToken = sessionStorage.getItem('gc_token');
+if (savedGcToken) {
+  gcAccessToken = savedGcToken;
+  // Token geçerli mi test et
+  fetch('https://people.googleapis.com/v1/people/me?personFields=names', {
+    headers: { Authorization: `Bearer ${gcAccessToken}` }
+  }).then(r => {
+    if (!r.ok) { gcAccessToken = null; sessionStorage.removeItem('gc_token'); }
+  }).catch(() => { gcAccessToken = null; });
+}
+// ═══════════════════════════════════════════════════════════════════
+
+
+
+// --- MÜŞTERİ LİSTELEME MANTIĞI (FİLTRE + SIRALAMA + GOOGLE) ---
 function renderClientGrid(query = '') {
     const grid = document.getElementById('clientGrid');
     if (!grid) return;
 
     query = query.toLowerCase();
-    
-    // 1. Alfabetik Sıralama (Türkçe Karakter Uyumlu)
-    let filtered = clients.sort((a, b) => a.name.localeCompare(b.name, 'tr'));
 
-    // 2. Arama Filtresi
+    // 1. DİNAMİK BİRLEŞTİRME: Veritabanı (clients) + Google Contacts (gcContacts)
+    let mergedContacts = [...clients];
+
+    // Google kişilerini listeye ekle (Eğer veritabanında aynı kişi zaten yoksa)
+    gcContacts.forEach(gc => {
+        const alreadyExists = mergedContacts.some(c => 
+            c.name.toLowerCase() === gc.name.toLowerCase() || 
+            (gc.phone && c.phone === gc.phone)
+        );
+        if (!alreadyExists) {
+            mergedContacts.push(gc);
+        }
+    });
+
+    // 2. Alfabetik Sıralama (Türkçe Karakter Uyumlu)
+    let filtered = mergedContacts.sort((a, b) => a.name.localeCompare(b.name, 'tr'));
+
+    // 3. Arama Filtresi
     if (query) {
         filtered = filtered.filter(c => 
             (c.name && c.name.toLowerCase().includes(query)) || 
@@ -1148,24 +1578,41 @@ function renderClientGrid(query = '') {
     const countSpan = document.getElementById('totalClientCount');
     if(countSpan) countSpan.textContent = filtered.length;
 
-    // 3. Performans için limit (Pagination)
+    // 4. Performans için limit (Pagination)
     const showList = filtered.slice(0, renderLimit);
-    
+
     // HTML Oluştur
     grid.innerHTML = showList.map(c => `
-        <div class="card cl-card">
-            <div class="cl-head">
-                <div class="cl-ava" style="background:${getRandomColor(c.name)}">${c.name.charAt(0).toUpperCase()}</div>
-                <div style="flex:1; margin-left:12px; overflow:hidden">
-                    <div style="font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">${c.name}</div>
-                    <div style="font-size:12px; color:var(--txt2)">${c.phone || 'Tel yok'}</div>
-                </div>
-                <div style="display:flex; gap:5px">
-                   <button class="btn btn-e btn-sm" onclick="openMo('client','${c.id}')">${I.edit}</button>
-                   <button class="btn btn-d btn-sm" onclick="del('client','${c.id}')">${I.trash}</button>
-                </div>
+      <div class="card cl-card">
+        <div class="cl-head">
+          <div class="cl-ava" style="background:${getRandomColor(c.name)}">
+            ${c.name.charAt(0).toUpperCase()}
+          </div>
+          <div style="flex:1; margin-left:12px; overflow:hidden">
+            <div style="font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">
+              ${c.name}
+              ${c.type === 'Google Contacts' ? 
+                '<span style="font-size:9px;background:#e8f0fe;color:#1a73e8;padding:1px 5px;border-radius:8px;margin-left:5px;font-weight:600" title="Google Contacts">G</span>' : ''}
             </div>
+            <div style="font-size:12px; color:var(--txt2)">${c.phone || 'Tel yok'}</div>
+            ${c.email ? `<div style="font-size:11px; color:var(--txt3)">${c.email}</div>` : ''}
+            ${c.birthday ? `<div class="gc-bday">🎂 ${c.birthday}</div>` : ''}
+            ${c.discount ? `<div class="gc-discount">🏷️ ${c.discount}</div>` : ''}
+            ${c.notes ? `
+              <div class="gc-note" style="margin-top:5px">
+                ${c.notes.length > 70 ? c.notes.substring(0,70)+'…' : c.notes}
+              </div>` : ''}
+            ${c.gcLabels && c.gcLabels.length > 0 ? 
+              `<div class="tags" style="margin-top:5px">
+                ${c.gcLabels.map(l => `<span class="gc-tag">${l}</span>`).join('')}
+               </div>` : ''}
+          </div>
+          <div style="display:flex; gap:5px; flex-shrink:0; align-items:flex-start;">
+             <button class="btn btn-e btn-sm" onclick="openMo('client','${c.id}')">${I.edit}</button>
+             <button class="btn btn-d btn-sm" onclick="del('client','${c.id}')">${I.trash}</button>
+          </div>
         </div>
+      </div>
     `).join('');
 
     // "Daha Fazla Göster" butonunu yönet
@@ -1227,108 +1674,12 @@ function getRandomColor(name) {
     return colors[Math.abs(hash) % colors.length];
 }
 
-// --- EXCEL İÇE AKTARMA (IMPORT) ---
-window.processExcel = function(input) {
-    const file = input.files[0];
-    if (!file) return;
 
-    const reader = new FileReader();
-    
-    reader.onload = function(e) {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        
-        // İlk sayfayı al
-        const firstSheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[firstSheetName];
-        
-        // JSON'a çevir
-        const json = XLSX.utils.sheet_to_json(worksheet);
-        
-        if(json.length > 0) {
-            if(confirm(`${json.length} adet müşteri bulundu. İçe aktarmak istiyor musunuz? (Bu işlem biraz sürebilir)`)) {
-                importClients(json);
-            }
-        } else {
-            showToast('Excel dosyası boş veya okunamadı.', 'error');
-        }
-        
-        // Inputu temizle
-        input.value = '';
-    };
-    
-    reader.readAsArrayBuffer(file);
-}
-
-async function importClients(data) {
-    showToast('İçe aktarma başladı...', 'pending');
-    
-    let addedCount = 0;
-    
-    // Excel sütunlarını kontrol et
-    
-    for (const row of data) {
-        // Excel satırındaki verileri al (Eğer başlık yoksa pozisyonel bakar)
-        
-        // İsim bulmaya çalış (Görseldeki ADI SOYADI başlığı için özel kontrol)
-        let name = row['ADI SOYADI'] || row['Adı Soyadı'] || row['Ad'] || row['Ad Soyad'] || row['İsim'] || row['Müşteri'];
-        
-        // Telefon bulmaya çalış (Görseldeki İletişim başlığı için özel kontrol)
-        let phone = row['İletişim'] || row['Iletişim'] || row['Tel'] || row['Telefon'] || row['Gsm'] || row['Cep'];
-
-        // Eğer başlıklar eşleşmediyse ve sadece sütunlar geldiyse (Fallback)
-        // Görselde en başta "1" gibi sıra numarası var. Bunu engellemek için kontrol:
-        if (!name && !phone) {
-             const values = Object.values(row);
-             // Eğer ilk sütun bir sayıysa (Sıra No) ve ikinci sütun yazıysa, 2. ve 3. sütunu al
-             if (values.length >= 3 && !isNaN(values[0]) && (typeof values[1] === 'string')) {
-                 name = values[1]; // Sütun B (İsim)
-                 phone = values[2]; // Sütun C (Tel)
-             } else {
-                 name = values[0]; // Sütun A
-                 phone = values.length > 1 ? values[1] : ''; // Sütun B
-             }
-        }
-
-        if (name) {
-            const newClient = {
-                // String ID oluşturma (Date.now + Random)
-                id: String(Date.now()) + Math.random().toString().slice(2,8),
-                name: String(name).trim(),
-                phone: phone ? String(phone).trim() : '',
-                total: 0,
-                paid: 0,
-                type: 'Excel Import'
-            };
-            
-            clients.push(newClient);
-            addedCount++;
-        }
-    }
-    
-    // Toplu Kayıt
-    if(useFirebase) {
-         showToast(`${addedCount} kişi veritabanına işleniyor. Sayfayı kapatmayın!`, 'pending');
-         
-         // Chunk chunk kaydetme (Tarayıcı donmasın diye)
-         for (let i = 0; i < clients.length; i++) {
-             if (!clients[i]._fbId && clients[i].type === 'Excel Import') {
-                 await persistOne('clients', clients[i], true);
-             }
-         }
-    } else {
-        sv(); // LocalStorage kaydet
-    }
-
-    renderClientGrid(); // Listeyi yenile
-    showToast(`${addedCount} müşteri başarıyla eklendi!`, 'success');
-}
 
 // Global'e aktar (Module fix)
 window.renderClientGrid = renderClientGrid;
 window.renderAuthGrid = renderAuthGrid; 
 window.loadMoreAuth = loadMoreAuth;     
-window.processExcel = processExcel;
 window.loadMoreClients = loadMoreClients;
 
 initFirebase();
