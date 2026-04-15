@@ -1295,7 +1295,8 @@ window.connectGoogleContacts = function() {
         return;
       }
       gcAccessToken = response.access_token;
-      sessionStorage.setItem('gc_token', gcAccessToken);
+      // DÜZELTME: sessionStorage yerine localStorage kullanıyoruz ki sekmeyi kapatsan da hatırlasın
+      localStorage.setItem('gc_token', gcAccessToken); 
       showToast('Google Contacts bağlandı ✓', 'success');
       await fetchGoogleContacts();
     }
@@ -1304,11 +1305,11 @@ window.connectGoogleContacts = function() {
   client.requestAccessToken();
 };
 
-// 2. Tüm kişileri çek (sayfalama dahil)
-window.fetchGoogleContacts = async function(pageToken = null) {
-  if (!gcAccessToken) { showToast('Önce Google ile bağlanın', 'error'); return; }
+// 2. Tüm kişileri çek (sayfalama dahil - Otomatik yükleme destekli)
+window.fetchGoogleContacts = async function(pageToken = null, isAutoLoad = false) {
+  if (!gcAccessToken) return;
   
-  showToast('Kişiler yükleniyor…', '');
+  if(!pageToken && !isAutoLoad) showToast('Google Kişileriniz yükleniyor...', '');
   
   try {
     let url = `https://people.googleapis.com/v1/people/me/connections?personFields=names,phoneNumbers,emailAddresses,birthdays,biographies,memberships&pageSize=200` + (pageToken ? `&pageToken=${pageToken}` : '');
@@ -1319,28 +1320,28 @@ window.fetchGoogleContacts = async function(pageToken = null) {
     
     if (!resp.ok) {
       if (resp.status === 401) {
-        gcAccessToken = null; sessionStorage.removeItem('gc_token');
-        showToast('Oturum süresi doldu, tekrar bağlanın.', 'error');
-        render('clients'); return;
+        gcAccessToken = null; localStorage.removeItem('gc_token');
+        if(!isAutoLoad) showToast('Oturum süresi doldu, tekrar bağlanın.', 'error');
+        renderClientGrid(document.getElementById('clientSearch')?.value || ''); 
+        return;
       }
       throw new Error('API Hatası: ' + resp.status);
     }
     
     const data = await resp.json();
-    const newContacts = (data.connections || []).map(parseGContact);
+    const newContacts = (data.connections || []).map(parseGContact).filter(c => c.name);
     
-    if (!pageToken) gcContacts = []; // İlk sayfada sıfırla
+    if (!pageToken) gcContacts = [];
     gcContacts = [...gcContacts, ...newContacts];
     
-    // Sonraki sayfa varsa devam et
     if (data.nextPageToken) {
-      await fetchGoogleContacts(data.nextPageToken);
+      await fetchGoogleContacts(data.nextPageToken, isAutoLoad);
     } else {
-      showToast(`${gcContacts.length} kişi Google'dan yüklendi`, 'success');
-      openGoogleContactsModal();
+      if(!isAutoLoad) showToast(`${gcContacts.length} kişi Google'dan listeye eklendi`, 'success');
+      renderClientGrid(document.getElementById('clientSearch')?.value || '');
     }
   } catch(e) {
-    showToast('Hata: ' + e.message, 'error');
+    if(!isAutoLoad) showToast('Hata: ' + e.message, 'error');
   }
 };
 
@@ -1527,18 +1528,13 @@ window.importAllGc = async function() {
   render('clients');
 };
 
-// 9. Sayfa yüklenince kaydedilmiş token'ı kontrol et
-const savedGcToken = sessionStorage.getItem('gc_token');
+// 9. Sayfa yüklenince kaydedilmiş token'ı kontrol et ve OTOMATİK ÇEK
+const savedGcToken = localStorage.getItem('gc_token');
 if (savedGcToken) {
   gcAccessToken = savedGcToken;
-  // Token geçerli mi test et
-  fetch('https://people.googleapis.com/v1/people/me?personFields=names', {
-    headers: { Authorization: `Bearer ${gcAccessToken}` }
-  }).then(r => {
-    if (!r.ok) { gcAccessToken = null; sessionStorage.removeItem('gc_token'); }
-  }).catch(() => { gcAccessToken = null; });
+  // Sayfa açılışında arka planda sessizce (hata vermeden) kişileri getir
+  fetchGoogleContacts(null, true); 
 }
-// ═══════════════════════════════════════════════════════════════════
 
 
 
