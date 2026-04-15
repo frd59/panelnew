@@ -958,9 +958,11 @@ const moForms={
       <button class="btn btn-d f-sub" onclick="checkPermDelete()">Onayla ve Sil</button>
       `;
   },
-  auth:(id)=>{
-    const c=clients.find(x=>String(x.id)===String(id));
-    return `<div class="fg"><label>Müşteri</label><input type="text" value="${c.name}" disabled style="background:#e2e8f0"/></div><div class="fg"><label>Kullanıcı Adı</label><input type="text" id="f_user" value="${c.username||''}"/></div><div class="fg"><label>Şifre</label><input type="text" id="f_pass" value="${c.password||''}"/></div><button class="btn btn-p f-sub" onclick="subAuth('${id}')">Kaydet</button>`;
+ auth:(id)=>{
+    // Hem yerelde hem Google'da ara
+    const allContacts = [...clients, ...gcContacts];
+    const c = allContacts.find(x=>String(x.id)===String(id)) || {};
+    return `<div class="fg"><label>Müşteri</label><input type="text" value="${c.name || ''}" disabled style="background:#e2e8f0"/></div><div class="fg"><label>Kullanıcı Adı</label><input type="text" id="f_user" value="${c.username||''}"/></div><div class="fg"><label>Şifre</label><input type="text" id="f_pass" value="${c.password||''}"/></div><button class="btn btn-p f-sub" onclick="subAuth('${id}')">Kaydet</button>`;
   },
   panelMgmt:(id)=>{
     const c = clients.find(x=>String(x.id)===String(id));
@@ -1077,33 +1079,35 @@ client: (id) => {
 
 // SUBMITS
 window.subAuth = async function(id) {
-  const c=clients.find(x=>String(x.id)===String(id)); 
-  c.username=v('f_user'); c.password=v('f_pass');
-  await persistOne('clients',c); closeModal(); 
-  
-  // Tabloyu güncelle (Limit sıfırlanmasın diye sadece render çağırıyoruz)
-  renderAuthGrid(document.getElementById('authSearch').value);
-}
-window.subPanelMgmt = async function(id) {
-  const c = clients.find(x=>String(x.id)===String(id));
-  // Finansal Güncelleme
-  c.total = Number(v('pm_total')); 
-  c.paid = Number(v('pm_paid')); 
-  c.stage = Number(v('pm_stage'));
-  
-  // Drive Klasör Linki
-  c.driveFolder = v('pm_drive');
-  
-  // Çekim Detayları Güncelleme (Müşteri Paneli İçin)
-  c.session = {
-    date: v('pm_date'),
-    time: v('pm_time'),
-    pkg: v('pm_pkg'),
-    loc: v('pm_loc'),
-    status: v('pm_status') || 'Planlanıyor'
-  };
+  // 1. Kişiyi önce yerel veritabanında ara
+  let c = clients.find(x => String(x.id) === String(id));
 
-  await persistOne('clients', c); closeModal(); render('panel-mgmt');
+  // 2. Eğer yerelde yoksa (sadece Google'dan geliyorsa)
+  if (!c) {
+    const gc = gcContacts.find(x => String(x.id) === String(id));
+    if (gc) {
+      // Google kişisini yerel veritabanına klonla (Çünkü şifreyi Google'da saklayamayız)
+      c = { ...gc };
+      clients.push(c);
+    } else {
+      showToast('Müşteri bulunamadı!', 'error');
+      return;
+    }
+  }
+
+  // 3. Kullanıcı adı ve şifreyi ata
+  c.username = v('f_user'); 
+  c.password = v('f_pass');
+
+  // 4. Kaydet
+  const isNew = !c._fbId; // Yeni eklendiyse true olacak
+  await persistOne('clients', c, isNew); 
+  
+  closeModal(); 
+  showToast('Giriş bilgileri kaydedildi ✓', 'success');
+  
+  // Tabloyu güncelle
+  renderAuthGrid(document.getElementById('authSearch').value);
 }
 
 // SESSION SAVING WITH AUTOMATION (AUTO-INCOME & AUTO-CONTRACT)
@@ -1672,20 +1676,35 @@ window.renderAuthGrid = function(query = '') {
     if(!tbody) return;
 
     query = query.toLowerCase();
+
+    // 1. DİNAMİK BİRLEŞTİRME (Müşteriler sayfasındaki gibi)
+    let mergedContacts = [...clients];
+    gcContacts.forEach(gc => {
+        const alreadyExists = mergedContacts.some(c => 
+            c.name.toLowerCase() === gc.name.toLowerCase() || 
+            (gc.phone && c.phone === gc.phone)
+        );
+        if (!alreadyExists) {
+            mergedContacts.push(gc);
+        }
+    });
     
-    // 1. Filtrele
-    let filtered = clients.filter(c => c.name.toLowerCase().includes(query));
+    // 2. Filtrele
+    let filtered = mergedContacts.filter(c => c.name.toLowerCase().includes(query));
     
-    // 2. Sırala (A-Z)
+    // 3. Sırala (A-Z)
     filtered.sort((a,b) => a.name.localeCompare(b.name, 'tr'));
 
-    // 3. Dilimle (Pagination)
+    // 4. Dilimle (Pagination)
     const showList = filtered.slice(0, authLimit);
 
-    // 4. HTML Bas
+    // 5. HTML Bas
     tbody.innerHTML = showList.map(c => `
         <tr>
-            <td style="font-weight:600">${c.name}</td>
+            <td style="font-weight:600">
+                ${c.name}
+                ${c.type === 'Google Contacts' ? '<span style="font-size:9px;background:#e8f0fe;color:#1a73e8;padding:1px 5px;border-radius:8px;margin-left:5px;font-weight:600" title="Google Contacts">G</span>' : ''}
+            </td>
             <td>${c.username || '<em style="color:#94a3b8">Yok</em>'}</td>
             <td>${c.username ? '<span class="badge b-active">Aktif</span>' : '<span class="badge b-pending">Pasif</span>'}</td>
             <td><button class="btn btn-e btn-sm" onclick="openMo('auth','${c.id}')">${I.key} Düzenle</button></td>
