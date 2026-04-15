@@ -1362,31 +1362,6 @@ function parseGContact(person) {
     birthday = `${bd.day || ''} ${months[bd.month] || ''} ${bd.year || ''}`.trim();
   }
   
-  const notes = person.biographies?.[0]?.value || '';
-  const labels = (person.memberships || [])
-    .map(m => m.contactGroupMembership?.contactGroupId || '')
-    .filter(l => l && !l.startsWith('contactGroup/'));
-  
-  const discountMatch = notes.match(/(%\d+|₺\d+[\s]?indirim|\d+%)/i);
-  const discount = discountMatch ? discountMatch[0] : '';
-
-  // YENİ: Profil Fotoğrafını Çekme (Eğer varsayılan gri silüet değilse)
-  let photoUrl = '';
-  if (person.photos && person.photos[0] && !person.photos[0].default) {
-      photoUrl = person.photos[0].url;
-  }
-  
-  return {
-    id: 'gc_' + (person.resourceName || '').replace('people/', ''),
-    _resourceName: person.resourceName,
-    _etag: person.etag,
-    name, phone, email, birthday, notes, gcLabels: labels, discount,
-    photoUrl, // YENİ: Fotoğraf URL'si objeye eklendi
-    type: 'Google Contacts',
-    _fromGoogle: true
-  };
-}
-  
   // Biyografi = Notlar / İndirim açıklaması
   const notes = person.biographies?.[0]?.value || '';
   
@@ -1398,12 +1373,19 @@ function parseGContact(person) {
   // İndirim: notlarda "%XX" veya "indirim" geçiyorsa yakala
   const discountMatch = notes.match(/(%\d+|₺\d+[\s]?indirim|\d+%)/i);
   const discount = discountMatch ? discountMatch[0] : '';
+
+  // Profil Fotoğrafını Çekme (Eğer varsayılan gri silüet değilse)
+  let photoUrl = '';
+  if (person.photos && person.photos[0] && !person.photos[0].default) {
+      photoUrl = person.photos[0].url;
+  }
   
-return {
+  return {
     id: 'gc_' + (person.resourceName || '').replace('people/', ''),
-    _resourceName: person.resourceName, // YENİ: Silme/Düzenleme için gizli kod
-    _etag: person.etag,                 // YENİ: Düzenleme için güvenlik kodu
+    _resourceName: person.resourceName,
+    _etag: person.etag,
     name, phone, email, birthday, notes, gcLabels: labels, discount,
+    photoUrl,
     type: 'Google Contacts',
     _fromGoogle: true
   };
