@@ -396,6 +396,7 @@ const GOOGLE_CLIENT_ID = '438367434556-c6tjeghvqo4rrdn4t9te7d9c3rrs6j32.apps.goo
 const GOOGLE_SCOPES = 'https://www.googleapis.com/auth/contacts'; // .readonly kısmını sildik!
 let gcAccessToken = null;
 let gcContacts = [];
+let gcGroupMap = {}; // YENİ EKLENEN: Etiket çeviri sözlüğü
 let gcImportModalOpen = false;
 // ──────────────────────────────────────────────────────────────────
 
@@ -1315,6 +1316,21 @@ window.fetchGoogleContacts = async function(pageToken = null, isAutoLoad = false
   if(!pageToken && !isAutoLoad) showToast('Google Kişileriniz yükleniyor...', '');
   
   try {
+    // 1. ÖNCE ETİKETLERİN GERÇEK İSİMLERİNİ ÇEK (Sözlüğü Doldur)
+    if (Object.keys(gcGroupMap).length === 0) {
+        const grpRes = await fetch('https://people.googleapis.com/v1/contactGroups', {
+            headers: { Authorization: `Bearer ${gcAccessToken}` }
+        });
+        if (grpRes.ok) {
+            const grpData = await grpRes.json();
+            (grpData.contactGroups || []).forEach(g => {
+                const gId = (g.resourceName || '').replace('contactGroups/', '');
+                gcGroupMap[gId] = g.formattedName || g.name;
+            });
+        }
+    }
+
+    // 2. KİŞİLERİ ÇEK
     let url = `https://people.googleapis.com/v1/people/me/connections?personFields=names,phoneNumbers,emailAddresses,birthdays,biographies,memberships,photos&pageSize=200` + (pageToken ? `&pageToken=${pageToken}` : '');
     
     const resp = await fetch(url, {
@@ -1362,19 +1378,20 @@ function parseGContact(person) {
     birthday = `${bd.day || ''} ${months[bd.month] || ''} ${bd.year || ''}`.trim();
   }
   
-  // Biyografi = Notlar / İndirim açıklaması
   const notes = person.biographies?.[0]?.value || '';
   
-  // Etiketler (grup üyelikleri)
+  // YENİ ETİKET ÇEVİRİCİ: Şifreli ID yerine VIP gibi gerçek ismi yaz, myContacts'ı gizle
   const labels = (person.memberships || [])
-    .map(m => m.contactGroupMembership?.contactGroupId || '')
-    .filter(l => l && !l.startsWith('contactGroup/')); // sistem gruplarını dışla
+    .map(m => {
+        const gId = (m.contactGroupMembership?.contactGroupId || '').replace('contactGroups/', '');
+        return gcGroupMap[gId] || gId; // Eğer sözlükte isim varsa onu, yoksa ID'yi kullan
+    })
+    .filter(l => l && l !== 'myContacts'); // 'myContacts' (Kişilerim) yazısını kaldır
   
-  // İndirim: notlarda "%XX" veya "indirim" geçiyorsa yakala
   const discountMatch = notes.match(/(%\d+|₺\d+[\s]?indirim|\d+%)/i);
   const discount = discountMatch ? discountMatch[0] : '';
 
-  // Profil Fotoğrafını Çekme (Eğer varsayılan gri silüet değilse)
+  // Profil Fotoğrafı
   let photoUrl = '';
   if (person.photos && person.photos[0] && !person.photos[0].default) {
       photoUrl = person.photos[0].url;
