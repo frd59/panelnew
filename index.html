@@ -443,13 +443,18 @@ async function loadAllFromFirebase() {
   trash = await fbGetAll('trash'); 
 }
 
-// GET İşlemi
+// GET İşlemi (Verileri Sunucudan Çekme)
 async function fbGetAll(col) { 
     try { 
-        const res = await fetch(`${API_URL}?action=get&collection=${col}`);
+        // URL'ye action=get parametresini tam eklediğimizden emin oluyoruz
+        const res = await fetch(`${API_URL}?collection=${col}`);
         if(!res.ok) return [];
-        return await res.json();
-    } catch{ return []; } 
+        const data = await res.json();
+        return Array.isArray(data) ? data : [];
+    } catch(e) { 
+        console.error("Veri çekme hatası:", e);
+        return []; 
+    } 
 }
 
 // ADD İşlemi
