@@ -1315,7 +1315,7 @@ window.fetchGoogleContacts = async function(pageToken = null, isAutoLoad = false
   if(!pageToken && !isAutoLoad) showToast('Google Kişileriniz yükleniyor...', '');
   
   try {
-    let url = `https://people.googleapis.com/v1/people/me/connections?personFields=names,phoneNumbers,emailAddresses,birthdays,biographies,memberships&pageSize=200` + (pageToken ? `&pageToken=${pageToken}` : '');
+    let url = `https://people.googleapis.com/v1/people/me/connections?personFields=names,phoneNumbers,emailAddresses,birthdays,biographies,memberships,photos&pageSize=200` + (pageToken ? `&pageToken=${pageToken}` : '');
     
     const resp = await fetch(url, {
       headers: { Authorization: `Bearer ${gcAccessToken}` }
@@ -1361,6 +1361,31 @@ function parseGContact(person) {
     const months = ['','Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
     birthday = `${bd.day || ''} ${months[bd.month] || ''} ${bd.year || ''}`.trim();
   }
+  
+  const notes = person.biographies?.[0]?.value || '';
+  const labels = (person.memberships || [])
+    .map(m => m.contactGroupMembership?.contactGroupId || '')
+    .filter(l => l && !l.startsWith('contactGroup/'));
+  
+  const discountMatch = notes.match(/(%\d+|₺\d+[\s]?indirim|\d+%)/i);
+  const discount = discountMatch ? discountMatch[0] : '';
+
+  // YENİ: Profil Fotoğrafını Çekme (Eğer varsayılan gri silüet değilse)
+  let photoUrl = '';
+  if (person.photos && person.photos[0] && !person.photos[0].default) {
+      photoUrl = person.photos[0].url;
+  }
+  
+  return {
+    id: 'gc_' + (person.resourceName || '').replace('people/', ''),
+    _resourceName: person.resourceName,
+    _etag: person.etag,
+    name, phone, email, birthday, notes, gcLabels: labels, discount,
+    photoUrl, // YENİ: Fotoğraf URL'si objeye eklendi
+    type: 'Google Contacts',
+    _fromGoogle: true
+  };
+}
   
   // Biyografi = Notlar / İndirim açıklaması
   const notes = person.biographies?.[0]?.value || '';
@@ -1580,13 +1605,14 @@ function renderClientGrid(query = '') {
     // 4. Performans için limit (Pagination)
     const showList = filtered.slice(0, renderLimit);
 
-    // HTML Oluştur
+   // HTML Oluştur
     grid.innerHTML = showList.map(c => `
       <div class="card cl-card">
         <div class="cl-head">
-          <div class="cl-ava" style="background:${getRandomColor(c.name)}">
-            ${c.name.charAt(0).toUpperCase()}
-          </div>
+          ${c.photoUrl 
+            ? `<img src="${c.photoUrl}" style="width:43px;height:43px;border-radius:12px;object-fit:cover;flex-shrink:0;box-shadow:0 2px 5px rgba(0,0,0,0.08)" alt="${c.name}"/>` 
+            : `<div class="cl-ava" style="background:${getRandomColor(c.name)}">${c.name.charAt(0).toUpperCase()}</div>`
+          }
           <div style="flex:1; margin-left:12px; overflow:hidden">
             <div style="font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">
               ${c.name}
