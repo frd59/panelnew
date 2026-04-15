@@ -1186,6 +1186,17 @@ window.subClient = async function(id) {
   if (gcAccessToken && (isGoogleUpdate || isNewRecord)) {
     showToast('Google Rehbere kaydediliyor...', '');
     try {
+      
+      // --- YENİ EKLENEN KISIM: ETİKETLERİ GOOGLE FORMATINA ÇEVİR ---
+      let membershipArray = [];
+      gcLabels.forEach(labelName => {
+          // gcGroupMap (sözlük) içinde bu isme sahip bir etiket var mı kontrol et
+          let groupId = Object.keys(gcGroupMap).find(key => gcGroupMap[key].toLowerCase() === labelName.toLowerCase());
+          if (groupId) {
+              membershipArray.push({ contactGroupMembership: { contactGroupResourceName: 'contactGroups/' + groupId } });
+          }
+      });
+
       const personBody = {
         names: [{ givenName: obj.name }],
         phoneNumbers: obj.phone ? [{ value: obj.phone }] : [],
@@ -1193,14 +1204,21 @@ window.subClient = async function(id) {
         biographies: obj.notes || obj.discount ? [{ value: (obj.notes + (obj.discount ? ' | ' + obj.discount : '')).trim() }] : []
       };
 
+      // Eğer eşleşen etiket bulunduysa pakete dahil et
+      if (membershipArray.length > 0) {
+          personBody.memberships = membershipArray;
+      }
+      // -------------------------------------------------------------
+
       let url = 'https://people.googleapis.com/v1/people:createContact';
       let method = 'POST';
 
       if (isGoogleUpdate) {
         const existingGc = gcContacts.find(c => c.id === safeId);
         if(existingGc) {
-            personBody.etag = existingGc._etag; // Güncelleme için etag zorunlu
-            url = `https://people.googleapis.com/v1/${existingGc._resourceName}:updateContact?updatePersonFields=names,phoneNumbers,emailAddresses,biographies`;
+            personBody.etag = existingGc._etag; 
+            // DİKKAT: updatePersonFields içine 'memberships' eklendi!
+            url = `https://people.googleapis.com/v1/${existingGc._resourceName}:updateContact?updatePersonFields=names,phoneNumbers,emailAddresses,biographies,memberships`;
             method = 'PATCH';
         }
       }
@@ -1215,7 +1233,9 @@ window.subClient = async function(id) {
 
       showToast('Google Kişiler güncellendi ✓', 'success');
       closeModal();
-      await fetchGoogleContacts(); // Listeyi güncel verilerle yenile
+      
+      // Listeyi güncel verilerle arka planda yenile
+      await fetchGoogleContacts(null, true); 
       return;
     } catch(e) {
       showToast('Google\'a kaydedilemedi!', 'error');
