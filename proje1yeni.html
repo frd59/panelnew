@@ -1,0 +1,1688 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>PASOVART Yönetim Paneli</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0f4f8;--card:#fff;--sb:#1e293b;--sb2:#0f172a;
+  --acc:#3b82f6;--acc2:#60a5fa;
+  --txt:#1e293b;--txt2:#475569;--txt3:#94a3b8;
+  --bdr:#f1f5f9;--bdr2:#e2e8f0;
+  --grn:#10b981;--grn-bg:#ecfdf5;
+  --red:#ef4444;--red-bg:#fef2f2;--red-l:#fee2e2;
+  --amb:#f59e0b;--amb-bg:#fffbeb;
+  --pur:#7c3aed;--pur-bg:#ede9fe;
+  --blu:#0284c7;--blu-bg:#e0f2fe;
+  --sh:0 2px 14px rgba(0,0,0,.07);
+  --fn:'DM Sans',system-ui,sans-serif;
+  --sb-width: 250px;
+}
+html,body{height:100%;font-family:var(--fn);background:var(--bg);color:var(--txt)}
+
+/* ─── APP SHELL ─── */
+.app{display:flex;height:100vh;overflow:hidden}
+
+/* ═══════ SIDEBAR ═══════ */
+.sb{
+  width:var(--sb-width);flex-shrink:0;
+  background:linear-gradient(180deg,var(--sb),var(--sb2));
+  color:#fff;display:flex;flex-direction:column;
+  box-shadow:2px 0 12px rgba(0,0,0,.12);
+  position:relative;z-index:20;transition:transform .3s ease;
+}
+.sb-logo{
+  padding:24px 20px 20px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  display:flex;align-items:center;gap:12px;
+}
+.sb-logo-icon{
+  width:42px;height:42px;border-radius:12px;
+  background:linear-gradient(135deg,#2563eb,#60a5fa);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 3px 10px rgba(37,99,235,.35);
+}
+.sb-logo-txt strong{font-size:18px;font-weight:800;letter-spacing:-.4px;display:block}
+.sb-logo-txt em{font-size:10px;color:rgba(255,255,255,.4);font-style:normal;font-weight:500}
+.sb-nav{flex:1;padding:14px 12px;overflow-y:auto}
+
+.nav-item{
+  width:100%;display:flex;align-items:center;gap:11px;
+  padding:11px 14px;border-radius:10px;border:none;
+  background:transparent;color:rgba(255,255,255,.52);
+  font:500 14px/1 var(--fn);cursor:pointer;
+  transition:all .18s;margin-bottom:3px;position:relative;
+  text-align:left;text-decoration:none;
+}
+.nav-item:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.88)}
+.nav-item.active{background:rgba(59,130,246,.2);color:var(--acc2);font-weight:700}
+.nav-item.active::after{
+  content:'';position:absolute;right:14px;top:50%;transform:translateY(-50%);
+  width:7px;height:7px;border-radius:50%;background:var(--acc2);
+}
+.nav-item svg{flex-shrink:0;width:19px;height:19px}
+
+/* Submenu */
+.submenu{max-height:0;overflow:hidden;transition:max-height 0.3s ease;padding-left:20px}
+.nav-item.has-sub.open + .submenu { max-height:200px }
+.nav-item.has-sub::before{
+  content:'';position:absolute;right:14px;top:50%;transform:translateY(-50%) rotate(0deg);
+  width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;
+  border-top:5px solid rgba(255,255,255,.52);transition:transform .2s;
+}
+.nav-item.has-sub.open::before{transform:translateY(-50%) rotate(180deg)}
+
+.sb-footer{
+  padding:16px 20px;
+  border-top:1px solid rgba(255,255,255,.07);
+  font-size:11px;color:rgba(255,255,255,.25);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.sb-status{display:flex;align-items:center;gap:6px}
+.status-dot{width:7px;height:7px;border-radius:50%;background:var(--grn)}
+.status-dot.offline{background:#94a3b8}
+.status-dot.connecting{background:var(--amb);animation:pulse 1.2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ═══════ MAIN ═══════ */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;position:relative}
+.hdr{
+  background:var(--card);padding:12px 20px;
+  display:flex;justify-content:space-between;align-items:center;
+  border-bottom:1px solid var(--bdr);flex-shrink:0;
+  box-shadow:0 1px 4px rgba(0,0,0,.04);
+}
+.hdr-left{display:flex;align-items:center;gap:15px}
+.menu-btn{display:none;background:none;border:none;cursor:pointer;color:var(--txt)}
+.hdr-search{display:flex;align-items:center;gap:8px;background:#f8fafc;border-radius:10px;padding:9px 15px}
+.hdr-search input{border:none;outline:none;background:transparent;font:400 14px var(--fn);color:var(--txt2);width:180px}
+.hdr-right{display:flex;align-items:center;gap:14px}
+.hdr-greet{font-size:13px;color:var(--txt3)}
+.hdr-avatar{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#2563eb,#60a5fa);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:15px}
+.content{flex:1;overflow-y:auto;padding:26px 28px;position:relative}
+
+/* ─── PAGES & UI ─── */
+.pg{display:none;animation:fadeUp .28s ease}.pg.on{display:block}
+.ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px}
+.ph h2{font-size:21px;font-weight:800;color:var(--txt)}
+
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  border:none;border-radius:10px;padding:9px 18px;
+  font:600 14px var(--fn);cursor:pointer;
+  transition:transform .12s,box-shadow .12s;white-space:nowrap;
+}
+.btn:active{transform:scale(.96)}
+.btn-p{background:linear-gradient(135deg,#1e40af,var(--acc));color:#fff;box-shadow:0 2px 8px rgba(59,130,246,.3)}
+.btn-g{background:#f1f5f9;color:var(--txt2)}.btn-g:hover{background:var(--bdr2)}
+.btn-d{background:var(--red-l);color:var(--red)}.btn-d:hover{background:#fecaca}
+.btn-e{background:#eef2ff;color:#4f46e5}.btn-e:hover{background:#e0e7ff}
+.btn-sm{padding:5px 9px;font-size:12px;border-radius:8px}
+
+.card{background:var(--card);border-radius:14px;box-shadow:var(--sh);border:1px solid var(--bdr)}
+.card-p{padding:22px}
+.badge{display:inline-block;padding:3px 11px;border-radius:20px;font-size:12px;font-weight:600;white-space:nowrap}
+.b-upcoming{background:var(--blu-bg);color:var(--blu)}
+.b-done,.b-completed,.b-active,.b-signed{background:var(--grn-bg);color:var(--grn)}
+.b-inprogress,.b-pending{background:var(--amb-bg);color:var(--amb)}
+.b-todo{background:var(--pur-bg);color:var(--pur)}
+
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:14px;margin-bottom:22px}
+.stat{padding:18px 19px;display:flex;align-items:center;gap:15px;cursor:default;}
+/* Stat card click effect for receivables */
+.stat.clickable { cursor:pointer; transition:transform 0.1s; }
+.stat.clickable:active { transform:scale(0.98); }
+
+.stat-ico{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.stat-lbl{font-size:11px;color:var(--txt3);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.stat-val{font-size:21px;font-weight:800;margin-top:2px}
+
+.tbl-wrap{border-radius:14px;border:1px solid var(--bdr);box-shadow:var(--sh);overflow-x:auto}
+table{width:100%;border-collapse:collapse;background:var(--card)}
+thead tr{background:#f8fafc}
+th{padding:11px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--bdr);white-space:nowrap}
+td{padding:12px 14px;font-size:13px;color:var(--txt2);border-bottom:1px solid #fafafa;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+
+.cl-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));gap:15px}
+.cl-card{padding:19px}
+.cl-head{display:flex;justify-content:space-between;align-items:flex-start}
+.cl-ava{width:43px;height:43px;border-radius:12px;background:linear-gradient(135deg,#dbeafe,#bfdbfe);display:flex;align-items:center;justify-content:center}
+
+/* KANBAN */
+.kanban{display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:15px}
+.kb-col{background:#f8fafc;border-radius:14px;padding:15px;border:1px solid var(--bdr)}
+.kb-head{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.kb-cards{display:flex;flex-direction:column;gap:9px}
+.kb-card{background:var(--card);border-radius:11px;padding:13px;box-shadow:0 2px 8px rgba(0,0,0,.05);border:1px solid var(--bdr)}
+
+/* TRASH CHECKBOX */
+.trash-check { width:18px; height:18px; cursor:pointer; accent-color: var(--red); }
+
+/* MOBILE */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:15;opacity:0;pointer-events:none;transition:opacity .3s}
+.overlay.active{opacity:1;pointer-events:all}
+@media (max-width: 768px) {
+  .app{flex-direction:column}
+  .sb{position:fixed;top:0;left:0;bottom:0;transform:translateX(-100%)}
+  .sb.active{transform:translateX(0)}
+  .menu-btn{display:block}
+  .content{padding:15px}
+  .hdr-search{display:none}
+}
+
+/* MODAL & TOAST */
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.38);backdrop-filter:blur(5px);z-index:999;display:none;align-items:center;justify-content:center}
+.mo.on{display:flex}
+.mo-box{background:#fff;border-radius:16px;width:90%;max-width:470px;max-height:90vh;overflow-y:auto;padding:30px;box-shadow:0 30px 70px rgba(0,0,0,.2)}
+.mo-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+.mo-cls{border:none;background:#f1f5f9;border-radius:8px;width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.fg{margin-bottom:15px}
+.fg label{display:block;font-size:13px;font-weight:600;color:var(--txt2);margin-bottom:5px}
+.fg input,.fg select,.fg textarea{width:100%;padding:9px 13px;border:1.5px solid var(--bdr2);border-radius:10px;font:400 14px var(--fn);background:#fafafa;color:var(--txt);outline:none;transition:border .2s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--acc);background:#fff}
+.fg textarea{resize:vertical;min-height:80px}
+.fr{display:flex;gap:11px}.fr .fg{flex:1}
+.f-sub{width:100%;padding:11px;margin-top:6px;font-size:15px}
+.section-title { font-size:12px; font-weight:700; color:var(--acc); text-transform:uppercase; margin-bottom:10px; padding-bottom:5px; border-bottom:1px solid #f1f5f9; margin-top:15px; }
+
+/* Detail View Styles */
+.det-row { display:flex; margin-bottom:12px; border-bottom:1px solid #f1f5f9; padding-bottom:8px; }
+.det-lbl { width:120px; font-weight:600; color:var(--txt3); font-size:13px; }
+.det-val { flex:1; font-weight:500; color:var(--txt); font-size:14px; }
+.click-row { cursor:pointer; transition:background .15s; }
+.click-row:hover { background: #f8fafc; }
+
+/* PRINT STYLES (A4) */
+@media print {
+  @page { margin: 0; size: A4; }
+  body * { visibility: hidden; }
+  .print-area, .print-area * { visibility: visible; }
+  .print-area {
+    position: absolute; left: 0; top: 0; width: 100%; height: 100%;
+    background: white; color: black; padding: 40px; z-index: 9999;
+  }
+  .print-btn-group { display: none !important; }
+}
+.print-paper {
+  display:none; 
+  background: #fff; padding: 40px; color: #000; font-family: 'Times New Roman', serif;
+}
+.print-paper.active { display:block; }
+.print-header { text-align:center; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 30px; }
+.print-logo { font-size: 28px; font-weight: bold; letter-spacing: 2px; }
+.print-sub { font-size: 14px; margin-top: 5px; color: #555; }
+.print-row { display:flex; justify-content: space-between; margin-bottom: 15px; }
+.print-label { font-weight: bold; width: 150px; }
+.print-val { flex: 1; border-bottom: 1px dotted #999; }
+.print-box { border: 1px solid #000; padding: 15px; margin: 20px 0; }
+.print-title { font-weight: bold; font-size: 16px; margin-bottom: 10px; text-decoration: underline; }
+.print-signatures { display: flex; justify-content: space-between; margin-top: 80px; }
+.sig-box { width: 40%; text-align: center; border-top: 1px solid #000; padding-top: 10px; }
+
+.toast{position:fixed;bottom:24px;right:24px;z-index:1001;background:var(--txt);color:#fff;padding:12px 20px;border-radius:12px;font:500 14px var(--fn);opacity:0;transform:translateY(12px);transition:all .3s;pointer-events:none;max-width:320px}
+.toast.on{opacity:1;transform:translateY(0)}
+.toast.success{background:var(--grn)}
+.toast.error{background:var(--red)}
+
+/* LOGIN SCREEN */
+.login-screen{position:fixed;inset:0;background:linear-gradient(135deg,var(--sb),var(--sb2));z-index:9999;display:flex;align-items:center;justify-content:center}
+.login-box{background:#fff;border-radius:20px;padding:40px;width:90%;max-width:400px;box-shadow:0 30px 80px rgba(0,0,0,.3)}
+.login-logo{text-align:center;margin-bottom:30px}
+.login-logo-icon{width:60px;height:60px;border-radius:16px;background:linear-gradient(135deg,#2563eb,#60a5fa);display:inline-flex;align-items:center;justify-content:center;box-shadow:0 5px 15px rgba(37,99,235,.4);margin-bottom:12px}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}
+
+/* Google Contacts Stilleri */
+.gc-tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;background:#dbeafe;color:#1e40af;margin:2px}
+.gc-note{font-size:11px;color:var(--txt2);margin-top:6px;line-height:1.5;background:#f8fafc;padding:6px 10px;border-radius:6px;border-left:2px solid var(--acc)}
+.gc-bday{font-size:11px;color:var(--grn);font-weight:600;margin-top:4px}
+.gc-email{font-size:11px;color:var(--txt2);margin-top:2px}
+.gc-discount{display:inline-flex;align-items:center;gap:4px;background:#fef3c7;color:#92400e;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;margin-top:4px}
+.google-connect-bar{background:linear-gradient(135deg,#eff6ff,#dbeafe);border:1px solid #bfdbfe;border-radius:12px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.google-connect-bar .gb-icon{width:36px;height:36px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.google-connect-bar .gb-info{flex:1;min-width:150px}
+.google-connect-bar .gb-title{font-size:13px;font-weight:700;color:#1e40af}
+.google-connect-bar .gb-sub{font-size:11px;color:#3b82f6;margin-top:1px}
+.btn-google{background:#4285f4;color:#fff;border:none;border-radius:9px;padding:8px 16px;font:600 13px var(--fn);cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:background .15s}
+.btn-google:hover{background:#3367d6}
+.btn-google svg{flex-shrink:0}
+
+
+</style>
+</head>
+<body>
+
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-logo-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+      <strong>PASOVART</strong>
+      <em>Yönetici Girişi</em>
+    </div>
+    <div class="fg"><label>Kullanıcı Adı</label><input type="text" id="loginUser" placeholder="Kullanıcı adınız"/></div>
+    <div class="fg"><label>Şifre</label><input type="password" id="loginPass" placeholder="Şifreniz" onkeypress="if(event.key==='Enter')doLogin()"/></div>
+    <button class="btn btn-p f-sub" onclick="doLogin()">Giriş Yap</button>
+    <div id="loginError" style="color:var(--red);font-size:12px;margin-top:10px;text-align:center;display:none"></div>
+  </div>
+</div>
+
+<div class="app" style="display:none" id="mainApp">
+<div class="overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<aside class="sb" id="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-icon"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+    <div class="sb-logo-txt"><strong>PASOVART</strong><em>Yönetim Paneli</em></div>
+  </div>
+  <nav class="sb-nav">
+    <button class="nav-item active" data-tab="dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Ana Özet
+    </button>
+    <button class="nav-item" data-tab="sessions">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Çekimler
+    </button>
+    <button class="nav-item" data-tab="clients">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><circle cx="17" cy="9" r="2.5"/><path d="M23 21v-1.5a3 3 0 0 0-3-3h-.5"/></svg>
+      Müşteriler
+    </button>
+    <button class="nav-item" data-tab="client-auth">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+      Müşteri Girişleri
+    </button>
+    
+    <button class="nav-item" data-tab="panel-mgmt" style="background:rgba(255,255,255,0.05); color:#fff; border:1px solid rgba(255,255,255,0.1)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+      Panel Yönetimi
+    </button>
+
+    <button class="nav-item" data-tab="tasks">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Görevler
+    </button>
+    <button class="nav-item" data-tab="contracts">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Sözleşmeler
+    </button>
+    <button class="nav-item" data-tab="finance">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      Gelir / Gider
+    </button>
+    <button class="nav-item has-sub" onclick="toggleSub(event)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Dükkanlar
+    </button>
+    <div class="submenu">
+      <button class="nav-item" data-tab="store-corlu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>Çorlu</button>
+      <button class="nav-item" data-tab="store-ergene"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>Ergene</button>
+    </div>
+    
+    <div style="margin-top:20px; border-top:1px solid rgba(255,255,255,0.1); padding-top:10px;">
+        <button class="nav-item" data-tab="trash" style="color:#fecaca">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path></svg>
+            Çöp Kutusu
+        </button>
+    </div>
+  </nav>
+  <div class="sb-footer">
+    <span>PASOVART v3.0</span>
+    <div class="sb-status"><div class="status-dot connecting" id="statusDot"></div><span id="statusTxt">Bağlanıyor…</span></div>
+  </div>
+</aside>
+
+<div class="main">
+  <header class="hdr">
+    <div class="hdr-left">
+      <button class="menu-btn" onclick="toggleSidebar()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1e293b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+      <div class="hdr-search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="Arama…" /></div>
+    </div>
+    <div class="hdr-right"><span class="hdr-greet">Hoş geldin, PASOVART 👋</span><div class="hdr-avatar">F</div></div>
+  </header>
+  <div class="content">
+    <div class="pg on" id="pg-dashboard"></div>
+    <div class="pg" id="pg-sessions"></div>
+    <div class="pg" id="pg-clients"></div>
+    <div class="pg" id="pg-client-auth"></div>
+    <div class="pg" id="pg-panel-mgmt"></div>
+    <div class="pg" id="pg-tasks"></div>
+    <div class="pg" id="pg-contracts"></div>
+    <div class="pg" id="pg-finance"></div>
+    <div class="pg" id="pg-store-corlu"></div>
+    <div class="pg" id="pg-store-ergene"></div>
+    <div class="pg" id="pg-trash"></div>
+  </div>
+</div>
+</div>
+
+<div class="mo" id="mo" onclick="if(event.target===this)closeModal()">
+  <div class="mo-box">
+    <div class="mo-hd"><h3 id="moTitle">–</h3><button class="mo-cls" onclick="closeModal()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div id="moBody"></div>
+  </div>
+</div>
+
+<div class="print-paper print-area" id="printArea">
+  <div class="print-header">
+    <div class="print-logo">PASOVART</div>
+    <div class="print-sub">Fotoğraf & Video Prodüksiyon Hizmetleri</div>
+  </div>
+  <div id="printContent"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+const firebaseConfig = {
+  apiKey: "AIzaSyC82ZVx7sf6evT4zs3b5qoQ6H7eXTrf4Ng",
+  authDomain: "pasovartpanel.firebaseapp.com",
+  projectId: "pasovartpanel",
+  storageBucket: "pasovartpanel.firebasestorage.app",
+  messagingSenderId: "1031606727169",
+  appId: "1:1031606727169:web:bde71345525d0ec7c90600",
+  measurementId: "G-GTR6KPH1CL"
+};
+
+
+
+// ─── GOOGLE CONTACTS YAPILANDIRMASI ───────────────────────────────
+const GOOGLE_CLIENT_ID = 'BURAYA_CLIENT_ID_YAPIŞTIRIN.apps.googleusercontent.com';
+const GOOGLE_SCOPES = 'https://www.googleapis.com/auth/contacts'; // .readonly kısmını sildik!
+let gcAccessToken = null;
+let gcContacts = [];
+let gcImportModalOpen = false;
+// ──────────────────────────────────────────────────────────────────
+
+
+
+
+// LOGIN
+const USERS = { 'ferdi': { pass: '123456', name: 'Ferdi' }, 'eren': { pass: '123456', name: 'Eren' }, 'muharrem': { pass: '123456', name: 'Muharrem' } };
+let currentUser = null;
+window.doLogin = function() {
+  const user = document.getElementById('loginUser').value.toLowerCase();
+  const pass = document.getElementById('loginPass').value;
+  if (USERS[user] && USERS[user].pass === pass) {
+    currentUser = { username: user, name: USERS[user].name };
+    localStorage.setItem('pf_currentUser', JSON.stringify(currentUser));
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('mainApp').style.display = 'flex';
+  } else { document.getElementById('loginError').style.display = 'block'; document.getElementById('loginError').textContent = 'Hatalı giriş'; }
+}
+function checkLogin() {
+  const saved = localStorage.getItem('pf_currentUser');
+  if (saved) { currentUser = JSON.parse(saved); document.getElementById('loginScreen').style.display = 'none'; document.getElementById('mainApp').style.display = 'flex'; }
+}
+
+// FIREBASE
+let db = null; let useFirebase = false; let _doc, _collection, _setDoc, _deleteDoc, _getDocs;
+async function initFirebase() {
+  try {
+    const { initializeApp } = await import('https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js');
+    const { getFirestore, doc, collection, setDoc, deleteDoc, getDocs } = await import('https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js');
+    db = getFirestore(initializeApp(firebaseConfig));
+    _doc=doc; _collection=collection; _setDoc=setDoc; _deleteDoc=deleteDoc; _getDocs=getDocs;
+    useFirebase = true; setStatus('online', 'Çevrimiçi'); await loadAllFromFirebase();
+  } catch (e) { useFirebase = false; setStatus('offline', 'Çevrimdışı (Yerel)'); loadAllFromLocal(); }
+  checkLogin(); render('dashboard');
+}
+function setStatus(state, txt) {
+  document.getElementById('statusDot').className = 'status-dot'+(state==='online'?'':' offline');
+  document.getElementById('statusTxt').textContent = txt;
+}
+
+// DATA
+let clients=[], sessions=[], tasks=[], contracts=[], expenses=[], incomes=[], trash=[];
+async function loadAllFromFirebase() {
+  clients = await fbGetAll('clients'); sessions = await fbGetAll('sessions');
+  tasks = await fbGetAll('tasks'); contracts = await fbGetAll('contracts');
+  expenses = await fbGetAll('expenses'); incomes = await fbGetAll('incomes');
+  trash = await fbGetAll('trash'); // TRASH LOAD
+}
+async function fbGetAll(col) { try { const snap = await _getDocs(_collection(db, col)); return snap.docs.map(d=>({...d.data(),_fbId:d.id})); } catch{return[]} }
+async function fbAdd(col, obj) {
+  if(!useFirebase) return obj;
+  try{ const id=(crypto&&crypto.randomUUID)?crypto.randomUUID():String(Date.now()); await _setDoc(_doc(db,col,id),{...obj}); obj._fbId=id; showToast('Kaydedildi ✓','success'); }catch(e){showToast('Hata','error')} return obj;
+}
+async function fbUpdate(col, obj) { if(useFirebase&&obj._fbId) await _setDoc(_doc(db,col,obj._fbId),{...obj}); showToast('Güncellendi ✓','success'); }
+async function fbDelete(col, fbId) { if(useFirebase&&fbId) await _deleteDoc(_doc(db,col,fbId)); showToast('Silindi ✓','success'); }
+
+// LOCAL STORAGE
+const ld = (k, fb) => { try { return JSON.parse(localStorage.getItem('pf_'+k))||fb; } catch { return fb; } };
+const sv = () => {
+  if(useFirebase) return;
+  localStorage.setItem('pf_clients',JSON.stringify(clients)); localStorage.setItem('pf_sessions',JSON.stringify(sessions));
+  localStorage.setItem('pf_tasks',JSON.stringify(tasks)); localStorage.setItem('pf_contracts',JSON.stringify(contracts));
+  localStorage.setItem('pf_expenses',JSON.stringify(expenses)); localStorage.setItem('pf_incomes',JSON.stringify(incomes));
+  localStorage.setItem('pf_trash',JSON.stringify(trash));
+  showToast('Kaydedildi ✓','success');
+};
+function loadAllFromLocal() {
+  clients=ld('clients',[]); sessions=ld('sessions',[]); tasks=ld('tasks',[]); contracts=ld('contracts',[]); expenses=ld('expenses',[]); incomes=ld('incomes',[]);
+  trash=ld('trash',[]);
+}
+
+// UI UTILS
+const uid = () => Date.now() + (Math.random()*9999|0);
+const cn = id => {
+    // String/Number conversion safety for finding clients
+    const c = clients.find(x => String(x.id) === String(id));
+    return c ? c.name : '–';
+};
+const cp = id => {
+    const c = clients.find(x => String(x.id) === String(id));
+    return c ? c.phone : '';
+};
+const fm = n => Number(n).toLocaleString('tr-TR');
+const fmtDate = d => {
+  if(!d) return '-';
+  const dateObj = new Date(d);
+  return dateObj.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+};
+const I = {
+  plus:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+  trash:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>`,
+  edit:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
+  key:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>`,
+  set:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
+  print:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>`,
+  eye: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
+  restore: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>`
+};
+
+// NAV & MOBILE
+window.toggleSub=function(e){ e.preventDefault(); e.currentTarget.classList.toggle('open'); }
+window.toggleSidebar=function(){ document.getElementById('sidebar').classList.toggle('active'); document.getElementById('sidebarOverlay').classList.toggle('active'); }
+let cur='dashboard';
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.nav-item').forEach(btn => {
+    if (!btn.classList.contains('has-sub')) {
+      btn.addEventListener('click', function() {
+        if(window.innerWidth<=768) window.toggleSidebar();
+        const tab = this.dataset.tab; if(tab) go(tab);
+      });
+    }
+  });
+});
+function go(k) {
+  cur=k; document.querySelectorAll('.nav-item').forEach(b=>{if(!b.classList.contains('has-sub'))b.classList.toggle('active',b.dataset.tab===k)});
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  if(document.getElementById('pg-'+k)) { document.getElementById('pg-'+k).classList.add('on'); render(k); }
+}
+
+// RENDERERS
+function render(k) {
+  const pages = {
+    dashboard: rDash, sessions: rSess, clients: rCli, 'client-auth': rCliAuth,
+    'panel-mgmt': rPanelMgmt,
+    tasks: rTask, contracts: rCont, finance: rFin,
+    'store-corlu': ()=>rStore('corlu'), 'store-ergene': ()=>rStore('ergene'),
+    trash: rTrash
+  };
+  
+  if(pages[k]) {
+      document.getElementById('pg-'+k).innerHTML = pages[k]();
+      // YENİ EKLENEN SATIRLAR: Sayfa yüklenince gridleri doldur
+      if(k === 'clients') {
+          setTimeout(() => renderClientGrid(), 50); 
+      }
+      if(k === 'client-auth') {
+          setTimeout(() => renderAuthGrid(), 50);
+      }
+  }
+}
+
+function rDash() {
+  const inc = incomes.reduce((a, i) => a + (Number(i.amt) || 0), 0);
+  const exp = expenses.reduce((a, e) => a + (Number(e.amt) || 0), 0);
+  
+  // DÜZELTME: NaN HATASINI ENGELLEYEN HESAPLAMA
+  const receivables = clients.reduce((acc, c) => {
+      const t = Number(c.total) || 0; // Eğer total tanımsızsa 0 al
+      const p = Number(c.paid) || 0;  // Eğer paid tanımsızsa 0 al
+      return acc + (t - p);
+  }, 0);
+
+  const up=sessions.filter(s=>s.status==='upcoming').sort((a,b)=>new Date(a.date)-new Date(b.date));
+  
+  return `<div class="stat-grid">
+    <div class="card stat"><div class="stat-ico" style="background:#ecfdf5"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div><div><div class="stat-lbl">Toplam Gelir (Kasa)</div><div class="stat-val" style="color:#10b981">₺${fm(inc)}</div></div></div>
+    <div class="card stat"><div class="stat-ico" style="background:#fef2f2"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div><div><div class="stat-lbl">Toplam Gider</div><div class="stat-val" style="color:#ef4444">₺${fm(exp)}</div></div></div>
+    <div class="card stat clickable" onclick="openReceivablesList()" style="cursor:pointer"><div class="stat-ico" style="background:#eff6ff"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M12 2v20M2 12h20" stroke-opacity="0"/><path d="M17 9V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M9 9h.01"/><path d="M12 15v3m0 0l-3-3m3 3l3-3"/><path d="M22 17v2a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></div><div><div class="stat-lbl">Alınacak Ödemeler</div><div class="stat-val" style="color:#3b82f6">₺${fm(receivables)}</div></div></div>
+  </div>
+  <div class="card card-p"><div class="ph" style="margin-bottom:14px"><h3 style="font-size:16px;font-weight:700">📸 Yaklaşan Çekimler</h3></div>
+  ${up.slice(0,5).map(s=>{
+    const dObj = new Date(s.date);
+    const day = dObj.getDate();
+    const fullDate = fmtDate(s.date);
+    const clientName = cn(s.cid);
+    const clientPhone = cp(s.cid);
+    
+    return `<div class="click-row" onclick="openSessionDetail('${s.id}')" style="display:flex;align-items:center;gap:13px;padding:11px 10px;border-bottom:1px solid #f1f5f9;border-radius:8px;">
+      <div style="width:50px;height:50px;border-radius:11px;background:linear-gradient(135deg,#dbeafe,#bfdbfe);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#1e40af;font-weight:800;line-height:1;flex-shrink:0;">
+        <span style="font-size:18px">${day}</span>
+      </div>
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:15px;color:var(--txt)">${clientName}</div>
+        <div style="font-size:12px;color:var(--txt3);display:flex;align-items:center;gap:6px;">
+          <span>📞 ${clientPhone}</span> • <span>${s.pkg}</span>
+        </div>
+        <div style="font-size:12px;color:var(--acc);font-weight:500;margin-top:2px;">${fullDate}</div>
+      </div>
+      <div style="font-weight:700;color:#1e40af;font-size:15px">₺${fm(s.total)}</div>
+    </div>`
+  }).join('')}</div>`;
+}
+
+function rPanelMgmt() {
+  return `
+  <div class="ph"><h2>⚙️ Müşteri Paneli Yönetimi</h2></div>
+  <div class="card card-p">
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Müşteri</th><th>Aşama (1-5)</th><th>Borç Durumu</th><th>İşlem</th></tr></thead>
+      <tbody>
+        ${clients.map(c => {
+          const debt = (c.total || 0) - (c.paid || 0);
+          return `<tr>
+            <td style="font-weight:600">${c.name}</td>
+            <td><span class="badge b-active">${c.stage || 1}. Adım</span></td>
+            <td>${debt > 0 ? `<span style="color:var(--red)">₺${fm(debt)} Borç</span>` : '<span style="color:var(--grn)">Ödendi</span>'}</td>
+            <td><button class="btn btn-e btn-sm" onclick="openMo('panelMgmt', '${c.id}')">${I.set} Yönet</button></td>
+          </tr>`
+        }).join('')}
+      </tbody>
+    </table></div>
+  </div>`;
+}
+
+function rCliAuth() {
+  return `
+  <div class="ph"><h2>🔐 Müşteri Giriş Yönetimi</h2></div>
+  
+  <div style="margin-bottom:20px; position:relative">
+    <svg style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#94a3b8" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="authSearch" placeholder="İsim ile arayın..." 
+           onkeyup="renderAuthGrid(this.value)"
+           style="width:100%; padding:12px 12px 12px 40px; border-radius:12px; border:1px solid var(--bdr); outline:none; font-size:14px; box-shadow:0 2px 5px rgba(0,0,0,0.03)">
+  </div>
+
+  <div class="card card-p">
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Müşteri</th><th>Kullanıcı Adı</th><th>Durum</th><th>İşlem</th></tr></thead>
+        <tbody id="authTableBody">
+           </tbody>
+      </table>
+    </div>
+    <div id="authLoadMoreBtn" style="text-align:center; margin-top:15px; display:none">
+       <button class="btn btn-e" onclick="loadMoreAuth()">Daha Fazla Göster</button>
+    </div>
+  </div>`;
+}
+
+function rStore(code) {
+  const name=code==='corlu'?'Çorlu':'Ergene';
+  const sInc=incomes.filter(i=>i.store===code), sExp=expenses.filter(e=>e.store===code);
+  const totInc=sInc.reduce((a,b)=>a+b.amt,0), totExp=sExp.reduce((a,b)=>a+b.amt,0);
+  const items=[...sInc.map(i=>({...i,t:'inc'})),...sExp.map(e=>({...e,t:'exp'}))].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  return `<div class="ph"><h2>🏪 ${name} Şubesi</h2></div><div class="stat-grid"><div class="card stat"><div class="stat-ico" style="background:#ecfdf5"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div><div><div class="stat-lbl">Gelir</div><div class="stat-val" style="color:#10b981">₺${fm(totInc)}</div></div></div><div class="card stat"><div class="stat-ico" style="background:#fef2f2"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div><div><div class="stat-lbl">Gider</div><div class="stat-val" style="color:#ef4444">₺${fm(totExp)}</div></div></div></div><div class="card card-p"><h3 style="font-size:16px;font-weight:700;margin-bottom:15px">Hareketler</h3><div class="tbl-wrap"><table><thead><tr><th>Tarih</th><th>Açıklama</th><th>Türü</th><th>Tutar</th></tr></thead><tbody>${items.length?items.map(x=>`<tr><td>${fmtDate(x.date)}</td><td style="font-weight:600">${x.desc}</td><td>${x.t==='inc'?'<span style="color:var(--grn)">Gelir</span>':'<span style="color:var(--red)">Gider</span>'}</td><td style="font-weight:700">${x.t==='inc'?'+':'-'}₺${fm(x.amt)}</td></tr>`).join(''):'<tr><td colspan="4" style="text-align:center;color:var(--txt3)">Kayıt yok.</td></tr>'}</tbody></table></div></div>`;
+}
+
+function rTask() {
+  const cols = [{k:'todo',l:'Yapılacak',c:'#7c3aed'},{k:'inprogress',l:'Sürüyor',c:'#d97706'},{k:'done',l:'Bitti',c:'#16a34a'}];
+  return `<div class="ph"><h2>📌 Görevler</h2><button class="btn btn-p" onclick="openMo('task')">${I.plus} Yeni</button></div><div class="kanban">${cols.map(col => { const its=tasks.filter(t=>t.status===col.k); return `<div class="kb-col"><div class="kb-head"><strong style="color:${col.c}">${col.l}</strong><span style="font-size:11px;padding:2px 8px;border-radius:10px;background:${col.c}1a;color:${col.c}">${its.length}</span></div><div class="kb-cards">${its.map(t=>`<div class="kb-card"><div style="display:flex;justify-content:space-between;font-weight:600;font-size:13px">${t.title}</div>${t.desc?`<div style="font-size:11px;color:var(--txt2);margin-top:4px;line-height:1.4">${t.desc}</div>`:''}<div style="font-size:10px;color:var(--txt3);margin-top:6px;font-weight:700">${fmtDate(t.due)}</div><div style="margin-top:8px;display:flex;gap:5px"><button class="btn btn-e btn-sm" onclick="openMo('task','${t.id}')">${I.edit}</button><button class="btn btn-d btn-sm" onclick="del('task','${t.id}')">${I.trash}</button></div></div>`).join('')}</div></div>`; }).join('')}</div>`;
+}
+
+function rCont() {
+  return `<div class="ph"><h2>📄 Sözleşmeler</h2></div><div class="tbl-wrap"><table><thead><tr><th>Müşteri (Detay)</th><th>Oluşturma</th><th>Bakiye</th><th>İşlem</th></tr></thead><tbody>${contracts.map(c=>{
+    const sess = sessions.find(s => s.cid === c.cid && s.date === c.date) || {};
+    const detailAction = sess.id ? `onclick="openSessionDetail('${sess.id}')"` : '';
+    return `<tr><td style="font-weight:600; cursor:pointer; color:var(--acc);" ${detailAction}>${cn(c.cid)} ${I.eye}</td><td>${fmtDate(c.date)}</td><td>${(c.total-c.paid)>0 ? '<span style="color:var(--red)">Borçlu</span>' : '<span style="color:var(--grn)">Ödendi</span>'}</td><td style="display:flex;gap:5px"><button class="btn btn-e btn-sm" onclick="openPrintContract('${c.id}')">${I.print} Yazdır</button><button class="btn btn-d btn-sm" onclick="del('contract','${c.id}')">${I.trash}</button></td></tr>`;
+  }).join('')}</tbody></table></div>`;
+}
+
+function rSess() { return `<div class="ph"><h2>📷 Çekimler</h2><button class="btn btn-p" onclick="openMo('session')">${I.plus} Yeni</button></div><div class="tbl-wrap"><table><thead><tr><th>Müşteri</th><th>Tarih</th><th>Paket</th><th>Tutar</th><th>İşlem</th></tr></thead><tbody>${sessions.map(s=>`<tr><td style="font-weight:600">${cn(s.cid)}</td><td>${fmtDate(s.date)}</td><td>${s.pkg}</td><td>₺${fm(s.total)}</td><td style="display:flex;gap:5px"><button class="btn btn-e btn-sm" onclick="openSessionDetail('${s.id}')">${I.eye}</button><button class="btn btn-e btn-sm" onclick="openMo('session','${s.id}')">${I.edit}</button><button class="btn btn-d btn-sm" onclick="del('session','${s.id}')">${I.trash}</button></td></tr>`).join('')}</tbody></table></div>`; }
+// --- YENİ MÜŞTERİ SAYFASI (ARAMA + SIRALAMA + EXCEL) ---
+let renderLimit = 50; // Performans için başlangıç limiti
+let authLimit = 50; // Müşteri Girişleri için limit
+
+function rCli() {
+  return `
+  <div class="ph">
+    <h2>👤 Müşteriler</h2>
+    <div style="display:flex; gap:10px; flex-wrap:wrap">
+      
+      <button class="btn btn-google" onclick="connectGoogleContacts()" style="background:#4285f4; color:#fff; gap:7px; padding:9px 16px; display:flex; align-items:center; border:none; border-radius:10px; font-weight:600; cursor:pointer;">
+        <svg width="16" height="16" viewBox="0 0 48 48" style="margin-right:4px;">
+          <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
+          <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/>
+          <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/>
+          <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/>
+        </svg>
+        ${gcAccessToken ? "Contacts'ı Güncelle" : "Google Contacts"}
+      </button>
+      
+      <button class="btn btn-p" onclick="openMo('client')">${I.plus} Yeni</button>
+    </div>
+  </div>
+
+  <div style="margin-bottom:20px; position:relative">
+    <svg style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#94a3b8" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="clientSearch" placeholder="İsim veya telefon ile arayın..." 
+           onkeyup="renderClientGrid(this.value)"
+           style="width:100%; padding:12px 12px 12px 40px; border-radius:12px; border:1px solid var(--bdr); outline:none; font-size:14px; box-shadow:0 2px 5px rgba(0,0,0,0.03)">
+    <div style="font-size:11px; color:var(--txt3); margin-top:5px; text-align:right">Toplam: <span id="totalClientCount">${clients.length}</span> Kayıt</div>
+  </div>
+
+  <div class="cl-grid" id="clientGrid"></div>
+  
+  <div id="loadMoreBtn" style="text-align:center; margin-top:20px; display:none">
+    <button class="btn btn-e" onclick="loadMoreClients()">Daha Fazla Göster</button>
+  </div>
+  `;
+}
+
+function rFin() { return `<div class="ph"><h2>💰 Gelir / Gider</h2><div style="display:flex;gap:8px"><button class="btn btn-p" onclick="openMo('income')">${I.plus} Gelir</button><button class="btn btn-p" style="background:linear-gradient(135deg,#dc2626,#ef4444);box-shadow:0 2px 8px rgba(239,68,68,.3)" onclick="openMo('expense')">${I.plus} Gider</button></div></div><div class="card card-p"><div class="tbl-wrap"><table><thead><tr><th>Tarih</th><th>Açıklama</th><th>Tutar</th><th>İşlem</th></tr></thead><tbody>${[...incomes.map(i=>({...i,t:'inc'})),...expenses.map(e=>({...e,t:'exp'}))].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,10).map(x=>`<tr><td>${fmtDate(x.date)}</td><td>${x.desc}</td><td style="font-weight:700;color:${x.t==='inc'?'var(--grn)':'var(--red)'}">${x.t==='inc'?'+':'-'}₺${fm(x.amt)}</td><td><button class="btn btn-d btn-sm" onclick="del('${x.t==='inc'?'income':'expense'}','${x.id}')">${I.trash}</button></td></tr>`).join('')}</tbody></table></div></div>`; }
+
+// TRASH RENDERER
+function rTrash() {
+    const mapName = {
+        'sessions': 'Çekim', 'clients': 'Müşteri', 'tasks': 'Görev',
+        'contracts': 'Sözleşme', 'expenses': 'Gider', 'incomes': 'Gelir'
+    };
+    return `
+    <div class="ph">
+        <h2>🗑️ Çöp Kutusu</h2>
+        <div style="display:flex;gap:8px">
+            <button class="btn btn-e" onclick="restoreSelected()">${I.restore} Seçilenleri Geri Yükle</button>
+            <button class="btn btn-d" onclick="askPermDelete()">${I.trash} Kalıcı Sil</button>
+        </div>
+    </div>
+    <div class="card card-p">
+        <div class="tbl-wrap"><table>
+            <thead>
+                <tr>
+                    <th style="width:30px"><input type="checkbox" class="trash-check" onchange="toggleAllTrash(this)"/></th>
+                    <th>Tür</th>
+                    <th>İçerik Detayı</th>
+                    <th>Silinme Tarihi</th>
+                    <th>İşlem</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${trash.length === 0 ? '<tr><td colspan="5" style="text-align:center;color:var(--txt3);padding:20px">Çöp kutusu boş.</td></tr>' : 
+                trash.sort((a,b)=>new Date(b._deletedAt)-new Date(a._deletedAt)).map(t => {
+                    let desc = '-';
+                    if(t.name) desc = t.name;
+                    else if(t.title) desc = t.title;
+                    else if(t.desc) desc = t.desc;
+                    else if(t.pkg) desc = t.pkg;
+                    
+                    return `<tr>
+                        <td><input type="checkbox" class="trash-check trash-item" value="${t.id}"/></td>
+                        <td><span class="badge b-pending">${mapName[t._origin] || t._origin}</span></td>
+                        <td style="font-weight:600">${desc}</td>
+                        <td style="color:var(--txt3);font-size:12px">${fmtDate(t._deletedAt)}</td>
+                        <td style="display:flex;gap:5px">
+                            <button class="btn btn-e btn-sm" onclick="restoreOne('${t.id}')">Geri Al</button>
+                        </td>
+                    </tr>`;
+                }).join('')}
+            </tbody>
+        </table></div>
+    </div>`;
+}
+
+// BULK ACTIONS UTILS
+window.toggleAllTrash = function(el) {
+    document.querySelectorAll('.trash-item').forEach(c => c.checked = el.checked);
+}
+window.restoreSelected = function() {
+    const ids = Array.from(document.querySelectorAll('.trash-item:checked')).map(c => c.value);
+    if(ids.length === 0) { showToast('Hiçbir kayıt seçilmedi', 'error'); return; }
+    ids.forEach(id => restoreOne(id, false));
+    showToast(`${ids.length} kayıt geri yüklendi`, 'success');
+    render('trash');
+}
+window.restoreOne = async function(id, renderNow=true) {
+    const item = trash.find(x => String(x.id) === String(id));
+    if(!item) return;
+    
+    // Move back to origin
+    const col = item._origin;
+    const restoredItem = { ...item };
+    delete restoredItem._origin;
+    delete restoredItem._deletedAt;
+    
+    // Add to active array
+    eval(col).push(restoredItem);
+    await persistOne(col, restoredItem, true);
+    
+    // Remove from trash
+    if(useFirebase && item._fbId) await fbDelete('trash', item._fbId);
+    trash = trash.filter(x => String(x.id) !== String(id));
+    if(!useFirebase) sv();
+    
+    if(renderNow) { showToast('Geri yüklendi', 'success'); render('trash'); }
+}
+
+// PERMANENT DELETE LOGIC
+window.askPermDelete = function() {
+    const ids = Array.from(document.querySelectorAll('.trash-item:checked')).map(c => c.value);
+    if(ids.length === 0) { showToast('Hiçbir kayıt seçilmedi', 'error'); return; }
+    
+    // Show password modal
+    openMo('permDeleteAuth', ids.join(','));
+}
+
+window.checkPermDelete = async function() {
+    const pass = v('pd_pass');
+    if(pass !== '1453') {
+        showToast('Hatalı Şifre!', 'error');
+        return;
+    }
+    
+    const rawIds = document.getElementById('pd_ids').value;
+    const ids = rawIds.split(',');
+    
+    // Execute deletion
+    for(const id of ids) {
+        const item = trash.find(x => String(x.id) === String(id));
+        if(item) {
+            if(useFirebase && item._fbId) await fbDelete('trash', item._fbId);
+            trash = trash.filter(x => String(x.id) !== String(id));
+        }
+    }
+    if(!useFirebase) sv();
+    
+    closeModal();
+    showToast('Seçilenler kalıcı olarak silindi.', 'success');
+    render('trash');
+}
+
+// MODIFIED DELETE ACTION (GOOGLE + SOFT DELETE)
+window.del = async function(type, id) {
+  // 1. GOOGLE KİŞİSİ SİLME KONTROLÜ
+  if (type === 'client' && String(id).startsWith('gc_')) {
+    if (!gcAccessToken) { showToast('Önce Google ile bağlanın', 'error'); return; }
+    if (!confirm('Bu kişiyi Google Rehberinizden tamamen silmek istediğinize emin misiniz?')) return;
+
+    const gcItem = gcContacts.find(x => x.id === String(id));
+    if (gcItem) {
+      showToast('Google\'dan siliniyor...', '');
+      try {
+        const res = await fetch(`https://people.googleapis.com/v1/${gcItem._resourceName}:deleteContact`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${gcAccessToken}` }
+        });
+        if (!res.ok) throw new Error('Google silme hatası');
+
+        // Başarılıysa hafızadan çıkar ve arayüzü yenile
+        gcContacts = gcContacts.filter(x => x.id !== String(id));
+        showToast('Google Kişiler\'den silindi ✓', 'success');
+        renderClientGrid(document.getElementById('clientSearch')?.value || '');
+      } catch(e) {
+        showToast('Google\'dan silinemedi!', 'error');
+      }
+    }
+    return; // İşlem bitti, aşağıdaki veritabanı silme koduna geçme
+  }
+
+  // 2. STANDART VERİTABANI SİLME İŞLEMİ (Çöp kutusuna taşıma)
+  const map={session:'sessions',client:'clients',task:'tasks',contract:'contracts',expense:'expenses',income:'incomes'};
+  const col=map[type];
+  const item=eval(col).find(x=>String(x.id)===String(id));
+  
+  if(!item) return;
+  
+  const trashItem = { ...item, _origin: col, _deletedAt: new Date().toISOString() };
+  if(useFirebase) trashItem._fbId = null; 
+  
+  trash.push(trashItem);
+  await persistOne('trash', trashItem, true);
+  
+  if(useFirebase && item._fbId) await fbDelete(col, item._fbId);
+  eval(`${col}=${col}.filter(x=>String(x.id)!==String(id))`); 
+  
+  if(!useFirebase) sv(); 
+  
+  showToast('Çöp kutusuna taşındı', 'success');
+  render(cur);
+}
+
+
+// MODALS
+const moTitles={session:'Çekim Ekle',client:'Müşteri Ekle',task:'Görev Ekle',contract:'Sözleşme Ekle',expense:'Gider Ekle',income:'Gelir Ekle',auth:'Giriş Bilgileri', panelMgmt:'Panel Yönetimi', detail: 'Çekim Detayları', receivables: 'Alacak Listesi', permDeleteAuth: 'Kalıcı Silme Onayı'};
+let _moType='', _moId=null;
+window.openMo=function(type,editId){
+  _moType=type; _moId=editId||null;
+  document.getElementById('moTitle').textContent=editId&&type!=='auth'&&type!=='panelMgmt'&&type!=='permDeleteAuth'?'Düzenle':moTitles[type];
+  
+  if(type === 'permDeleteAuth') {
+      // Special handling for delete auth to pass IDs
+      document.getElementById('moBody').innerHTML = moForms[type](editId); // editId here acts as ID list string
+  } else {
+      document.getElementById('moBody').innerHTML=moForms[type](editId);
+  }
+  document.getElementById('mo').classList.add('on');
+}
+window.closeModal=function(){document.getElementById('mo').classList.remove('on')}
+const v=id=>(document.getElementById(id)||{}).value||'';
+
+// NEW: OPEN RECEIVABLES LIST
+window.openReceivablesList = function() {
+  const indebtedClients = clients.filter(c => (c.total - c.paid) > 0);
+  
+  if(indebtedClients.length === 0) {
+    showToast('Tüm ödemeler alınmış.', 'success');
+    return;
+  }
+
+  let html = `<div class="tbl-wrap"><table><thead><tr><th>Müşteri</th><th>Telefon</th><th>Hizmet/Etkinlik</th><th>Kalan Tutar</th></tr></thead><tbody>`;
+  
+  indebtedClients.forEach(c => {
+    let pkgInfo = '-';
+    if(c.session && c.session.pkg) pkgInfo = c.session.pkg; 
+    else {
+      const s = sessions.find(sess => sess.cid === c.id);
+      if(s) pkgInfo = s.pkg;
+    }
+    const remaining = c.total - c.paid;
+    html += `<tr>
+      <td style="font-weight:600">${c.name}</td>
+      <td>${c.phone}</td>
+      <td style="font-size:12px; color:var(--txt2)">${pkgInfo}</td>
+      <td style="font-weight:700; color:var(--red)">₺${fm(remaining)}</td>
+    </tr>`;
+  });
+
+  html += `</tbody></table></div>`;
+  
+  document.getElementById('moTitle').textContent = 'Alacak Listesi';
+  document.getElementById('moBody').innerHTML = html;
+  document.getElementById('mo').classList.add('on');
+}
+
+
+// NEW: FULL DETAIL VIEW FUNCTION
+window.openSessionDetail = function(id) {
+  const s = sessions.find(x => String(x.id) === String(id));
+  if(!s) return;
+  const c = clients.find(x => String(x.id) === String(s.cid)) || {};
+  
+  const content = `
+    <div style="padding-bottom:10px; border-bottom:1px solid #e2e8f0; margin-bottom:15px; text-align:center;">
+       <div style="font-size:18px; font-weight:800; color:var(--txt)">${c.name}</div>
+       <div style="font-size:14px; color:var(--acc); font-weight:600; margin-top:4px;">${s.pkg}</div>
+    </div>
+    
+    <div class="det-row"><div class="det-lbl">Telefon</div><div class="det-val">${c.phone || '-'}</div></div>
+    <div class="det-row"><div class="det-lbl">Tarih</div><div class="det-val">${fmtDate(s.date)}</div></div>
+    <div class="det-row"><div class="det-lbl">Saat</div><div class="det-val">${s.time || '-'}</div></div>
+    <div class="det-row"><div class="det-lbl">Mekan/Konum</div><div class="det-val">${s.loc || '-'}</div></div>
+    
+    <div style="background:#f8fafc; padding:12px; border-radius:8px; margin:15px 0;">
+      <div class="det-row" style="margin-bottom:6px; border:none;"><div class="det-lbl">Toplam Tutar</div><div class="det-val">₺${fm(s.total)}</div></div>
+      <div class="det-row" style="margin-bottom:6px; border:none;"><div class="det-lbl">Ödenen</div><div class="det-val" style="color:var(--grn)">₺${fm(s.paid)}</div></div>
+      <div class="det-row" style="margin-bottom:0; border:none;"><div class="det-lbl">Kalan</div><div class="det-val" style="color:var(--red)">₺${fm(s.total - s.paid)}</div></div>
+    </div>
+
+    <div style="font-size:12px; font-weight:700; color:var(--txt3); margin-bottom:5px; text-transform:uppercase;">Notlar / Açıklama</div>
+    <div style="font-size:14px; color:var(--txt2); line-height:1.5; background:#fff; border:1px solid #e2e8f0; padding:10px; border-radius:8px;">
+      ${s.desc || 'Not girilmemiş.'}
+    </div>
+  `;
+  
+  document.getElementById('moTitle').textContent = 'Çekim Detayları';
+  document.getElementById('moBody').innerHTML = content;
+  document.getElementById('mo').classList.add('on');
+}
+
+const moForms={
+  permDeleteAuth: (ids) => {
+      return `
+      <div style="text-align:center; margin-bottom:15px; color:var(--red)">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        <div style="font-weight:700; margin-top:5px">KALICI SİLME İŞLEMİ</div>
+        <div style="font-size:12px;color:var(--txt2)">Bu işlem geri alınamaz. Silmek için şifreyi giriniz.</div>
+      </div>
+      <input type="hidden" id="pd_ids" value="${ids}" />
+      <div class="fg"><label>Güvenlik Şifresi</label><input type="password" id="pd_pass" placeholder="Şifre..."/></div>
+      <button class="btn btn-d f-sub" onclick="checkPermDelete()">Onayla ve Sil</button>
+      `;
+  },
+  auth:(id)=>{
+    const c=clients.find(x=>String(x.id)===String(id));
+    return `<div class="fg"><label>Müşteri</label><input type="text" value="${c.name}" disabled style="background:#e2e8f0"/></div><div class="fg"><label>Kullanıcı Adı</label><input type="text" id="f_user" value="${c.username||''}"/></div><div class="fg"><label>Şifre</label><input type="text" id="f_pass" value="${c.password||''}"/></div><button class="btn btn-p f-sub" onclick="subAuth('${id}')">Kaydet</button>`;
+  },
+  panelMgmt:(id)=>{
+    const c = clients.find(x=>String(x.id)===String(id));
+    const s = c.session || {}; // Müşteriye ait session verisi
+    return `
+      <div class="fg"><label>Müşteri</label><input type="text" value="${c.name}" disabled style="background:#e2e8f0; font-weight:bold"/></div>
+      
+      <div class="section-title">Finansal Durum</div>
+      <div class="fr"><div class="fg"><label>Anlaşma Tutarı (₺)</label><input type="number" id="pm_total" value="${c.total||0}"/></div><div class="fg"><label>Ödenen Tutar (₺)</label><input type="number" id="pm_paid" value="${c.paid||0}"/></div></div>
+      
+      <div class="section-title">İş Akışı (1-5)</div>
+      <div class="fg"><label>Mevcut Aşama</label><select id="pm_stage"><option value="1" ${c.stage==1?'selected':''}>1. Çekim</option><option value="2" ${c.stage==2?'selected':''}>2. Yedekleme</option><option value="3" ${c.stage==3?'selected':''}>3. Düzenleme</option><option value="4" ${c.stage==4?'selected':''}>4. Baskı</option><option value="5" ${c.stage==5?'selected':''}>5. Teslimat</option></select></div>
+
+      <div class="section-title">📂 Google Drive Klasör Linki</div>
+      <div class="fg">
+        <label>Drive Klasör URL</label>
+        <input type="text" id="pm_drive" value="${c.driveFolder||''}" placeholder="https://drive.google.com/drive/folders/..."/>
+        <small style="color:var(--txt3); font-size:10px; margin-top:5px; display:block">
+          ⚠️ Klasörü "herkese açık" yapın ve linki buraya yapıştırın
+        </small>
+      </div>
+      
+      <div class="section-title" style="margin-top:20px">Seçilen Fotoğraflar (Müşteri Tarafından)</div>
+      <div style="background:#f8fafc; padding:12px; border-radius:8px; min-height:50px; font-size:12px; color:var(--txt2)">
+        ${c.selectedPhotos && c.selectedPhotos.length > 0 ? c.selectedPhotos.join(', ') : '<em style="color:var(--txt3)">Henüz fotoğraf seçilmedi</em>'}
+      </div>
+
+      <div class="section-title">Çekim Detayları (Müşteri Görünümü)</div>
+      <div class="fr">
+        <div class="fg"><label>Tarih</label><input type="date" id="pm_date" value="${s.date||''}"/></div>
+        <div class="fg"><label>Saat</label><input type="time" id="pm_time" value="${s.time||''}"/></div>
+      </div>
+      <div class="fg"><label>Paket Adı</label><input type="text" id="pm_pkg" value="${s.pkg||''}"/></div>
+      <div class="fg"><label>Konum</label><input type="text" id="pm_loc" value="${s.loc||''}"/></div>
+      <div class="fg"><label>Durum Yazısı (Örn: Planlanıyor)</label><input type="text" id="pm_status" value="${s.status||'Planlanıyor'}"/></div>
+
+      <button class="btn btn-p f-sub" onclick="subPanelMgmt('${id}')">Bilgileri Güncelle</button>
+    `;
+  },
+  session:(id)=>{
+    const o=id?sessions.find(s=>String(s.id)===String(id)):{};
+    const cName = o.cid ? cn(o.cid) : '';
+    return `
+      <div class="fg">
+        <label>Müşteri (Seç veya Yeni Yaz)</label>
+        <input type="text" id="f_cname" list="dl_clients" placeholder="Müşteri adı..." value="${cName}" autocomplete="off"/>
+        <datalist id="dl_clients">${clients.map(c=>`<option value="${c.name}">`).join('')}</datalist>
+      </div>
+      <div class="fr">
+        <div class="fg"><label>Tarih</label><input type="date" id="f_date" value="${o.date||''}"/></div>
+        <div class="fg"><label>Saat</label><input type="time" id="f_time" value="${o.time||''}"/></div>
+      </div>
+      <div class="fg"><label>Telefon (Yeni Müşteri İçin)</label><input type="text" id="f_cphone" placeholder="05xx..."/></div>
+      <div class="fr">
+        <div class="fg"><label>Toplam Tutar (₺)</label><input type="number" id="f_total" value="${o.total||''}"/></div>
+        <div class="fg"><label>${id?'Ödenen Tutar':'Ön Ödeme (Kapora)'} (₺)</label><input type="number" id="f_paid" value="${o.paid||''}"/></div>
+      </div>
+      <div class="fg"><label>Paket</label><input type="text" id="f_pkg" value="${o.pkg||''}"/></div>
+      <div class="fg"><label>Konum</label><input type="text" id="f_loc" value="${o.loc||''}"/></div>
+      <div class="fg"><label>Açıklama</label><textarea id="f_desc" placeholder="Detaylar...">${o.desc||''}</textarea></div>
+      <button class="btn btn-p f-sub" onclick="subSession('${id||0}')">Kaydet</button>
+    `;
+  },
+client: (id) => {
+    const o = id ? clients.find(c => String(c.id) === String(id)) : {};
+    return `
+      <div class="fr">
+        <div class="fg"><label>Ad Soyad</label>
+          <input type="text" id="f_name" value="${o.name || ''}" placeholder="Ad Soyad"/>
+        </div>
+        <div class="fg"><label>Telefon</label>
+          <input type="text" id="f_phone" value="${o.phone || ''}" placeholder="05xx..."/>
+        </div>
+      </div>
+      
+      <div class="fr">
+        <div class="fg"><label>E-posta</label>
+          <input type="email" id="f_email" value="${o.email || ''}" placeholder="ornek@mail.com"/>
+        </div>
+        <div class="fg"><label>Doğum Günü</label>
+          <input type="text" id="f_birthday" value="${o.birthday || ''}" placeholder="15 Mart 1990"/>
+        </div>
+      </div>
+      
+      <div class="fg">
+        <label>🏷️ Özel İndirim (Örn: %10, ₺500)</label>
+        <input type="text" id="f_discount" value="${o.discount || ''}" 
+               placeholder="Sadakat indirimi %10" 
+               style="background:linear-gradient(135deg,#fffbeb,#fef3c7); border-color:#fbbf24"/>
+      </div>
+      
+      <div class="fg">
+        <label>📝 Not / Açıklama</label>
+        <textarea id="f_notes" placeholder="Müşteri notu, tercihler... ">${o.notes || ''}</textarea>
+      </div>
+      
+      <div class="fg">
+        <label>🏷️ Etiketler (virgülle ayırın)</label>
+        <input type="text" id="f_labels" value="${(o.gcLabels || []).join(', ')}" 
+               placeholder="VIP Müşteri, Düğün Paketi, Kurumsal"/>
+      </div>
+      
+      <button class="btn btn-p f-sub" onclick="subClient('${id || 0}')">Kaydet</button>
+    `;
+  },
+  task:(id)=>{ const o=id?tasks.find(t=>String(t.id)===String(id)):{}; return `<div class="fg"><label>Başlık</label><input type="text" id="f_title" value="${o.title||''}"/></div><div class="fg"><label>Açıklama</label><textarea id="f_desc">${o.desc||''}</textarea></div><div class="fg"><label>Son Tarih</label><input type="date" id="f_due" value="${o.due||''}"/></div>${id?`<div class="fg"><label>Durum</label><select id="f_stat"><option value="todo" ${o.status=='todo'?'selected':''}>Yapılacak</option><option value="inprogress" ${o.status=='inprogress'?'selected':''}>Sürüyor</option><option value="done" ${o.status=='done'?'selected':''}>Bitti</option></select></div>`:''}<button class="btn btn-p f-sub" onclick="subTask('${id||0}')">Kaydet</button>`; },
+  contract:()=>{ return ``; }, 
+  expense:(id)=>{ const o=id?expenses.find(x=>String(x.id)===String(id)):{}; return `<div class="fg"><label>Tarih</label><input type="date" id="f_date" value="${o.date||''}"/></div><div class="fg"><label>Açıklama</label><input type="text" id="f_desc" value="${o.desc||''}"/></div><div class="fr"><div class="fg"><label>Tutar</label><input type="number" id="f_amt" value="${o.amt||''}"/></div><div class="fg"><label>Şube</label><select id="f_store"><option value="">Genel</option><option value="corlu" ${o.store=='corlu'?'selected':''}>Çorlu</option><option value="ergene" ${o.store=='ergene'?'selected':''}>Ergene</option></select></div></div><button class="btn btn-p f-sub" onclick="subExpInc('expenses','${id||0}')">Kaydet</button>`; },
+  income:(id)=>{ const o=id?incomes.find(x=>String(x.id)===String(id)):{}; return `<div class="fg"><label>Tarih</label><input type="date" id="f_date" value="${o.date||''}"/></div><div class="fg"><label>Açıklama</label><input type="text" id="f_desc" value="${o.desc||''}"/></div><div class="fr"><div class="fg"><label>Tutar</label><input type="number" id="f_amt" value="${o.amt||''}"/></div><div class="fg"><label>Şube</label><select id="f_store"><option value="">Genel</option><option value="corlu" ${o.store=='corlu'?'selected':''}>Çorlu</option><option value="ergene" ${o.store=='ergene'?'selected':''}>Ergene</option></select></div></div><button class="btn btn-p f-sub" onclick="subExpInc('incomes','${id||0}')">Kaydet</button>`; }
+};
+
+// SUBMITS
+window.subAuth = async function(id) {
+  const c=clients.find(x=>String(x.id)===String(id)); 
+  c.username=v('f_user'); c.password=v('f_pass');
+  await persistOne('clients',c); closeModal(); 
+  
+  // Tabloyu güncelle (Limit sıfırlanmasın diye sadece render çağırıyoruz)
+  renderAuthGrid(document.getElementById('authSearch').value);
+}
+window.subPanelMgmt = async function(id) {
+  const c = clients.find(x=>String(x.id)===String(id));
+  // Finansal Güncelleme
+  c.total = Number(v('pm_total')); 
+  c.paid = Number(v('pm_paid')); 
+  c.stage = Number(v('pm_stage'));
+  
+  // Drive Klasör Linki
+  c.driveFolder = v('pm_drive');
+  
+  // Çekim Detayları Güncelleme (Müşteri Paneli İçin)
+  c.session = {
+    date: v('pm_date'),
+    time: v('pm_time'),
+    pkg: v('pm_pkg'),
+    loc: v('pm_loc'),
+    status: v('pm_status') || 'Planlanıyor'
+  };
+
+  await persistOne('clients', c); closeModal(); render('panel-mgmt');
+}
+
+// SESSION SAVING WITH AUTOMATION (AUTO-INCOME & AUTO-CONTRACT)
+window.subSession = async function(id) {
+  // Eğer id varsa string'e çevir, yoksa 0 (string olarak '0' değil, boolean check için 0)
+  const safeId = id ? String(id) : 0;
+  
+  const cName = v('f_cname');
+  if(!cName) { showToast('Müşteri adı gerekli!','error'); return; }
+  
+  const date = v('f_date');
+  const total = Number(v('f_total'));
+  const paid = Number(v('f_paid'));
+  const desc = v('f_desc');
+  const pkg = v('f_pkg');
+  
+  let cid;
+  const existingClient = clients.find(c => c.name.toLowerCase() === cName.toLowerCase());
+  
+  // 1. Müşteri Kontrol / Oluşturma
+  if (existingClient) { 
+      cid = existingClient.id;
+      // DÜZELTME: Eğer yeni çekim ekleniyorsa, mevcut müşterinin borcuna ekle
+      if(!safeId) {
+         existingClient.total = (existingClient.total || 0) + total;
+         existingClient.paid = (existingClient.paid || 0) + paid;
+         await persistOne('clients', existingClient); // Veritabanına kaydet
+      }
+  } else {
+    cid = uid();
+    // Yeni müşteri oluştururken ID'yi string'e çevirerek sakla (tutarlılık için)
+    const newClient = { id: String(cid), name: cName, phone: v('f_cphone'), type: 'Genel', total: total, paid: paid };
+    await persistOne('clients', newClient, true);
+    clients.push(newClient);
+  }
+
+  const obj = {
+    id: safeId || String(uid()), cid: cid, date: date, time: v('f_time'),
+    total: total, paid: paid, pkg: pkg, loc: v('f_loc'), desc: desc, status: 'upcoming'
+  };
+
+  // 2. Session Kaydetme
+  if(safeId){ const i=sessions.findIndex(x=>String(x.id)===safeId); sessions[i]={...sessions[i],...obj}; await persistOne('sessions',sessions[i]); }
+  else { 
+    sessions.push(obj); await persistOne('sessions',obj,true); 
+    
+    // YENİ KAYIT İŞLEMLERİ (OTOMASYON)
+    // A. Otomatik Gelir Ekleme (Eğer kapora varsa)
+    if(paid > 0) {
+      const inc = { id: String(uid()), date: date, desc: `${cName} - Kapora / Ön Ödeme`, amt: paid, store: 'corlu' }; // Varsayılan Şube
+      incomes.push(inc); await persistOne('incomes', inc, true);
+    }
+
+    // B. Otomatik Sözleşme Oluşturma
+    const cont = {
+      id: String(uid()), cid: cid, date: date, total: total, paid: paid, status: 'pending',
+      terms: `Hizmet: ${pkg} \nLokasyon: ${v('f_loc')} \nNotlar: ${desc}`
+    };
+    contracts.push(cont); await persistOne('contracts', cont, true);
+  }
+  
+  closeModal(); render('sessions');
+}
+
+window.subClient = async function(id) {
+  const safeId = id ? String(id) : 0;
+  const labelsRaw = v('f_labels');
+  const gcLabels = labelsRaw ? labelsRaw.split(',').map(l => l.trim()).filter(Boolean) : [];
+
+  const obj = {
+    name: v('f_name'), phone: v('f_phone'), email: v('f_email'),
+    birthday: v('f_birthday'), discount: v('f_discount'),
+    notes: v('f_notes'), gcLabels
+  };
+
+  // 1. EĞER GOOGLE BAĞLIYSA: Google'a Kaydet / Güncelle
+  const isGoogleUpdate = safeId && safeId.startsWith('gc_');
+  const isNewRecord = !safeId;
+
+  if (gcAccessToken && (isGoogleUpdate || isNewRecord)) {
+    showToast('Google Rehbere kaydediliyor...', '');
+    try {
+      const personBody = {
+        names: [{ givenName: obj.name }],
+        phoneNumbers: obj.phone ? [{ value: obj.phone }] : [],
+        emailAddresses: obj.email ? [{ value: obj.email }] : [],
+        biographies: obj.notes || obj.discount ? [{ value: (obj.notes + (obj.discount ? ' | ' + obj.discount : '')).trim() }] : []
+      };
+
+      let url = 'https://people.googleapis.com/v1/people:createContact';
+      let method = 'POST';
+
+      if (isGoogleUpdate) {
+        const existingGc = gcContacts.find(c => c.id === safeId);
+        if(existingGc) {
+            personBody.etag = existingGc._etag; // Güncelleme için etag zorunlu
+            url = `https://people.googleapis.com/v1/${existingGc._resourceName}:updateContact?updatePersonFields=names,phoneNumbers,emailAddresses,biographies`;
+            method = 'PATCH';
+        }
+      }
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Authorization': `Bearer ${gcAccessToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(personBody)
+      });
+
+      if(!res.ok) throw new Error('Google API Hatası');
+
+      showToast('Google Kişiler güncellendi ✓', 'success');
+      closeModal();
+      await fetchGoogleContacts(); // Listeyi güncel verilerle yenile
+      return;
+    } catch(e) {
+      showToast('Google\'a kaydedilemedi!', 'error');
+      console.error(e);
+      return;
+    }
+  }
+
+  // 2. GOOGLE BAĞLI DEĞİLSE: Yerel Veritabanına (Firebase/Local) Kaydet
+  obj.id = safeId || String(uid());
+  if (safeId && !safeId.startsWith('gc_')) {
+    const i = clients.findIndex(x => String(x.id) === safeId);
+    clients[i] = {...clients[i], ...obj};
+    await persistOne('clients', clients[i]);
+  } else if(!safeId) {
+    clients.push(obj);
+    await persistOne('clients', obj, true);
+  }
+
+  closeModal();
+  render('clients');
+};
+
+// PRINT FUNCTION
+window.openPrintContract = function(id) {
+  const c = contracts.find(x => String(x.id) === String(id));
+  const client = clients.find(x => String(x.id) === String(c.cid)) || {};
+  const remaining = c.total - c.paid;
+  
+  const content = `
+    <div class="print-row"><span class="print-label">Müşteri Adı:</span><span class="print-val">${client.name}</span></div>
+    <div class="print-row"><span class="print-label">Telefon:</span><span class="print-val">${client.phone || ''}</span></div>
+    <div class="print-row"><span class="print-label">Tarih:</span><span class="print-val">${fmtDate(c.date)}</span></div>
+    <div class="print-box">
+      <div class="print-title">Hizmet Detayları</div>
+      <p>${c.terms.replace(/\n/g, '<br>')}</p>
+    </div>
+    <div class="print-box">
+      <div class="print-title">Ödeme Tablosu</div>
+      <div class="print-row"><span class="print-label">Toplam Tutar:</span><span class="print-val">₺${fm(c.total)}</span></div>
+      <div class="print-row"><span class="print-label">Alınan Kapora:</span><span class="print-val">₺${fm(c.paid)}</span></div>
+      <div class="print-row"><span class="print-label">Kalan Bakiye:</span><span class="print-val">₺${fm(remaining)}</span></div>
+    </div>
+    <div style="font-size:12px; text-align:justify; margin-top:20px;">
+      İşbu sözleşme taraflar arasında yukarıda belirtilen şartlar dahilinde düzenlenmiştir.
+      Hizmet alan kişi, çekim tarihinden en geç 3 gün öncesine kadar iptal hakkına sahiptir. 
+      Kapora iadesi mücbir sebepler dışında yapılmamaktadır.
+    </div>
+    <div class="print-signatures">
+      <div class="sig-box">PASOVART Yetkilisi<br><br><br>İmza</div>
+      <div class="sig-box">Müşteri<br><br><br>İmza</div>
+    </div>
+  `;
+  document.getElementById('printContent').innerHTML = content;
+  window.print();
+}
+
+async function persistOne(col, obj, isNew = false) {
+  if(useFirebase) { if(isNew||!obj._fbId) await fbAdd(col,obj); else await fbUpdate(col,obj); } else { sv(); }
+}
+window.showToast = function(msg,type){const t=document.getElementById('toast');t.textContent=msg;t.className='toast on '+type;setTimeout(()=>t.classList.remove('on'),2400);}
+
+
+// ═══════════════════════════════════════════════════════════════════
+// GOOGLE CONTACTS ENTEGRASYONU
+// ═══════════════════════════════════════════════════════════════════
+
+// 1. OAuth ile giriş yap ve token al
+window.connectGoogleContacts = function() {
+  if (!window.google) {
+    showToast('Google GSI yüklenmedi, sayfayı yenileyin.', 'error');
+    return;
+  }
+  
+  const client = google.accounts.oauth2.initTokenClient({
+    client_id: GOOGLE_CLIENT_ID,
+    scope: GOOGLE_SCOPES,
+    callback: async (response) => {
+      if (response.error) {
+        showToast('Google bağlantısı başarısız: ' + response.error, 'error');
+        return;
+      }
+      gcAccessToken = response.access_token;
+      sessionStorage.setItem('gc_token', gcAccessToken);
+      showToast('Google Contacts bağlandı ✓', 'success');
+      await fetchGoogleContacts();
+    }
+  });
+  
+  client.requestAccessToken();
+};
+
+// 2. Tüm kişileri çek (sayfalama dahil)
+window.fetchGoogleContacts = async function(pageToken = null) {
+  if (!gcAccessToken) { showToast('Önce Google ile bağlanın', 'error'); return; }
+  
+  showToast('Kişiler yükleniyor…', '');
+  
+  try {
+    let url = `https://people.googleapis.com/v1/people/me/connections?personFields=names,phoneNumbers,emailAddresses,birthdays,biographies,memberships&pageSize=200` + (pageToken ? `&pageToken=${pageToken}` : '');
+    
+    const resp = await fetch(url, {
+      headers: { Authorization: `Bearer ${gcAccessToken}` }
+    });
+    
+    if (!resp.ok) {
+      if (resp.status === 401) {
+        gcAccessToken = null; sessionStorage.removeItem('gc_token');
+        showToast('Oturum süresi doldu, tekrar bağlanın.', 'error');
+        render('clients'); return;
+      }
+      throw new Error('API Hatası: ' + resp.status);
+    }
+    
+    const data = await resp.json();
+    const newContacts = (data.connections || []).map(parseGContact);
+    
+    if (!pageToken) gcContacts = []; // İlk sayfada sıfırla
+    gcContacts = [...gcContacts, ...newContacts];
+    
+    // Sonraki sayfa varsa devam et
+    if (data.nextPageToken) {
+      await fetchGoogleContacts(data.nextPageToken);
+    } else {
+      showToast(`${gcContacts.length} kişi Google'dan yüklendi`, 'success');
+      openGoogleContactsModal();
+    }
+  } catch(e) {
+    showToast('Hata: ' + e.message, 'error');
+  }
+};
+
+// 3. Ham People API verisini PASOVART formatına çevir
+function parseGContact(person) {
+  const name = (person.names?.[0]?.displayName) || '';
+  const phone = (person.phoneNumbers?.[0]?.canonicalForm || person.phoneNumbers?.[0]?.value || '');
+  const email = person.emailAddresses?.[0]?.value || '';
+  
+  // Doğum günü
+  let birthday = '';
+  const bd = person.birthdays?.[0]?.date;
+  if (bd) {
+    const months = ['','Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+    birthday = `${bd.day || ''} ${months[bd.month] || ''} ${bd.year || ''}`.trim();
+  }
+  
+  // Biyografi = Notlar / İndirim açıklaması
+  const notes = person.biographies?.[0]?.value || '';
+  
+  // Etiketler (grup üyelikleri)
+  const labels = (person.memberships || [])
+    .map(m => m.contactGroupMembership?.contactGroupId || '')
+    .filter(l => l && !l.startsWith('contactGroup/')); // sistem gruplarını dışla
+  
+  // İndirim: notlarda "%XX" veya "indirim" geçiyorsa yakala
+  const discountMatch = notes.match(/(%\d+|₺\d+[\s]?indirim|\d+%)/i);
+  const discount = discountMatch ? discountMatch[0] : '';
+  
+return {
+    id: 'gc_' + (person.resourceName || '').replace('people/', ''),
+    _resourceName: person.resourceName, // YENİ: Silme/Düzenleme için gizli kod
+    _etag: person.etag,                 // YENİ: Düzenleme için güvenlik kodu
+    name, phone, email, birthday, notes, gcLabels: labels, discount,
+    type: 'Google Contacts',
+    _fromGoogle: true
+  };
+}
+
+// 4. Seçim modalını aç (Google kişileri listele)
+window.openGoogleContactsModal = function() {
+  if (gcContacts.length === 0) {
+    showToast('Kişi bulunamadı.', 'error'); return;
+  }
+  
+  gcImportModalOpen = true;
+  document.getElementById('moTitle').textContent = `Google Contacts (${gcContacts.length} kişi)`;
+  
+  let html = `
+    <div style="margin-bottom:12px; position:relative">
+      <input type="text" id="gc_search" placeholder="Google kişilerinde ara..."
+        onkeyup="filterGcContacts(this.value)"
+        style="width:100%; padding:10px 10px 10px 36px; border-radius:10px; border:1.5px solid var(--bdr2); 
+               outline:none; font:14px var(--fn); background:#fafafa"/>
+      <svg style="position:absolute;left:11px;top:50%;transform:translateY(-50%)" width="15" height="15" 
+           viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+    </div>
+    <div style="max-height:380px;overflow-y:auto" id="gc_list">
+  `;
+  
+  html += renderGcList(gcContacts);
+  html += `</div>
+    <div style="margin-top:15px;display:flex;gap:8px;border-top:1px solid #f1f5f9;padding-top:12px">
+      <button class="btn btn-p" onclick="importAllGc()" style="flex:1">
+        Tüm Kişileri Ekle (${gcContacts.length})
+      </button>
+      <button class="btn btn-g" onclick="closeModal()">Kapat</button>
+    </div>`;
+  
+  document.getElementById('moBody').innerHTML = html;
+  document.getElementById('mo').classList.add('on');
+};
+
+// 5. Google kişi listesini HTML'e çevir
+function renderGcList(contacts) {
+  if (contacts.length === 0) return '<div style="text-align:center;color:var(--txt3);padding:20px">Sonuç yok</div>';
+  
+  return contacts.map(c => {
+    const alreadyAdded = clients.some(cl => 
+      cl.name.toLowerCase() === c.name.toLowerCase() || 
+      (c.phone && cl.phone === c.phone)
+    );
+    const initials = c.name.split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase();
+    
+    return `
+      <div style="display:flex;align-items:flex-start;gap:11px;padding:10px;border-bottom:1px solid #f1f5f9;border-radius:8px">
+        <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#dbeafe,#bfdbfe);
+                    display:flex;align-items:center;justify-content:center;color:#1e40af;font-weight:700;font-size:13px;flex-shrink:0">
+          ${initials || '?'}
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:14px;color:var(--txt)">${c.name || '(İsimsiz)'}</div>
+          <div style="font-size:11px;color:var(--txt2);margin-top:2px">
+            ${c.phone ? '📞 ' + c.phone : ''} 
+            ${c.email ? ' · ✉️ ' + c.email : ''}
+          </div>
+          ${c.birthday ? `<div class="gc-bday">🎂 ${c.birthday}</div>` : ''}
+          ${c.discount ? `<div class="gc-discount">🏷️ ${c.discount}</div>` : ''}
+          ${c.notes ? `<div class="gc-note">📝 ${c.notes.substring(0, 80)}${c.notes.length > 80 ? '…' : ''}</div>` : ''}
+        </div>
+        <div style="flex-shrink:0">
+          ${alreadyAdded 
+            ? '<span style="font-size:11px;color:var(--grn);font-weight:600">✓ Mevcut</span>' 
+            : `<button class="btn btn-p btn-sm" onclick="importOneGc('${encodeURIComponent(JSON.stringify(c))}')">+ Ekle</button>`
+          }
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// 6. Arama filtresi
+window.filterGcContacts = function(q) {
+  const filtered = q 
+    ? gcContacts.filter(c => 
+        c.name.toLowerCase().includes(q.toLowerCase()) || 
+        c.phone.includes(q) ||
+        c.email.toLowerCase().includes(q.toLowerCase())
+      )
+    : gcContacts;
+  
+  const list = document.getElementById('gc_list');
+  if (list) list.innerHTML = renderGcList(filtered);
+};
+
+// 7. Tek kişi ekle
+window.importOneGc = async function(encoded) {
+  const c = JSON.parse(decodeURIComponent(encoded));
+  if (!c.name) { showToast('İsim yok, eklenemedi.', 'error'); return; }
+  
+  const newClient = {
+    id: String(Date.now()) + Math.random().toString().slice(2,7),
+    name: c.name,
+    phone: c.phone || '',
+    email: c.email || '',
+    birthday: c.birthday || '',
+    notes: c.notes || '',
+    discount: c.discount || '',
+    gcLabels: c.labels || [],
+    total: 0,
+    paid: 0,
+    type: 'Google Contacts'
+  };
+  
+  clients.push(newClient);
+  await persistOne('clients', newClient, true);
+  
+  showToast(c.name + ' eklendi ✓', 'success');
+  
+  // Listedeki butonu "✓ Mevcut" olarak güncelle (Modalı kapatmadan)
+  const q = document.getElementById('gc_search')?.value || '';
+  filterGcContacts(q);
+};
+
+// 8. Tüm kişileri toplu ekle (zaten olanları atla)
+window.importAllGc = async function() {
+  const toAdd = gcContacts.filter(c => 
+    c.name &&
+    !clients.some(cl => cl.name.toLowerCase() === c.name.toLowerCase() || 
+                        (c.phone && cl.phone === c.phone))
+  );
+  
+  if (toAdd.length === 0) { showToast('Tüm kişiler zaten panelde mevcut.', 'success'); return; }
+  
+  if (!confirm(`${toAdd.length} yeni kişi eklenecek. Devam?`)) return;
+  
+  showToast('Yükleniyor… sayfayı kapatmayın!', '');
+  
+  for (const c of toAdd) {
+    const newClient = {
+      id: String(Date.now()) + Math.random().toString().slice(2,7),
+      name: c.name, phone: c.phone || '', email: c.email || '',
+      birthday: c.birthday || '', notes: c.notes || '', discount: c.discount || '',
+      gcLabels: c.labels || [], total: 0, paid: 0, type: 'Google Contacts'
+    };
+    clients.push(newClient);
+    await persistOne('clients', newClient, true);
+  }
+  
+  closeModal();
+  showToast(`${toAdd.length} kişi başarıyla eklendi!`, 'success');
+  render('clients');
+};
+
+// 9. Sayfa yüklenince kaydedilmiş token'ı kontrol et
+const savedGcToken = sessionStorage.getItem('gc_token');
+if (savedGcToken) {
+  gcAccessToken = savedGcToken;
+  // Token geçerli mi test et
+  fetch('https://people.googleapis.com/v1/people/me?personFields=names', {
+    headers: { Authorization: `Bearer ${gcAccessToken}` }
+  }).then(r => {
+    if (!r.ok) { gcAccessToken = null; sessionStorage.removeItem('gc_token'); }
+  }).catch(() => { gcAccessToken = null; });
+}
+// ═══════════════════════════════════════════════════════════════════
+
+
+
+// --- MÜŞTERİ LİSTELEME MANTIĞI (FİLTRE + SIRALAMA + GOOGLE) ---
+function renderClientGrid(query = '') {
+    const grid = document.getElementById('clientGrid');
+    if (!grid) return;
+
+    query = query.toLowerCase();
+
+    // 1. DİNAMİK BİRLEŞTİRME: Veritabanı (clients) + Google Contacts (gcContacts)
+    let mergedContacts = [...clients];
+
+    // Google kişilerini listeye ekle (Eğer veritabanında aynı kişi zaten yoksa)
+    gcContacts.forEach(gc => {
+        const alreadyExists = mergedContacts.some(c => 
+            c.name.toLowerCase() === gc.name.toLowerCase() || 
+            (gc.phone && c.phone === gc.phone)
+        );
+        if (!alreadyExists) {
+            mergedContacts.push(gc);
+        }
+    });
+
+    // 2. Alfabetik Sıralama (Türkçe Karakter Uyumlu)
+    let filtered = mergedContacts.sort((a, b) => a.name.localeCompare(b.name, 'tr'));
+
+    // 3. Arama Filtresi
+    if (query) {
+        filtered = filtered.filter(c => 
+            (c.name && c.name.toLowerCase().includes(query)) || 
+            (c.phone && c.phone.includes(query))
+        );
+    }
+
+    // Toplam sayıyı güncelle
+    const countSpan = document.getElementById('totalClientCount');
+    if(countSpan) countSpan.textContent = filtered.length;
+
+    // 4. Performans için limit (Pagination)
+    const showList = filtered.slice(0, renderLimit);
+
+    // HTML Oluştur
+    grid.innerHTML = showList.map(c => `
+      <div class="card cl-card">
+        <div class="cl-head">
+          <div class="cl-ava" style="background:${getRandomColor(c.name)}">
+            ${c.name.charAt(0).toUpperCase()}
+          </div>
+          <div style="flex:1; margin-left:12px; overflow:hidden">
+            <div style="font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">
+              ${c.name}
+              ${c.type === 'Google Contacts' ? 
+                '<span style="font-size:9px;background:#e8f0fe;color:#1a73e8;padding:1px 5px;border-radius:8px;margin-left:5px;font-weight:600" title="Google Contacts">G</span>' : ''}
+            </div>
+            <div style="font-size:12px; color:var(--txt2)">${c.phone || 'Tel yok'}</div>
+            ${c.email ? `<div style="font-size:11px; color:var(--txt3)">${c.email}</div>` : ''}
+            ${c.birthday ? `<div class="gc-bday">🎂 ${c.birthday}</div>` : ''}
+            ${c.discount ? `<div class="gc-discount">🏷️ ${c.discount}</div>` : ''}
+            ${c.notes ? `
+              <div class="gc-note" style="margin-top:5px">
+                ${c.notes.length > 70 ? c.notes.substring(0,70)+'…' : c.notes}
+              </div>` : ''}
+            ${c.gcLabels && c.gcLabels.length > 0 ? 
+              `<div class="tags" style="margin-top:5px">
+                ${c.gcLabels.map(l => `<span class="gc-tag">${l}</span>`).join('')}
+               </div>` : ''}
+          </div>
+          <div style="display:flex; gap:5px; flex-shrink:0; align-items:flex-start;">
+             <button class="btn btn-e btn-sm" onclick="openMo('client','${c.id}')">${I.edit}</button>
+             <button class="btn btn-d btn-sm" onclick="del('client','${c.id}')">${I.trash}</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    // "Daha Fazla Göster" butonunu yönet
+    const loadBtn = document.getElementById('loadMoreBtn');
+    if(loadBtn) {
+        loadBtn.style.display = (filtered.length > renderLimit) ? 'block' : 'none';
+    }
+}
+
+// --- MÜŞTERİ GİRİŞLERİ (AUTH) LİSTELEME MANTIĞI (YENİ) ---
+window.renderAuthGrid = function(query = '') {
+    const tbody = document.getElementById('authTableBody');
+    if(!tbody) return;
+
+    query = query.toLowerCase();
+    
+    // 1. Filtrele
+    let filtered = clients.filter(c => c.name.toLowerCase().includes(query));
+    
+    // 2. Sırala (A-Z)
+    filtered.sort((a,b) => a.name.localeCompare(b.name, 'tr'));
+
+    // 3. Dilimle (Pagination)
+    const showList = filtered.slice(0, authLimit);
+
+    // 4. HTML Bas
+    tbody.innerHTML = showList.map(c => `
+        <tr>
+            <td style="font-weight:600">${c.name}</td>
+            <td>${c.username || '<em style="color:#94a3b8">Yok</em>'}</td>
+            <td>${c.username ? '<span class="badge b-active">Aktif</span>' : '<span class="badge b-pending">Pasif</span>'}</td>
+            <td><button class="btn btn-e btn-sm" onclick="openMo('auth','${c.id}')">${I.key} Düzenle</button></td>
+        </tr>
+    `).join('');
+
+    // Daha Fazla butonu kontrolü
+    const btn = document.getElementById('authLoadMoreBtn');
+    if(btn) btn.style.display = (filtered.length > authLimit) ? 'block' : 'none';
+}
+
+// Limit arttırma (Auth)
+window.loadMoreAuth = function() {
+    authLimit += 50;
+    renderAuthGrid(document.getElementById('authSearch').value);
+}
+
+// Limit arttırma (Client)
+window.loadMoreClients = function() {
+    renderLimit += 50;
+    const q = document.getElementById('clientSearch').value;
+    renderClientGrid(q);
+}
+
+// Rastgele avatar rengi (Görsellik için)
+function getRandomColor(name) {
+    const colors = ['#eff6ff', '#f0fdf4', '#fef2f2', '#fffbeb', '#f5f3ff'];
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    return colors[Math.abs(hash) % colors.length];
+}
+
+
+
+// Global'e aktar (Module fix)
+window.renderClientGrid = renderClientGrid;
+window.renderAuthGrid = renderAuthGrid; 
+window.loadMoreAuth = loadMoreAuth;     
+window.loadMoreClients = loadMoreClients;
+
+initFirebase();
+</script>
+</body>
+</html>
