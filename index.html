@@ -1403,26 +1403,31 @@ window.subClient = async function(id) {
 // PRINT FUNCTION
 window.openPrintContract = function(id) {
   const c = contracts.find(x => String(x.id) === String(id));
+  if (!c) return; // Kayıt bulunamazsa durdur
+
   const client = clients.find(x => String(x.id) === String(c.cid)) || {};
-  const remaining = c.total - c.paid;
+  const remaining = (c.total || 0) - (c.paid || 0);
   
+  // Hizmet detayı boşsa ".replace" fonksiyonunun hata verip ekranı boşaltmasını engeller
+  const termsText = c.terms ? c.terms.replace(/\n/g, '<br>') : 'Detay belirtilmemiş.';
+
   const content = `
-    <div class="print-row"><span class="print-label">Müşteri Adı:</span><span class="print-val">${client.name}</span></div>
-    <div class="print-row"><span class="print-label">Telefon:</span><span class="print-val">${client.phone || ''}</span></div>
+    <div class="print-row"><span class="print-label">Müşteri Adı:</span><span class="print-val">${client.name || 'Belirtilmemiş'}</span></div>
+    <div class="print-row"><span class="print-label">Telefon:</span><span class="print-val">${client.phone || '-'}</span></div>
     <div class="print-row"><span class="print-label">Tarih:</span><span class="print-val">${fmtDate(c.date)}</span></div>
     <div class="print-box">
       <div class="print-title">Hizmet Detayları</div>
-      <p>${c.terms.replace(/\n/g, '<br>')}</p>
+      <p>${termsText}</p>
     </div>
     <div class="print-box">
       <div class="print-title">Ödeme Tablosu</div>
-      <div class="print-row"><span class="print-label">Toplam Tutar:</span><span class="print-val">₺${fm(c.total)}</span></div>
-      <div class="print-row"><span class="print-label">Alınan Kapora:</span><span class="print-val">₺${fm(c.paid)}</span></div>
+      <div class="print-row"><span class="print-label">Toplam Tutar:</span><span class="print-val">₺${fm(c.total || 0)}</span></div>
+      <div class="print-row"><span class="print-label">Alınan Kapora:</span><span class="print-val">₺${fm(c.paid || 0)}</span></div>
       <div class="print-row"><span class="print-label">Kalan Bakiye:</span><span class="print-val">₺${fm(remaining)}</span></div>
     </div>
     <div style="font-size:12px; text-align:justify; margin-top:20px;">
       İşbu sözleşme taraflar arasında yukarıda belirtilen şartlar dahilinde düzenlenmiştir.
-      Hizmet alan kişi, çekim tarihinden en geç 3 gün öncesine kadar iptal hakkına sahiptir. 
+      Hizmet alan kişi, çekim tarihinden en geç 3 gün öncesine kadar iptal hakkına sahiptir.
       Kapora iadesi mücbir sebepler dışında yapılmamaktadır.
     </div>
     <div class="print-signatures">
@@ -1430,8 +1435,19 @@ window.openPrintContract = function(id) {
       <div class="sig-box">Müşteri<br><br><br>İmza</div>
     </div>
   `;
+  
   document.getElementById('printContent').innerHTML = content;
-  window.print();
+  
+  // ÇÖZÜM: Yazdırma alanını geçici olarak görünür yap
+  const printArea = document.getElementById('printArea');
+  printArea.classList.add('active');
+  
+  // Tarayıcının içeriği HTML'e basması için çok kısa bir süre (100ms) bekleyip yazdırıyoruz
+  setTimeout(() => {
+    window.print();
+    // Yazdırma işlemi bittikten/kapatıldıktan sonra paneli bozmaması için tekrar gizle
+    printArea.classList.remove('active');
+  }, 100);
 }
 
 async function persistOne(col, obj, isNew = false) {
