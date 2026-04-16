@@ -1294,7 +1294,7 @@ window.fetchExcelData = async function() {
 let excelQuotes = [];
 window.fetchQuotesData = async function() {
     if (!gcAccessToken) { showToast('Lütfen önce Google ile bağlanın.', 'error'); return; }
-    const SPREADSHEET_ID = '1k8v7QP0wXnPe0BPBRw-6rfzERQROEm0P3a35dfk0cvw';
+    const SPREADSHEET_ID = '1aHjiMcdPvFQSgU-7JzG4YFR86bUFbz55';
     showToast('Teklifler aranıyor...', '');
     try {
         const metaRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}?fields=sheets.properties.title`, {
