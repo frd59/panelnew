@@ -1476,10 +1476,11 @@ window.connectGoogleContacts = function() {
         return;
       }
       gcAccessToken = response.access_token;
-      // DÜZELTME: sessionStorage yerine localStorage kullanıyoruz ki sekmeyi kapatsan da hatırlasın
       localStorage.setItem('gc_token', gcAccessToken); 
-      showToast('Google Contacts bağlandı ✓', 'success');
+      showToast('Google Bağlandı ✓', 'success');
+      
       await fetchGoogleContacts();
+      await fetchExcelData(); // <--- İŞTE EKSİK OLAN SATIR BU!
     }
   });
   
@@ -1808,6 +1809,7 @@ if (savedGcToken) {
   gcAccessToken = savedGcToken;
   // Sayfa açılışında arka planda sessizce (hata vermeden) kişileri getir
   fetchGoogleContacts(null, true); 
+  fetchExcelData(); // <--- SAYFA YENİLENİNCE EXCELİ DE ÇEKMESİ İÇİN BUNU EKLEDİK
 }
 
 
