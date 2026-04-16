@@ -421,18 +421,46 @@ let gcImportModalOpen = false;
 // LOGIN
 let adminUsers = [];
 let currentUser = null;
+
+// EKLENEN YENİ FONKSİYON BURADA
+function checkLogin() {
+    const saved = localStorage.getItem('pf_currentUser');
+    if (saved) {
+        currentUser = JSON.parse(saved);
+        // Giriş yapılmışsa ekranları ayarla
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('mainApp').style.display = 'flex';
+        
+        // Veritabanındaki en güncel halini bul (Fotoğraf veritabanında güncellenmiş olabilir)
+        const dbUser = adminUsers.find(u => u.username === currentUser.username);
+        if (dbUser && dbUser.avatar) {
+            currentUser.avatar = dbUser.avatar;
+            updateHeaderAvatar(dbUser.avatar, dbUser.name);
+        }
+    }
+}
+
+  
 window.doLogin = function() {
   const user = document.getElementById('loginUser').value.toLowerCase();
   const pass = document.getElementById('loginPass').value;
   
-  // Veritabanından çekilen kullanıcılar içinde ara
   const foundUser = adminUsers.find(u => u.username === user);
 
   if (foundUser && foundUser.pass === pass) {
-    currentUser = { username: foundUser.username, name: foundUser.name };
+    // Veritabanındaki avatarı da currentUser içine alıyoruz
+    currentUser = { 
+        username: foundUser.username, 
+        name: foundUser.name,
+        avatar: foundUser.avatar || null // Fotoğraf varsa ekle
+    };
+    
     localStorage.setItem('pf_currentUser', JSON.stringify(currentUser));
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('mainApp').style.display = 'flex';
+    
+    // Üstteki avatar simgesini hemen güncelle
+    updateHeaderAvatar(currentUser.avatar, currentUser.name);
   } else { 
     document.getElementById('loginError').style.display = 'block'; 
     document.getElementById('loginError').textContent = 'Hatalı kullanıcı adı veya şifre'; 
@@ -457,6 +485,15 @@ async function initFirebase() {
   checkLogin(); 
   render('dashboard');
 }
+
+// YENİ EKLENEN SATIR: Sayfa açıldığında avatarı yükle
+  if (currentUser) {
+      updateHeaderAvatar(currentUser.avatar, currentUser.name);
+  }
+  
+  render('dashboard');
+}
+  
 
 // DATA (API'den Çekme İşlemleri)
 let clients=[], sessions=[], tasks=[], contracts=[], expenses=[], incomes=[], trash=[];
@@ -2157,6 +2194,8 @@ window.updateHeaderAvatar = function(avatarUrl, name) {
   
   
 initFirebase();
+
+  
 </script>
 </body>
 </html>
