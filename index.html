@@ -1676,44 +1676,46 @@ window.fetchExcelData = async function() {
     return;
   }
 
-  // BURAYA DİKKAT: Kendi Excel dosyanın ID'sini yazmalısın
+  // Senin görseldeki doğru ID'n eklendi
   const SPREADSHEET_ID = '1k8v7QP0wXnPe0BPBRw-6rfzERQROEm0P3a35dfk0cvw'; 
-  
-  // Excel içindeki sekmenin adı "Sayfa1" değilse (örn: "Müşteriler" ise) burayı güncelle:
   const RANGE = 'Sayfa1!C2:I'; 
 
   showToast('Excel verileri aranıyor...', '');
 
   try {
-    const response = await fetch(`https://sheets.googleapis.com/v1/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}`, {
-      headers: { Authorization: `Bearer ${gcAccessToken}` }
+    // DİKKAT: Hatanın çözümü buradaki v4 kısmında!
+    const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}`, {
+      headers: { 
+        'Authorization': `Bearer ${gcAccessToken}`,
+        'Accept': 'application/json'
+      }
     });
 
-    if (!response.ok) throw new Error('API Hatası');
+    if (!response.ok) throw new Error('API Hatası: ' + response.status);
 
     const data = await response.json();
     
     if (data.values && data.values.length > 0) {
       excelContacts = data.values.map((row, index) => {
-        const kayitNo = row[3] || '';
-        const sube = row[5] || '';
-        const notlar = row[6] || '';
+        const kayitNo = row[3] || ''; // F Sütunu
+        const sube = row[5] || '';    // H Sütunu
+        const notlar = row[6] || '';  // I Sütunu
         
-        // Şube bilgisi varsa bunu bir etiket (VIP, Düğün vs. gibi) olarak ekliyoruz
+        // Şube bilgisi ve Kayıt No etiket olarak ekleniyor
         const labels = [];
         if (sube) labels.push(sube + ' Şubesi');
         if (kayitNo) labels.push('Kayıt: ' + kayitNo);
 
         return {
-          id: 'ex_' + (kayitNo ? kayitNo : index), // Kayıt no varsa ID olarak kullan
-          name: row[0] || '',      
-          phone: row[1] || '',     
+          id: 'ex_' + (kayitNo ? kayitNo : index), 
+          name: row[0] || '',      // C Sütunu
+          phone: row[1] || '',     // D Sütunu
           notes: notlar,
-          gcLabels: labels, // Etiketler kısmında şube ve kayıt no renkli gözükecek
+          gcLabels: labels, 
           type: 'Google Sheets',
           _fromExcel: true
         };
-      }).filter(c => c.name.trim() !== ''); // Sadece ismi boş olmayan satırları al
+      }).filter(c => c.name.trim() !== ''); // İsmi boş olanları atla
       
       showToast(`${excelContacts.length} kayıt Excel'den çekildi ✓`, 'success');
       
@@ -1724,7 +1726,7 @@ window.fetchExcelData = async function() {
     }
   } catch (error) {
     console.error('Excel çekme hatası:', error);
-    showToast('Excel dosyasına ulaşılamadı. ID ve Yetkileri kontrol edin.', 'error');
+    showToast('Excel dosyasına ulaşılamadı. Lütfen tekrar deneyin.', 'error');
   }
 };
 
