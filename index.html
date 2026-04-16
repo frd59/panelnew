@@ -1294,7 +1294,10 @@ window.fetchExcelData = async function() {
 let excelQuotes = [];
 window.fetchQuotesData = async function() {
     if (!gcAccessToken) { showToast('Lütfen önce Google ile bağlanın.', 'error'); return; }
-    const SPREADSHEET_ID = '1u6s0YNPbN2RUo7mYoEUzkyILneJCulGbF3KYeNHYOD8';
+    
+    // DÜZELTME 1: TEKLİFLER DOSYASININ GERÇEK ID'Sİ GİRİLDİ
+    const SPREADSHEET_ID = '1u6s0YNpbN2RUo7mYoEUzkyILneJCulGbF3KYeNHYOD8';
+    
     showToast('Teklifler aranıyor...', '');
     try {
         const metaRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}?fields=sheets.properties.title`, {
@@ -1306,7 +1309,7 @@ window.fetchQuotesData = async function() {
         const quoteSheetNames = metaData.sheets.map(s => s.properties.title).filter(title => /^\d{10,}$/.test(title)); 
         if(quoteSheetNames.length === 0) { showToast('Teklif sekmesi bulunamadı', 'error'); return; }
 
-        const ranges = quoteSheetNames.map(name => encodeURIComponent(`${name}!A1:F40`)).join('&ranges=');
+        const ranges = quoteSheetNames.map(name => encodeURIComponent(`${name}!A1:J40`)).join('&ranges='); // Aramayı J sütununa kadar genişlettik
         const batchRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values:batchGet?ranges=${ranges}`, {
             headers: { 'Authorization': `Bearer ${gcAccessToken}`, 'Accept': 'application/json' }
         });
@@ -1316,20 +1319,40 @@ window.fetchQuotesData = async function() {
             excelQuotes = batchData.valueRanges.map(rangeData => {
                 const sheetName = rangeData.range.split('!')[0].replace(/'/g, ''); 
                 const rows = rangeData.values || [];
+                
+                // DÜZELTME 2: NOKTALARI ATLAYIP GERÇEK VERİYİ BULAN YENİ ARAMA MOTORU
                 const findVal = (label) => {
                     for(let r of rows) {
                         for(let c=0; c<r.length; c++) {
-                            if(r[c] && typeof r[c] === 'string' && r[c].includes(label)) return r[c+1] || r[c+2] || ''; 
+                            if(r[c] && typeof r[c] === 'string' && r[c].includes(label)) {
+                                // Etiketi bulduktan sonra sağa doğru tüm hücreleri tara
+                                for(let i=c+1; i<r.length; i++) {
+                                    let val = r[i] ? r[i].toString().trim() : '';
+                                    // Eğer hücre boş değilse ve sadece noktalardan ibaret değilse bu gerçek veridir!
+                                    if(val !== '' && !val.includes('........')) {
+                                        return val;
+                                    }
+                                }
+                            } 
                         }
                     }
                     return '';
                 };
+                
                 return {
-                    id: sheetName, name: findVal('Ad - Soyad'), phone: findVal('Telefon'), date: findVal('Çekim Tarihi'),
-                    time: findVal('Çekim Saati'), loc: findVal('Çekim Konumu'), deposit: findVal('Kapora'), type: findVal('Etkinlik Türü'),
-                    total: findVal('Alt toplam') || findVal('Genel Toplam') || '0', rawRows: rows
+                    id: sheetName, 
+                    name: findVal('Ad - Soyad'), 
+                    phone: findVal('Telefon'), 
+                    date: findVal('Çekim Tarihi'),
+                    time: findVal('Çekim Saati'), 
+                    loc: findVal('Çekim Konumu'), 
+                    deposit: findVal('Kapora'), 
+                    type: findVal('Etkinlik Türü'),
+                    total: findVal('Alt toplam') || findVal('Genel Toplam') || '0', 
+                    rawRows: rows
                 };
-            }).filter(q => q.name !== ''); 
+            }).filter(q => q.name !== '' || q.phone !== ''); // Filtreyi esnettik
+            
             showToast(`${excelQuotes.length} teklif çekildi ✓`, 'success');
             render('quotes'); 
         }
