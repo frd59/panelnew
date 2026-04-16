@@ -1202,10 +1202,10 @@ window.subAuth = async function(id) {
   renderAuthGrid(document.getElementById('authSearch').value);
 }
 
-// SESSION SAVING WITH AUTOMATION (AUTO-INCOME & AUTO-CONTRACT)
+// ÇEKİM EKLEME / GÜNCELLEME FONKSİYONU
 window.subSession = async function(id) {
-  // Eğer id varsa string'e çevir, yoksa 0 (string olarak '0' değil, boolean check için 0)
-  const safeId = id ? String(id) : 0;
+  // DÜZELTME 1: id '0' olarak geliyorsa, bunu null (yeni kayıt) olarak kabul et.
+  const safeId = (id && String(id) !== '0') ? String(id) : null;
   
   const cName = v('f_cname');
   if(!cName) { showToast('Müşteri adı gerekli!','error'); return; }
@@ -1222,16 +1222,14 @@ window.subSession = async function(id) {
   // 1. Müşteri Kontrol / Oluşturma
   if (existingClient) { 
       cid = existingClient.id;
-      // DÜZELTME: Eğer yeni çekim ekleniyorsa, mevcut müşterinin borcuna ekle
       if(!safeId) {
          existingClient.total = (existingClient.total || 0) + total;
          existingClient.paid = (existingClient.paid || 0) + paid;
-         await persistOne('clients', existingClient); // Veritabanına kaydet
+         await persistOne('clients', existingClient); 
       }
   } else {
-    cid = uid();
-    // Yeni müşteri oluştururken ID'yi string'e çevirerek sakla (tutarlılık için)
-    const newClient = { id: String(cid), name: cName, phone: v('f_cphone'), type: 'Genel', total: total, paid: paid };
+    cid = String(uid());
+    const newClient = { id: cid, name: cName, phone: v('f_cphone'), type: 'Genel', total: total, paid: paid };
     await persistOne('clients', newClient, true);
     clients.push(newClient);
   }
@@ -1242,14 +1240,19 @@ window.subSession = async function(id) {
   };
 
   // 2. Session Kaydetme
-  if(safeId){ const i=sessions.findIndex(x=>String(x.id)===safeId); sessions[i]={...sessions[i],...obj}; await persistOne('sessions',sessions[i]); }
-  else { 
-    sessions.push(obj); await persistOne('sessions',obj,true); 
+  if(safeId){ 
+      const i = sessions.findIndex(x => String(x.id) === safeId); 
+      if(i !== -1) {
+          sessions[i] = {...sessions[i],...obj}; 
+          await persistOne('sessions', sessions[i]); 
+      }
+  } else { 
+    sessions.push(obj); 
+    await persistOne('sessions', obj, true); 
     
-    // YENİ KAYIT İŞLEMLERİ (OTOMASYON)
-    // A. Otomatik Gelir Ekleme (Eğer kapora varsa)
+    // A. Otomatik Gelir Ekleme
     if(paid > 0) {
-      const inc = { id: String(uid()), date: date, desc: `${cName} - Kapora / Ön Ödeme`, amt: paid, store: 'corlu' }; // Varsayılan Şube
+      const inc = { id: String(uid()), date: date, desc: `${cName} - Kapora / Ön Ödeme`, amt: paid, store: 'corlu' }; 
       incomes.push(inc); await persistOne('incomes', inc, true);
     }
 
@@ -1261,8 +1264,50 @@ window.subSession = async function(id) {
     contracts.push(cont); await persistOne('contracts', cont, true);
   }
   
-  closeModal(); render('sessions');
+  closeModal(); 
+  
+  // DÜZELTME 2: 'sessions' yerine o an aktif olan sekmeyi (cur) yenile
+  // Böylece Ana Özet'teyken eklersen Ana Özet yenilenir, Çekimler'deyken Çekimler yenilenir.
+  render(cur); 
 }
+
+// MÜŞTERİ EKLEME / GÜNCELLEME FONKSİYONU
+window.subClient = async function(id) {
+  // Aynı '0' kontrolü düzeltmesini buraya da uyguladık.
+  const safeId = (id && String(id) !== '0') ? String(id) : null;
+  const labelsRaw = v('f_labels');
+  const gcLabels = labelsRaw ? labelsRaw.split(',').map(l => l.trim()).filter(Boolean) : [];
+
+  const obj = {
+    name: v('f_name'), phone: v('f_phone'), email: v('f_email'),
+    birthday: v('f_birthday'), discount: v('f_discount'),
+    notes: v('f_notes'), gcLabels
+  };
+
+  const isGoogleUpdate = safeId && safeId.startsWith('gc_');
+  const isNewRecord = !safeId;
+
+  // GOOGLE BAĞLIYSA:
+  if (gcAccessToken && (isGoogleUpdate || isNewRecord)) {
+    // ... (Mevcut Google API kodun aynı kalacak, burayı değiştirmene gerek yok)
+  }
+
+  // GOOGLE BAĞLI DEĞİLSE:
+  obj.id = safeId || String(uid());
+  if (safeId && !safeId.startsWith('gc_')) {
+    const i = clients.findIndex(x => String(x.id) === safeId);
+    if(i !== -1) {
+        clients[i] = {...clients[i], ...obj};
+        await persistOne('clients', clients[i]);
+    }
+  } else if(!safeId) {
+    clients.push(obj);
+    await persistOne('clients', obj, true);
+  }
+
+  closeModal();
+  render(cur); 
+};
 
 window.subClient = async function(id) {
   const safeId = id ? String(id) : 0;
@@ -1866,6 +1911,68 @@ window.updateAdminPassword = async function() {
 window.logoutAdmin = function() {
   localStorage.removeItem('pf_currentUser');
   location.reload(); // Sayfayı yenileyip giriş ekranına atar
+}
+
+
+
+  // GÖREV KAYDETME
+window.subTask = async function(id) {
+    const safeId = (id && String(id) !== '0') ? String(id) : null;
+    const obj = {
+        id: safeId || String(uid()), title: v('f_title'), desc: v('f_desc'),
+        due: v('f_due'), status: v('f_stat') || 'todo'
+    };
+
+    if (safeId) {
+        const i = tasks.findIndex(x => String(x.id) === safeId);
+        if (i !== -1) tasks[i] = { ...tasks[i], ...obj };
+    } else { tasks.push(obj); }
+
+    await persistOne('tasks', obj, !safeId);
+    closeModal(); render(cur);
+}
+
+// GELİR / GİDER KAYDETME
+window.subExpInc = async function(col, id) {
+    const safeId = (id && String(id) !== '0') ? String(id) : null;
+    const obj = {
+        id: safeId || String(uid()), date: v('f_date'), desc: v('f_desc'),
+        amt: Number(v('f_amt')), store: v('f_store') || 'corlu'
+    };
+
+    const targetArr = col === 'incomes' ? incomes : expenses;
+
+    if (safeId) {
+        const i = targetArr.findIndex(x => String(x.id) === safeId);
+        if (i !== -1) targetArr[i] = { ...targetArr[i], ...obj };
+    } else { targetArr.push(obj); }
+
+    await persistOne(col, obj, !safeId);
+    closeModal(); render(cur);
+}
+
+// PANEL YÖNETİMİ BİLGİLERİNİ GÜNCELLEME
+window.subPanelMgmt = async function(id) {
+    const c = clients.find(x => String(x.id) === String(id));
+    if(!c) return;
+
+    c.total = Number(v('pm_total')); c.paid = Number(v('pm_paid'));
+    c.stage = v('pm_stage'); c.driveFolder = v('pm_drive');
+
+    // Müşterinin session verisini de güncelle
+    const sId = sessions.find(s => String(s.cid) === String(id))?.id;
+    if(sId) {
+        const i = sessions.findIndex(x => String(x.id) === String(sId));
+        if(i !== -1) {
+            sessions[i].date = v('pm_date'); sessions[i].time = v('pm_time');
+            sessions[i].pkg = v('pm_pkg'); sessions[i].loc = v('pm_loc');
+            sessions[i].status = v('pm_status');
+            await persistOne('sessions', sessions[i]);
+        }
+    }
+
+    await persistOne('clients', c);
+    closeModal(); showToast('Panel bilgileri güncellendi ✓', 'success'); render(cur);
 }
 
   
