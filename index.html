@@ -292,6 +292,12 @@ tr:last-child td{border-bottom:none}
     <div class="sb-logo-icon"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
     <div class="sb-logo-txt"><strong>PASOVART</strong><em>Yönetim Paneli</em></div>
   </div>
+ 
+  <button class="nav-item" data-tab="quotes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      Teklifler (Excel)
+    </button>
+  
   <nav class="sb-nav">
     <button class="nav-item active" data-tab="dashboard">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
@@ -368,6 +374,7 @@ tr:last-child td{border-bottom:none}
     <div class="pg" id="pg-panel-mgmt"></div>
     <div class="pg" id="pg-tasks"></div>
     <div class="pg" id="pg-contracts"></div>
+    <div class="pg" id="pg-quotes"></div>
     <div class="pg" id="pg-finance"></div>
     <div class="pg" id="pg-store-corlu"></div>
     <div class="pg" id="pg-store-ergene"></div>
@@ -640,6 +647,7 @@ function render(k) {
     dashboard: rDash, sessions: rSess, clients: rCli, 'client-auth': rCliAuth,
     'panel-mgmt': rPanelMgmt,
     tasks: rTask, contracts: rCont, finance: rFin,
+    quotes: rQuotes, // <--- YENİ EKLENEN SATIR
     'store-corlu': ()=>rStore('corlu'), 'store-ergene': ()=>rStore('ergene'),
     trash: rTrash
   };
@@ -976,7 +984,7 @@ window.del = async function(type, id) {
 
 
 // MODALS
-const moTitles={session:'Çekim Ekle',client:'Müşteri Ekle',task:'Görev Ekle',contract:'Sözleşme Ekle',expense:'Gider Ekle',income:'Gelir Ekle',auth:'Giriş Bilgileri', panelMgmt:'Panel Yönetimi', detail: 'Çekim Detayları', receivables: 'Alacak Listesi', permDeleteAuth: 'Kalıcı Silme Onayı', profile: 'Profil ve Şifre İşlemleri'};
+const moTitles={session:'Çekim Ekle',client:'Müşteri Ekle',task:'Görev Ekle',contract:'Sözleşme Ekle',expense:'Gider Ekle',income:'Gelir Ekle',auth:'Giriş Bilgileri', panelMgmt:'Panel Yönetimi', detail: 'Çekim Detayları', receivables: 'Alacak Listesi', permDeleteAuth: 'Kalıcı Silme Onayı', profile: 'Profil ve Şifre İşlemleri', quoteDetail: 'Teklif İnceleme & Onay'};
 let _moType='', _moId=null;
 window.openMo=function(type,editId){
   _moType=type; _moId=editId||null;
@@ -1063,6 +1071,32 @@ window.openSessionDetail = function(id) {
 }
 
 const moForms={
+  
+  quoteDetail: (id) => {
+      const q = excelQuotes.find(x => x.id === String(id));
+      if(!q) return 'Bulunamadı.';
+      return `
+      <div style="background:#f8fafc; padding:15px; border-radius:10px; border:1px solid var(--bdr); margin-bottom:20px;">
+          <div style="font-size:11px; font-weight:700; color:var(--acc); text-transform:uppercase; margin-bottom:10px; letter-spacing:1px">📌 Excel Bilgileri (Teklif #${q.id})</div>
+          <div class="det-row"><div class="det-lbl">Müşteri Adı</div><div class="det-val" style="font-weight:700">${q.name}</div></div>
+          <div class="det-row"><div class="det-lbl">Telefon</div><div class="det-val">${q.phone || '-'}</div></div>
+          <div class="det-row"><div class="det-lbl">Tarih / Saat</div><div class="det-val">${q.date} | ${q.time}</div></div>
+          <div class="det-row"><div class="det-lbl">Konum</div><div class="det-val">${q.loc}</div></div>
+          <div class="det-row"><div class="det-lbl">Etkinlik</div><div class="det-val">${q.type}</div></div>
+          <div class="det-row"><div class="det-lbl">Kapora (Bedel)</div><div class="det-val" style="color:var(--grn); font-weight:700">${q.deposit || '0'}</div></div>
+          <div class="det-row" style="border:none"><div class="det-lbl">Toplam Fiyat</div><div class="det-val" style="color:var(--acc); font-weight:800; font-size:16px">${q.total || '0'}</div></div>
+      </div>
+      
+      <div style="font-size:12px; color:var(--txt2); margin-bottom:15px; line-height:1.5;">
+          ⚠️ <strong>Dönüştür</strong> butonuna bastığınızda bu kişi Müşteri listesine eklenecek, kapora bedeli Kasaya işlenecek, Çekim Takvimine eklenecek ve Sözleşmesi hazır hale gelecektir.
+      </div>
+      
+      <button class="btn btn-p f-sub" style="background:var(--grn)" onclick="convertQuoteToContract('${q.id}')">
+          🚀 Müşteriyi Onayla & Sözleşmeye Dönüştür
+      </button>
+      `;
+  },
+
   permDeleteAuth: (ids) => {
       return `
       <div style="text-align:center; margin-bottom:15px; color:var(--red)">
@@ -1730,6 +1764,159 @@ window.fetchExcelData = async function() {
     showToast('Lütfen önce Google ile bağlanın.', 'error');
     return;
   }
+
+
+
+  // EXCEL TEKLİFLERİ ALTYAPISI
+let excelQuotes = [];
+
+window.fetchQuotesData = async function() {
+    if (!gcAccessToken) return;
+
+    // Tekliflerin olduğu Excel dosyasının ID'si (Aynı dosya olduğunu varsaydım, farklıysa burayı değiştir)
+    const SPREADSHEET_ID = '1k8v7QP0wXnPe0BPBRw-6rfzERQROEm0P3a35dfk0cvw';
+
+    try {
+        // 1. Dosyadaki tüm sekmelerin (sayfaların) adlarını çek
+        const metaRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}?fields=sheets.properties.title&access_token=${gcAccessToken}`);
+        if (!metaRes.ok) return;
+        const metaData = await metaRes.json();
+
+        // 2. Sadece ismi "16042026162141" gibi uzun rakamlardan oluşan teklif sekmelerini filtrele
+        const quoteSheetNames = metaData.sheets
+            .map(s => s.properties.title)
+            .filter(title => /^\d{10,}$/.test(title)); // 10 haneden uzun rakamlar
+
+        if(quoteSheetNames.length === 0) return;
+
+        // 3. Bu sekmelerdeki verileri tek seferde (batchGet) çek
+        const ranges = quoteSheetNames.map(name => encodeURIComponent(`${name}!A1:F40`)).join('&ranges=');
+        const batchRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values:batchGet?ranges=${ranges}&access_token=${gcAccessToken}`);
+        const batchData = await batchRes.json();
+
+        if(batchData.valueRanges) {
+            excelQuotes = batchData.valueRanges.map(rangeData => {
+                const sheetName = rangeData.range.split('!')[0].replace(/'/g, ''); 
+                const rows = rangeData.values || [];
+
+                // Excel'in neresinde olursa olsun yazıyı bulup yanındaki veriyi çeken akıllı arama motoru
+                const findVal = (label) => {
+                    for(let r of rows) {
+                        for(let c=0; c<r.length; c++) {
+                            if(r[c] && typeof r[c] === 'string' && r[c].includes(label)) {
+                                return r[c+1] || r[c+2] || ''; // Yanındaki veya bir yanındaki hücre
+                            }
+                        }
+                    }
+                    return '';
+                };
+
+                return {
+                    id: sheetName,
+                    name: findVal('Ad - Soyad'),
+                    phone: findVal('Telefon'),
+                    date: findVal('Çekim Tarihi'),
+                    time: findVal('Çekim Saati'),
+                    loc: findVal('Çekim Konumu'),
+                    deposit: findVal('Kapora'),
+                    type: findVal('Etkinlik Türü'),
+                    total: findVal('Alt toplam') || findVal('Genel Toplam') || '0',
+                    rawRows: rows
+                };
+            }).filter(q => q.name !== ''); // Sadece içi dolu olanları al
+            
+            render('quotes'); // Listeyi güncelle
+        }
+    } catch(e) {
+        console.error("Teklif çekme hatası:", e);
+    }
+};
+
+// TEKLİFLER SAYFASI TASARIMI (UI)
+function rQuotes() {
+    return `
+    <div class="ph">
+        <h2>📑 Gelen Teklifler (Excel)</h2>
+        <button class="btn btn-google" onclick="fetchQuotesData()" style="background:#10b981; color:#fff; border-radius:10px; border:none; padding:8px 15px; font-weight:bold; cursor:pointer;">🔄 Sayfaları Tara ve Güncelle</button>
+    </div>
+    <div class="card card-p">
+        <div class="tbl-wrap"><table>
+            <thead><tr><th>Teklif Kodu</th><th>Müşteri Bilgisi</th><th>Etkinlik & Konum</th><th>Tarih / Saat</th><th>İşlem</th></tr></thead>
+            <tbody>
+                ${excelQuotes.length === 0 ? '<tr><td colspan="5" style="text-align:center;color:var(--txt3);padding:20px">Henüz Excel\'den çekilmiş teklif yok. "Sayfaları Tara" butonuna basın.</td></tr>' :
+                excelQuotes.map(q => `
+                <tr>
+                    <td style="font-weight:700; color:var(--acc)">#${q.id}</td>
+                    <td>
+                        <div style="font-weight:600">${q.name}</div>
+                        <div style="font-size:11px;color:var(--txt2)">${q.phone || 'Tel Yok'}</div>
+                    </td>
+                    <td>
+                        <div>${q.type || 'Belirtilmemiş'}</div>
+                        <div style="font-size:11px;color:var(--txt2)">${q.loc}</div>
+                    </td>
+                    <td><span class="badge b-pending">${q.date} - ${q.time}</span></td>
+                    <td>
+                        <button class="btn btn-e btn-sm" onclick="openMo('quoteDetail', '${q.id}')">${I.eye} Detay & Dönüştür</button>
+                    </td>
+                </tr>
+                `).join('')}
+            </tbody>
+        </table></div>
+    </div>`;
+}
+
+// SÖZLEŞMEYE DÖNÜŞTÜRME İŞLEMİ (Otomasyon)
+window.convertQuoteToContract = async function(id) {
+    const q = excelQuotes.find(x => x.id === String(id));
+    if(!q) return;
+
+    // Excel'deki "₺15.000,00" gibi formatları saf sayıya çeviriyoruz
+    const parseMoney = (str) => Number(String(str).replace(/[^0-9,-]+/g,"").replace(',','.')) || 0;
+    const depositAmt = parseMoney(q.deposit);
+    let totalAmt = parseMoney(q.total);
+
+    // Müşteri veritabanında var mı kontrol et, yoksa yarat
+    let client = clients.find(c => c.name.toLowerCase() === q.name.toLowerCase() || (c.phone && c.phone === q.phone));
+    
+    if(!client) {
+        client = { id: String(uid()), name: q.name, phone: q.phone, type: 'Genel', total: totalAmt, paid: depositAmt };
+        await persistOne('clients', client, true);
+        clients.push(client);
+    } else {
+        client.total = (client.total || 0) + totalAmt;
+        client.paid = (client.paid || 0) + depositAmt;
+        await persistOne('clients', client);
+    }
+
+    // Çekim (Session) Oluştur
+    const sess = {
+        id: String(uid()), cid: client.id, date: q.date || new Date().toISOString().split('T')[0], 
+        time: q.time, total: totalAmt, paid: depositAmt, pkg: q.type || 'Özel Teklif', 
+        loc: q.loc, desc: `Excel Teklif Kodu: ${q.id} üzerinden otomatik oluşturuldu.`, status: 'upcoming'
+    };
+    sessions.push(sess);
+    await persistOne('sessions', sess, true);
+
+    // Sözleşme Oluştur
+    const cont = {
+        id: String(uid()), cid: client.id, date: sess.date, total: totalAmt, paid: depositAmt, status: 'pending',
+        terms: `Teklif Onay Kodu: ${q.id}\nHizmet: ${sess.pkg}\nLokasyon: ${sess.loc}\nTarih/Saat: ${q.date} ${q.time}`
+    };
+    contracts.push(cont);
+    await persistOne('contracts', cont, true);
+
+    // Kapora varsa Kasaya (Gelir) İşle
+    if(depositAmt > 0) {
+        const inc = { id: String(uid()), date: sess.date, desc: `${q.name} - Teklif ${q.id} Kapora Onayı`, amt: depositAmt, store: 'corlu' };
+        incomes.push(inc);
+        await persistOne('incomes', inc, true);
+    }
+
+    closeModal();
+    showToast('Teklif Onaylandı! Müşteri, Çekim ve Sözleşme eklendi ✓', 'success');
+    go('contracts'); // İşlem bitince direk Sözleşmeler sayfasına yolla
+};
 
   // Senin görseldeki doğru ID'n eklendi
   const SPREADSHEET_ID = '1k8v7QP0wXnPe0BPBRw-6rfzERQROEm0P3a35dfk0cvw'; 
