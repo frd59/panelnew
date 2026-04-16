@@ -102,7 +102,16 @@ html,body{height:100%;font-family:var(--fn);background:var(--bg);color:var(--txt
 .hdr-search input{border:none;outline:none;background:transparent;font:400 14px var(--fn);color:var(--txt2);width:180px}
 .hdr-right{display:flex;align-items:center;gap:14px}
 .hdr-greet{font-size:13px;color:var(--txt3)}
-.hdr-avatar{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#2563eb,#60a5fa);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:15px}
+
+/* Avatar Güncellemeleri */
+.hdr-avatar { width: 38px; height: 38px; border-radius: 10px; font-size: 15px; font-weight:800; overflow: hidden; position: relative; background:linear-gradient(135deg,#2563eb,#60a5fa); color:#fff; display:flex; align-items:center; justify-content:center; }
+.hdr-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.prof-avatar-wrap { position: relative; width: 85px; height: 85px; margin: 0 auto 15px; cursor: pointer; transition: transform 0.2s; }
+.prof-avatar-wrap:hover { transform: scale(1.05); }
+.prof-avatar { width: 100%; height: 100%; border-radius: 22px; background: linear-gradient(135deg,#2563eb,#60a5fa); color:#fff; display:flex; align-items:center; justify-content:center; font-size:36px; font-weight:800; overflow:hidden; box-shadow: 0 8px 20px rgba(37,99,235,0.25); }
+.prof-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.prof-cam-icon { position: absolute; bottom: -4px; right: -4px; background: #fff; border-radius: 50%; padding: 6px; box-shadow: 0 3px 8px rgba(0,0,0,0.15); font-size: 14px; line-height: 1; color: var(--txt2); border: 1px solid var(--bdr); }
+
 .content{flex:1;overflow-y:auto;padding:26px 28px;position:relative}
 
 /* ─── PAGES & UI ─── */
@@ -133,7 +142,6 @@ html,body{height:100%;font-family:var(--fn);background:var(--bg);color:var(--txt
 
 .stat-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:14px;margin-bottom:22px}
 .stat{padding:18px 19px;display:flex;align-items:center;gap:15px;cursor:default;}
-/* Stat card click effect for receivables */
 .stat.clickable { cursor:pointer; transition:transform 0.1s; }
 .stat.clickable:active { transform:scale(0.98); }
 
@@ -253,19 +261,6 @@ tr:last-child td{border-bottom:none}
 .btn-google:hover{background:#3367d6}
 .btn-google svg{flex-shrink:0}
 
-
-
-
-  /* Avatar Güncellemeleri */
-.hdr-avatar { width: 44px; height: 44px; border-radius: 12px; font-size: 18px; overflow: hidden; position: relative; }
-.hdr-avatar img { width: 100%; height: 100%; object-fit: cover; }
-.prof-avatar-wrap { position: relative; width: 85px; height: 85px; margin: 0 auto 15px; cursor: pointer; transition: transform 0.2s; }
-.prof-avatar-wrap:hover { transform: scale(1.05); }
-.prof-avatar { width: 100%; height: 100%; border-radius: 22px; background: linear-gradient(135deg,#2563eb,#60a5fa); color:#fff; display:flex; align-items:center; justify-content:center; font-size:36px; font-weight:800; overflow:hidden; box-shadow: 0 8px 20px rgba(37,99,235,0.25); }
-.prof-avatar img { width: 100%; height: 100%; object-fit: cover; }
-.prof-cam-icon { position: absolute; bottom: -4px; right: -4px; background: #fff; border-radius: 50%; padding: 6px; box-shadow: 0 3px 8px rgba(0,0,0,0.15); font-size: 14px; line-height: 1; color: var(--txt2); border: 1px solid var(--bdr); }
-
-
 </style>
 </head>
 <body>
@@ -292,11 +287,6 @@ tr:last-child td{border-bottom:none}
     <div class="sb-logo-icon"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
     <div class="sb-logo-txt"><strong>PASOVART</strong><em>Yönetim Paneli</em></div>
   </div>
- 
-  <button class="nav-item" data-tab="quotes">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-      Teklifler (Excel)
-    </button>
   
   <nav class="sb-nav">
     <button class="nav-item active" data-tab="dashboard">
@@ -324,6 +314,10 @@ tr:last-child td{border-bottom:none}
     <button class="nav-item" data-tab="tasks">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
       Görevler
+    </button>
+    <button class="nav-item" data-tab="quotes" style="color:var(--grn)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      Teklifler (Excel)
     </button>
     <button class="nav-item" data-tab="contracts">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
@@ -411,34 +405,25 @@ const firebaseConfig = {
   measurementId: "G-GTR6KPH1CL"
 };
 
-
-
 // ─── GOOGLE CONTACTS YAPILANDIRMASI ───────────────────────────────
 const GOOGLE_CLIENT_ID = '438367434556-c6tjeghvqo4rrdn4t9te7d9c3rrs6j32.apps.googleusercontent.com';
 const GOOGLE_SCOPES = 'https://www.googleapis.com/auth/contacts https://www.googleapis.com/auth/spreadsheets.readonly';
 let gcAccessToken = null;
 let gcContacts = [];
-let gcGroupMap = {}; // YENİ EKLENEN: Etiket çeviri sözlüğü
+let gcGroupMap = {}; 
 let gcImportModalOpen = false;
-// ──────────────────────────────────────────────────────────────────
-
-
-
 
 // LOGIN
 let adminUsers = [];
 let currentUser = null;
 
-// EKLENEN YENİ FONKSİYON BURADA
 function checkLogin() {
     const saved = localStorage.getItem('pf_currentUser');
     if (saved) {
         currentUser = JSON.parse(saved);
-        // Giriş yapılmışsa ekranları ayarla
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('mainApp').style.display = 'flex';
         
-        // Veritabanındaki en güncel halini bul (Fotoğraf veritabanında güncellenmiş olabilir)
         const dbUser = adminUsers.find(u => u.username === currentUser.username);
         if (dbUser && dbUser.avatar) {
             currentUser.avatar = dbUser.avatar;
@@ -447,7 +432,6 @@ function checkLogin() {
     }
 }
 
-  
 window.doLogin = function() {
   const user = document.getElementById('loginUser').value.toLowerCase();
   const pass = document.getElementById('loginPass').value;
@@ -455,18 +439,10 @@ window.doLogin = function() {
   const foundUser = adminUsers.find(u => u.username === user);
 
   if (foundUser && foundUser.pass === pass) {
-    // Veritabanındaki avatarı da currentUser içine alıyoruz
-    currentUser = { 
-        username: foundUser.username, 
-        name: foundUser.name,
-        avatar: foundUser.avatar || null // Fotoğraf varsa ekle
-    };
-    
+    currentUser = { username: foundUser.username, name: foundUser.name, avatar: foundUser.avatar || null };
     localStorage.setItem('pf_currentUser', JSON.stringify(currentUser));
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('mainApp').style.display = 'flex';
-    
-    // Üstteki avatar simgesini hemen güncelle
     updateHeaderAvatar(currentUser.avatar, currentUser.name);
   } else { 
     document.getElementById('loginError').style.display = 'block'; 
@@ -475,36 +451,30 @@ window.doLogin = function() {
 }
 
 // --- KENDİ SUNUCUMUZ (cPanel MySQL Bağlantısı) ---
-// DİKKAT: Aşağıdaki site adresini kendi web sitenin adresiyle değiştir (örn: https://pasovart.com/api.php)
 const API_URL = "https://pasov.art/api.php"; 
-let useFirebase = true; // Sistemin geri kalanını bozmamak için true bırakıyoruz ama artık kendi sunucumuza gidecek.
+let useFirebase = true; 
 
 async function initFirebase() {
-  const dot = document.getElementById('statusDot');
-  const txt = document.getElementById('statusTxt');
-  if(dot) dot.className = 'status-dot online';
-  if(txt) txt.textContent = 'Çevrimiçi (MySQL)';
+  const dot = document.getElementById('statusDot');
+  const txt = document.getElementById('statusTxt');
+  if(dot) dot.className = 'status-dot online';
+  if(txt) txt.textContent = 'Çevrimiçi (MySQL)';
 
-  await loadAllFromFirebase();
-  checkLogin(); 
+  await loadAllFromFirebase();
+  checkLogin(); 
 
-  // YENİ EKLENEN SATIR: Sayfa açıldığında avatarı yükle
-  if (currentUser) {
-      updateHeaderAvatar(currentUser.avatar, currentUser.name);
-  }
-  
-  render('dashboard');
-}
+  if (currentUser) {
+      updateHeaderAvatar(currentUser.avatar, currentUser.name);
+  }
   
+  render('dashboard');
+}
 
-// DATA (API'den Çekme İşlemleri)
+// DATA
 let clients=[], sessions=[], tasks=[], contracts=[], expenses=[], incomes=[], trash=[];
 
 async function loadAllFromFirebase() {
-  // Yönetici kullanıcıları çek
   adminUsers = await fbGetAll('users');
-  
-  // Eğer veritabanında hiç kullanıcı yoksa (ilk kurulum), varsayılanları oluştur
   if(adminUsers.length === 0) {
     const defaults = [
       { id: 'ferdi', username: 'ferdi', pass: '123456', name: 'Ferdi' },
@@ -517,7 +487,6 @@ async function loadAllFromFirebase() {
     }
   }
 
-  // Diğer verileri çekmeye devam et
   clients = await fbGetAll('clients'); sessions = await fbGetAll('sessions');
   tasks = await fbGetAll('tasks'); contracts = await fbGetAll('contracts');
   expenses = await fbGetAll('expenses'); incomes = await fbGetAll('incomes');
@@ -526,19 +495,13 @@ async function loadAllFromFirebase() {
 
 async function fbGetAll(col) { 
     try { 
-        // Cache (önbellek) sorununu önlemek için sonuna rastgele sayı ekledik
         const res = await fetch(`${API_URL}?collection=${col}&t=${Date.now()}`);
         if(!res.ok) return [];
         const data = await res.json();
-        console.log(`${col} verileri yüklendi:`, data); // F12 Konsolunda veriyi görmek için
         return Array.isArray(data) ? data : [];
-    } catch(e) { 
-        console.error("Veri çekme hatası:", e);
-        return []; 
-    } 
+    } catch(e) { return []; } 
 }
 
-// ADD İşlemi
 async function fbAdd(col, obj) {
   try { 
       const id = obj.id || ((crypto&&crypto.randomUUID)?crypto.randomUUID():String(Date.now())); 
@@ -553,7 +516,6 @@ async function fbAdd(col, obj) {
   } catch(e) { showToast('Hata', 'error'); return obj; }
 }
 
-// UPDATE İşlemi
 async function fbUpdate(col, obj) { 
   try {
       const id = obj._fbId || obj.id;
@@ -566,7 +528,6 @@ async function fbUpdate(col, obj) {
   } catch(e) {} 
 }
 
-// DELETE İşlemi
 async function fbDelete(col, fbId) { 
   try {
       await fetch(API_URL, {
@@ -595,15 +556,8 @@ function loadAllFromLocal() {
 
 // UI UTILS
 const uid = () => Date.now() + (Math.random()*9999|0);
-const cn = id => {
-    // String/Number conversion safety for finding clients
-    const c = clients.find(x => String(x.id) === String(id));
-    return c ? c.name : '–';
-};
-const cp = id => {
-    const c = clients.find(x => String(x.id) === String(id));
-    return c ? c.phone : '';
-};
+const cn = id => { const c = clients.find(x => String(x.id) === String(id)); return c ? c.name : '–'; };
+const cp = id => { const c = clients.find(x => String(x.id) === String(id)); return c ? c.phone : ''; };
 const fm = n => Number(n).toLocaleString('tr-TR');
 const fmtDate = d => {
   if(!d) return '-';
@@ -621,7 +575,7 @@ const I = {
   restore: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>`
 };
 
-// NAV & MOBILE
+// NAV
 window.toggleSub=function(e){ e.preventDefault(); e.currentTarget.classList.toggle('open'); }
 window.toggleSidebar=function(){ document.getElementById('sidebar').classList.toggle('active'); document.getElementById('sidebarOverlay').classList.toggle('active'); }
 let cur='dashboard';
@@ -645,33 +599,25 @@ function go(k) {
 function render(k) {
   const pages = {
     dashboard: rDash, sessions: rSess, clients: rCli, 'client-auth': rCliAuth,
-    'panel-mgmt': rPanelMgmt,
-    tasks: rTask, contracts: rCont, finance: rFin,
-    quotes: rQuotes, // <--- YENİ EKLENEN SATIR
+    'panel-mgmt': rPanelMgmt, tasks: rTask, contracts: rCont, finance: rFin,
+    quotes: rQuotes,
     'store-corlu': ()=>rStore('corlu'), 'store-ergene': ()=>rStore('ergene'),
     trash: rTrash
   };
   
   if(pages[k]) {
       document.getElementById('pg-'+k).innerHTML = pages[k]();
-      // YENİ EKLENEN SATIRLAR: Sayfa yüklenince gridleri doldur
-      if(k === 'clients') {
-          setTimeout(() => renderClientGrid(), 50); 
-      }
-      if(k === 'client-auth') {
-          setTimeout(() => renderAuthGrid(), 50);
-      }
+      if(k === 'clients') setTimeout(() => renderClientGrid(), 50); 
+      if(k === 'client-auth') setTimeout(() => renderAuthGrid(), 50);
   }
 }
 
 function rDash() {
   const inc = incomes.reduce((a, i) => a + (Number(i.amt) || 0), 0);
   const exp = expenses.reduce((a, e) => a + (Number(e.amt) || 0), 0);
-  
-  // DÜZELTME: NaN HATASINI ENGELLEYEN HESAPLAMA
   const receivables = clients.reduce((acc, c) => {
-      const t = Number(c.total) || 0; // Eğer total tanımsızsa 0 al
-      const p = Number(c.paid) || 0;  // Eğer paid tanımsızsa 0 al
+      const t = Number(c.total) || 0; 
+      const p = Number(c.paid) || 0;  
       return acc + (t - p);
   }, 0);
 
@@ -730,20 +676,15 @@ function rPanelMgmt() {
 function rCliAuth() {
   return `
   <div class="ph"><h2>🔐 Müşteri Giriş Yönetimi</h2></div>
-  
   <div style="margin-bottom:20px; position:relative">
     <svg style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#94a3b8" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-    <input type="text" id="authSearch" placeholder="İsim ile arayın..." 
-           onkeyup="renderAuthGrid(this.value)"
-           style="width:100%; padding:12px 12px 12px 40px; border-radius:12px; border:1px solid var(--bdr); outline:none; font-size:14px; box-shadow:0 2px 5px rgba(0,0,0,0.03)">
+    <input type="text" id="authSearch" placeholder="İsim ile arayın..." onkeyup="renderAuthGrid(this.value)" style="width:100%; padding:12px 12px 12px 40px; border-radius:12px; border:1px solid var(--bdr); outline:none; font-size:14px; box-shadow:0 2px 5px rgba(0,0,0,0.03)">
   </div>
-
   <div class="card card-p">
     <div class="tbl-wrap">
       <table>
         <thead><tr><th>Müşteri</th><th>Kullanıcı Adı</th><th>Durum</th><th>İşlem</th></tr></thead>
-        <tbody id="authTableBody">
-           </tbody>
+        <tbody id="authTableBody"></tbody>
       </table>
     </div>
     <div id="authLoadMoreBtn" style="text-align:center; margin-top:15px; display:none">
@@ -774,16 +715,15 @@ function rCont() {
 }
 
 function rSess() { return `<div class="ph"><h2>📷 Çekimler</h2><button class="btn btn-p" onclick="openMo('session')">${I.plus} Yeni</button></div><div class="tbl-wrap"><table><thead><tr><th>Müşteri</th><th>Tarih</th><th>Paket</th><th>Tutar</th><th>İşlem</th></tr></thead><tbody>${sessions.map(s=>`<tr><td style="font-weight:600">${cn(s.cid)}</td><td>${fmtDate(s.date)}</td><td>${s.pkg}</td><td>₺${fm(s.total)}</td><td style="display:flex;gap:5px"><button class="btn btn-e btn-sm" onclick="openSessionDetail('${s.id}')">${I.eye}</button><button class="btn btn-e btn-sm" onclick="openMo('session','${s.id}')">${I.edit}</button><button class="btn btn-d btn-sm" onclick="del('session','${s.id}')">${I.trash}</button></td></tr>`).join('')}</tbody></table></div>`; }
-// --- YENİ MÜŞTERİ SAYFASI (ARAMA + SIRALAMA + EXCEL) ---
-let renderLimit = 50; // Performans için başlangıç limiti
-let authLimit = 50; // Müşteri Girişleri için limit
+
+let renderLimit = 50; 
+let authLimit = 50; 
 
 function rCli() {
   return `
   <div class="ph">
     <h2>👤 Müşteriler</h2>
     <div style="display:flex; gap:10px; flex-wrap:wrap">
-      
       <button class="btn btn-google" onclick="connectGoogleContacts()" style="background:#4285f4; color:#fff; gap:7px; padding:9px 16px; display:flex; align-items:center; border:none; border-radius:10px; font-weight:600; cursor:pointer;">
         <svg width="16" height="16" viewBox="0 0 48 48" style="margin-right:4px;">
           <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
@@ -793,21 +733,15 @@ function rCli() {
         </svg>
         ${gcAccessToken ? "Contacts'ı Güncelle" : "Google Contacts"}
       </button>
-      
       <button class="btn btn-p" onclick="openMo('client')">${I.plus} Yeni</button>
     </div>
   </div>
-
   <div style="margin-bottom:20px; position:relative">
     <svg style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#94a3b8" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-    <input type="text" id="clientSearch" placeholder="İsim veya telefon ile arayın..." 
-           onkeyup="renderClientGrid(this.value)"
-           style="width:100%; padding:12px 12px 12px 40px; border-radius:12px; border:1px solid var(--bdr); outline:none; font-size:14px; box-shadow:0 2px 5px rgba(0,0,0,0.03)">
+    <input type="text" id="clientSearch" placeholder="İsim veya telefon ile arayın..." onkeyup="renderClientGrid(this.value)" style="width:100%; padding:12px 12px 12px 40px; border-radius:12px; border:1px solid var(--bdr); outline:none; font-size:14px; box-shadow:0 2px 5px rgba(0,0,0,0.03)">
     <div style="font-size:11px; color:var(--txt3); margin-top:5px; text-align:right">Toplam: <span id="totalClientCount">${clients.length}</span> Kayıt</div>
   </div>
-
   <div class="cl-grid" id="clientGrid"></div>
-  
   <div id="loadMoreBtn" style="text-align:center; margin-top:20px; display:none">
     <button class="btn btn-e" onclick="loadMoreClients()">Daha Fazla Göster</button>
   </div>
@@ -816,12 +750,8 @@ function rCli() {
 
 function rFin() { return `<div class="ph"><h2>💰 Gelir / Gider</h2><div style="display:flex;gap:8px"><button class="btn btn-p" onclick="openMo('income')">${I.plus} Gelir</button><button class="btn btn-p" style="background:linear-gradient(135deg,#dc2626,#ef4444);box-shadow:0 2px 8px rgba(239,68,68,.3)" onclick="openMo('expense')">${I.plus} Gider</button></div></div><div class="card card-p"><div class="tbl-wrap"><table><thead><tr><th>Tarih</th><th>Açıklama</th><th>Tutar</th><th>İşlem</th></tr></thead><tbody>${[...incomes.map(i=>({...i,t:'inc'})),...expenses.map(e=>({...e,t:'exp'}))].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,10).map(x=>`<tr><td>${fmtDate(x.date)}</td><td>${x.desc}</td><td style="font-weight:700;color:${x.t==='inc'?'var(--grn)':'var(--red)'}">${x.t==='inc'?'+':'-'}₺${fm(x.amt)}</td><td><button class="btn btn-d btn-sm" onclick="del('${x.t==='inc'?'income':'expense'}','${x.id}')">${I.trash}</button></td></tr>`).join('')}</tbody></table></div></div>`; }
 
-// TRASH RENDERER
 function rTrash() {
-    const mapName = {
-        'sessions': 'Çekim', 'clients': 'Müşteri', 'tasks': 'Görev',
-        'contracts': 'Sözleşme', 'expenses': 'Gider', 'incomes': 'Gelir'
-    };
+    const mapName = { 'sessions': 'Çekim', 'clients': 'Müşteri', 'tasks': 'Görev', 'contracts': 'Sözleşme', 'expenses': 'Gider', 'incomes': 'Gelir' };
     return `
     <div class="ph">
         <h2>🗑️ Çöp Kutusu</h2>
@@ -835,29 +765,19 @@ function rTrash() {
             <thead>
                 <tr>
                     <th style="width:30px"><input type="checkbox" class="trash-check" onchange="toggleAllTrash(this)"/></th>
-                    <th>Tür</th>
-                    <th>İçerik Detayı</th>
-                    <th>Silinme Tarihi</th>
-                    <th>İşlem</th>
+                    <th>Tür</th><th>İçerik Detayı</th><th>Silinme Tarihi</th><th>İşlem</th>
                 </tr>
             </thead>
             <tbody>
                 ${trash.length === 0 ? '<tr><td colspan="5" style="text-align:center;color:var(--txt3);padding:20px">Çöp kutusu boş.</td></tr>' : 
                 trash.sort((a,b)=>new Date(b._deletedAt)-new Date(a._deletedAt)).map(t => {
-                    let desc = '-';
-                    if(t.name) desc = t.name;
-                    else if(t.title) desc = t.title;
-                    else if(t.desc) desc = t.desc;
-                    else if(t.pkg) desc = t.pkg;
-                    
+                    let desc = t.name || t.title || t.desc || t.pkg || '-';
                     return `<tr>
                         <td><input type="checkbox" class="trash-check trash-item" value="${t.id}"/></td>
                         <td><span class="badge b-pending">${mapName[t._origin] || t._origin}</span></td>
                         <td style="font-weight:600">${desc}</td>
                         <td style="color:var(--txt3);font-size:12px">${fmtDate(t._deletedAt)}</td>
-                        <td style="display:flex;gap:5px">
-                            <button class="btn btn-e btn-sm" onclick="restoreOne('${t.id}')">Geri Al</button>
-                        </td>
+                        <td style="display:flex;gap:5px"><button class="btn btn-e btn-sm" onclick="restoreOne('${t.id}')">Geri Al</button></td>
                     </tr>`;
                 }).join('')}
             </tbody>
@@ -865,10 +785,8 @@ function rTrash() {
     </div>`;
 }
 
-// BULK ACTIONS UTILS
-window.toggleAllTrash = function(el) {
-    document.querySelectorAll('.trash-item').forEach(c => c.checked = el.checked);
-}
+// BULK ACTIONS
+window.toggleAllTrash = function(el) { document.querySelectorAll('.trash-item').forEach(c => c.checked = el.checked); }
 window.restoreSelected = function() {
     const ids = Array.from(document.querySelectorAll('.trash-item:checked')).map(c => c.value);
     if(ids.length === 0) { showToast('Hiçbir kayıt seçilmedi', 'error'); return; }
@@ -879,45 +797,26 @@ window.restoreSelected = function() {
 window.restoreOne = async function(id, renderNow=true) {
     const item = trash.find(x => String(x.id) === String(id));
     if(!item) return;
-    
-    // Move back to origin
     const col = item._origin;
     const restoredItem = { ...item };
-    delete restoredItem._origin;
-    delete restoredItem._deletedAt;
-    
-    // Add to active array
+    delete restoredItem._origin; delete restoredItem._deletedAt;
     eval(col).push(restoredItem);
     await persistOne(col, restoredItem, true);
-    
-    // Remove from trash
     if(useFirebase && item._fbId) await fbDelete('trash', item._fbId);
     trash = trash.filter(x => String(x.id) !== String(id));
     if(!useFirebase) sv();
-    
     if(renderNow) { showToast('Geri yüklendi', 'success'); render('trash'); }
 }
-
-// PERMANENT DELETE LOGIC
 window.askPermDelete = function() {
     const ids = Array.from(document.querySelectorAll('.trash-item:checked')).map(c => c.value);
     if(ids.length === 0) { showToast('Hiçbir kayıt seçilmedi', 'error'); return; }
-    
-    // Show password modal
     openMo('permDeleteAuth', ids.join(','));
 }
-
 window.checkPermDelete = async function() {
     const pass = v('pd_pass');
-    if(pass !== '1453') {
-        showToast('Hatalı Şifre!', 'error');
-        return;
-    }
-    
+    if(pass !== '1453') { showToast('Hatalı Şifre!', 'error'); return; }
     const rawIds = document.getElementById('pd_ids').value;
     const ids = rawIds.split(',');
-    
-    // Execute deletion
     for(const id of ids) {
         const item = trash.find(x => String(x.id) === String(id));
         if(item) {
@@ -926,62 +825,41 @@ window.checkPermDelete = async function() {
         }
     }
     if(!useFirebase) sv();
-    
-    closeModal();
-    showToast('Seçilenler kalıcı olarak silindi.', 'success');
-    render('trash');
+    closeModal(); showToast('Seçilenler kalıcı olarak silindi.', 'success'); render('trash');
 }
 
-// MODIFIED DELETE ACTION (GOOGLE + SOFT DELETE)
 window.del = async function(type, id) {
-  // 1. GOOGLE KİŞİSİ SİLME KONTROLÜ
   if (type === 'client' && String(id).startsWith('gc_')) {
     if (!gcAccessToken) { showToast('Önce Google ile bağlanın', 'error'); return; }
     if (!confirm('Bu kişiyi Google Rehberinizden tamamen silmek istediğinize emin misiniz?')) return;
-
     const gcItem = gcContacts.find(x => x.id === String(id));
     if (gcItem) {
       showToast('Google\'dan siliniyor...', '');
       try {
-        const res = await fetch(`https://people.googleapis.com/v1/${gcItem._resourceName}:deleteContact`, {
-          method: 'DELETE',
-          headers: { 'Authorization': `Bearer ${gcAccessToken}` }
-        });
+        const res = await fetch(`https://people.googleapis.com/v1/${gcItem._resourceName}:deleteContact`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${gcAccessToken}` }});
         if (!res.ok) throw new Error('Google silme hatası');
-
-        // Başarılıysa hafızadan çıkar ve arayüzü yenile
         gcContacts = gcContacts.filter(x => x.id !== String(id));
         showToast('Google Kişiler\'den silindi ✓', 'success');
         renderClientGrid(document.getElementById('clientSearch')?.value || '');
-      } catch(e) {
-        showToast('Google\'dan silinemedi!', 'error');
-      }
+      } catch(e) { showToast('Google\'dan silinemedi!', 'error'); }
     }
-    return; // İşlem bitti, aşağıdaki veritabanı silme koduna geçme
+    return; 
   }
 
-  // 2. STANDART VERİTABANI SİLME İŞLEMİ (Çöp kutusuna taşıma)
   const map={session:'sessions',client:'clients',task:'tasks',contract:'contracts',expense:'expenses',income:'incomes'};
   const col=map[type];
   const item=eval(col).find(x=>String(x.id)===String(id));
-  
   if(!item) return;
-  
   const trashItem = { ...item, _origin: col, _deletedAt: new Date().toISOString() };
   if(useFirebase) trashItem._fbId = null; 
-  
   trash.push(trashItem);
   await persistOne('trash', trashItem, true);
-  
   if(useFirebase && item._fbId) await fbDelete(col, item._fbId);
   eval(`${col}=${col}.filter(x=>String(x.id)!==String(id))`); 
-  
   if(!useFirebase) sv(); 
-  
   showToast('Çöp kutusuna taşındı', 'success');
   render(cur);
 }
-
 
 // MODALS
 const moTitles={session:'Çekim Ekle',client:'Müşteri Ekle',task:'Görev Ekle',contract:'Sözleşme Ekle',expense:'Gider Ekle',income:'Gelir Ekle',auth:'Giriş Bilgileri', panelMgmt:'Panel Yönetimi', detail: 'Çekim Detayları', receivables: 'Alacak Listesi', permDeleteAuth: 'Kalıcı Silme Onayı', profile: 'Profil ve Şifre İşlemleri', quoteDetail: 'Teklif İnceleme & Onay'};
@@ -989,89 +867,57 @@ let _moType='', _moId=null;
 window.openMo=function(type,editId){
   _moType=type; _moId=editId||null;
   document.getElementById('moTitle').textContent=editId&&type!=='auth'&&type!=='panelMgmt'&&type!=='permDeleteAuth'?'Düzenle':moTitles[type];
-  
-  if(type === 'permDeleteAuth') {
-      // Special handling for delete auth to pass IDs
-      document.getElementById('moBody').innerHTML = moForms[type](editId); // editId here acts as ID list string
-  } else {
-      document.getElementById('moBody').innerHTML=moForms[type](editId);
-  }
+  if(type === 'permDeleteAuth') { document.getElementById('moBody').innerHTML = moForms[type](editId); } 
+  else { document.getElementById('moBody').innerHTML=moForms[type](editId); }
   document.getElementById('mo').classList.add('on');
 }
 window.closeModal=function(){document.getElementById('mo').classList.remove('on')}
 const v=id=>(document.getElementById(id)||{}).value||'';
 
-// NEW: OPEN RECEIVABLES LIST
 window.openReceivablesList = function() {
   const indebtedClients = clients.filter(c => (c.total - c.paid) > 0);
-  
-  if(indebtedClients.length === 0) {
-    showToast('Tüm ödemeler alınmış.', 'success');
-    return;
-  }
-
+  if(indebtedClients.length === 0) { showToast('Tüm ödemeler alınmış.', 'success'); return; }
   let html = `<div class="tbl-wrap"><table><thead><tr><th>Müşteri</th><th>Telefon</th><th>Hizmet/Etkinlik</th><th>Kalan Tutar</th></tr></thead><tbody>`;
-  
   indebtedClients.forEach(c => {
     let pkgInfo = '-';
     if(c.session && c.session.pkg) pkgInfo = c.session.pkg; 
-    else {
-      const s = sessions.find(sess => sess.cid === c.id);
-      if(s) pkgInfo = s.pkg;
-    }
+    else { const s = sessions.find(sess => sess.cid === c.id); if(s) pkgInfo = s.pkg; }
     const remaining = c.total - c.paid;
-    html += `<tr>
-      <td style="font-weight:600">${c.name}</td>
-      <td>${c.phone}</td>
-      <td style="font-size:12px; color:var(--txt2)">${pkgInfo}</td>
-      <td style="font-weight:700; color:var(--red)">₺${fm(remaining)}</td>
-    </tr>`;
+    html += `<tr><td style="font-weight:600">${c.name}</td><td>${c.phone}</td><td style="font-size:12px; color:var(--txt2)">${pkgInfo}</td><td style="font-weight:700; color:var(--red)">₺${fm(remaining)}</td></tr>`;
   });
-
   html += `</tbody></table></div>`;
-  
   document.getElementById('moTitle').textContent = 'Alacak Listesi';
   document.getElementById('moBody').innerHTML = html;
   document.getElementById('mo').classList.add('on');
 }
 
-
-// NEW: FULL DETAIL VIEW FUNCTION
 window.openSessionDetail = function(id) {
   const s = sessions.find(x => String(x.id) === String(id));
   if(!s) return;
   const c = clients.find(x => String(x.id) === String(s.cid)) || {};
-  
   const content = `
     <div style="padding-bottom:10px; border-bottom:1px solid #e2e8f0; margin-bottom:15px; text-align:center;">
        <div style="font-size:18px; font-weight:800; color:var(--txt)">${c.name}</div>
        <div style="font-size:14px; color:var(--acc); font-weight:600; margin-top:4px;">${s.pkg}</div>
     </div>
-    
     <div class="det-row"><div class="det-lbl">Telefon</div><div class="det-val">${c.phone || '-'}</div></div>
     <div class="det-row"><div class="det-lbl">Tarih</div><div class="det-val">${fmtDate(s.date)}</div></div>
     <div class="det-row"><div class="det-lbl">Saat</div><div class="det-val">${s.time || '-'}</div></div>
     <div class="det-row"><div class="det-lbl">Mekan/Konum</div><div class="det-val">${s.loc || '-'}</div></div>
-    
     <div style="background:#f8fafc; padding:12px; border-radius:8px; margin:15px 0;">
       <div class="det-row" style="margin-bottom:6px; border:none;"><div class="det-lbl">Toplam Tutar</div><div class="det-val">₺${fm(s.total)}</div></div>
       <div class="det-row" style="margin-bottom:6px; border:none;"><div class="det-lbl">Ödenen</div><div class="det-val" style="color:var(--grn)">₺${fm(s.paid)}</div></div>
       <div class="det-row" style="margin-bottom:0; border:none;"><div class="det-lbl">Kalan</div><div class="det-val" style="color:var(--red)">₺${fm(s.total - s.paid)}</div></div>
     </div>
-
     <div style="font-size:12px; font-weight:700; color:var(--txt3); margin-bottom:5px; text-transform:uppercase;">Notlar / Açıklama</div>
-    <div style="font-size:14px; color:var(--txt2); line-height:1.5; background:#fff; border:1px solid #e2e8f0; padding:10px; border-radius:8px;">
-      ${s.desc || 'Not girilmemiş.'}
-    </div>
+    <div style="font-size:14px; color:var(--txt2); line-height:1.5; background:#fff; border:1px solid #e2e8f0; padding:10px; border-radius:8px;">${s.desc || 'Not girilmemiş.'}</div>
   `;
-  
   document.getElementById('moTitle').textContent = 'Çekim Detayları';
   document.getElementById('moBody').innerHTML = content;
   document.getElementById('mo').classList.add('on');
 }
 
 const moForms={
-  
   quoteDetail: (id) => {
       const q = excelQuotes.find(x => x.id === String(id));
       if(!q) return 'Bulunamadı.';
@@ -1086,51 +932,30 @@ const moForms={
           <div class="det-row"><div class="det-lbl">Kapora (Bedel)</div><div class="det-val" style="color:var(--grn); font-weight:700">${q.deposit || '0'}</div></div>
           <div class="det-row" style="border:none"><div class="det-lbl">Toplam Fiyat</div><div class="det-val" style="color:var(--acc); font-weight:800; font-size:16px">${q.total || '0'}</div></div>
       </div>
-      
-      <div style="font-size:12px; color:var(--txt2); margin-bottom:15px; line-height:1.5;">
-          ⚠️ <strong>Dönüştür</strong> butonuna bastığınızda bu kişi Müşteri listesine eklenecek, kapora bedeli Kasaya işlenecek, Çekim Takvimine eklenecek ve Sözleşmesi hazır hale gelecektir.
-      </div>
-      
-      <button class="btn btn-p f-sub" style="background:var(--grn)" onclick="convertQuoteToContract('${q.id}')">
-          🚀 Müşteriyi Onayla & Sözleşmeye Dönüştür
-      </button>
+      <div style="font-size:12px; color:var(--txt2); margin-bottom:15px; line-height:1.5;">⚠️ <strong>Dönüştür</strong> butonuna bastığınızda bu kişi Müşteri listesine eklenecek, kapora bedeli Kasaya işlenecek, Çekim Takvimine eklenecek ve Sözleşmesi hazır hale gelecektir.</div>
+      <button class="btn btn-p f-sub" style="background:var(--grn)" onclick="convertQuoteToContract('${q.id}')">🚀 Müşteriyi Onayla & Sözleşmeye Dönüştür</button>
       `;
   },
-
   permDeleteAuth: (ids) => {
       return `
-      <div style="text-align:center; margin-bottom:15px; color:var(--red)">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-        <div style="font-weight:700; margin-top:5px">KALICI SİLME İŞLEMİ</div>
-        <div style="font-size:12px;color:var(--txt2)">Bu işlem geri alınamaz. Silmek için şifreyi giriniz.</div>
-      </div>
+      <div style="text-align:center; margin-bottom:15px; color:var(--red)"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg><div style="font-weight:700; margin-top:5px">KALICI SİLME İŞLEMİ</div><div style="font-size:12px;color:var(--txt2)">Bu işlem geri alınamaz. Silmek için şifreyi giriniz.</div></div>
       <input type="hidden" id="pd_ids" value="${ids}" />
       <div class="fg"><label>Güvenlik Şifresi</label><input type="password" id="pd_pass" placeholder="Şifre..."/></div>
       <button class="btn btn-d f-sub" onclick="checkPermDelete()">Onayla ve Sil</button>
       `;
   },
- auth:(id)=>{
-    // Hem yerelde hem Google'da ara
+  auth:(id)=>{
     const allContacts = [...clients, ...gcContacts];
     const c = allContacts.find(x=>String(x.id)===String(id)) || {};
     return `<div class="fg"><label>Müşteri</label><input type="text" value="${c.name || ''}" disabled style="background:#e2e8f0"/></div><div class="fg"><label>Kullanıcı Adı</label><input type="text" id="f_user" value="${c.username||''}"/></div><div class="fg"><label>Şifre</label><input type="text" id="f_pass" value="${c.password||''}"/></div><button class="btn btn-p f-sub" onclick="subAuth('${id}')">Kaydet</button>`;
   },
-
-profile: () => {
+  profile: () => {
     const initial = currentUser.name.charAt(0).toUpperCase();
-    const avatarHtml = currentUser.avatar 
-      ? `<img src="${currentUser.avatar}" alt="Profile"/>` 
-      : initial;
-
+    const avatarHtml = currentUser.avatar ? `<img src="${currentUser.avatar}" alt="Profile"/>` : initial;
     return `
       <div style="text-align:center; margin-bottom:20px;">
         <input type="file" id="avatarUpload" accept="image/*" style="display:none" onchange="handleAvatarUpload(event)"/>
-        
-        <div class="prof-avatar-wrap" onclick="document.getElementById('avatarUpload').click()" title="Fotoğrafı Değiştir">
-          <div class="prof-avatar" id="profModalAvatar">${avatarHtml}</div>
-          <div class="prof-cam-icon">📷</div>
-        </div>
-        
+        <div class="prof-avatar-wrap" onclick="document.getElementById('avatarUpload').click()" title="Fotoğrafı Değiştir"><div class="prof-avatar" id="profModalAvatar">${avatarHtml}</div><div class="prof-cam-icon">📷</div></div>
         <strong style="font-size:16px;">${currentUser.name}</strong>
         <div style="font-size:12px; color:var(--txt3);">@${currentUser.username}</div>
       </div>
@@ -1139,47 +964,28 @@ profile: () => {
       <div class="fg"><label>Yeni Şifre</label><input type="password" id="prof_new_pass"/></div>
       <div class="fg"><label>Yeni Şifre (Tekrar)</label><input type="password" id="prof_new_pass2"/></div>
       <button class="btn btn-p f-sub" onclick="updateAdminPassword()">Şifreyi Güncelle</button>
-      
       <div class="section-title" style="margin-top:20px; border-top:1px solid #f1f5f9; padding-top:15px;">Oturum Kapat</div>
       <button class="btn btn-d f-sub" onclick="logoutAdmin()">Çıkış Yap</button>
     `;
-},
-  
+  },
   panelMgmt:(id)=>{
     const c = clients.find(x=>String(x.id)===String(id));
-    const s = c.session || {}; // Müşteriye ait session verisi
+    const s = c.session || {}; 
     return `
       <div class="fg"><label>Müşteri</label><input type="text" value="${c.name}" disabled style="background:#e2e8f0; font-weight:bold"/></div>
-      
       <div class="section-title">Finansal Durum</div>
       <div class="fr"><div class="fg"><label>Anlaşma Tutarı (₺)</label><input type="number" id="pm_total" value="${c.total||0}"/></div><div class="fg"><label>Ödenen Tutar (₺)</label><input type="number" id="pm_paid" value="${c.paid||0}"/></div></div>
-      
       <div class="section-title">İş Akışı (1-5)</div>
       <div class="fg"><label>Mevcut Aşama</label><select id="pm_stage"><option value="1" ${c.stage==1?'selected':''}>1. Çekim</option><option value="2" ${c.stage==2?'selected':''}>2. Yedekleme</option><option value="3" ${c.stage==3?'selected':''}>3. Düzenleme</option><option value="4" ${c.stage==4?'selected':''}>4. Baskı</option><option value="5" ${c.stage==5?'selected':''}>5. Teslimat</option></select></div>
-
       <div class="section-title">📂 Google Drive Klasör Linki</div>
-      <div class="fg">
-        <label>Drive Klasör URL</label>
-        <input type="text" id="pm_drive" value="${c.driveFolder||''}" placeholder="https://drive.google.com/drive/folders/..."/>
-        <small style="color:var(--txt3); font-size:10px; margin-top:5px; display:block">
-          ⚠️ Klasörü "herkese açık" yapın ve linki buraya yapıştırın
-        </small>
-      </div>
-      
+      <div class="fg"><label>Drive Klasör URL</label><input type="text" id="pm_drive" value="${c.driveFolder||''}" placeholder="https://drive.google.com/drive/folders/..."/><small style="color:var(--txt3); font-size:10px; margin-top:5px; display:block">⚠️ Klasörü "herkese açık" yapın ve linki buraya yapıştırın</small></div>
       <div class="section-title" style="margin-top:20px">Seçilen Fotoğraflar (Müşteri Tarafından)</div>
-      <div style="background:#f8fafc; padding:12px; border-radius:8px; min-height:50px; font-size:12px; color:var(--txt2)">
-        ${c.selectedPhotos && c.selectedPhotos.length > 0 ? c.selectedPhotos.join(', ') : '<em style="color:var(--txt3)">Henüz fotoğraf seçilmedi</em>'}
-      </div>
-
+      <div style="background:#f8fafc; padding:12px; border-radius:8px; min-height:50px; font-size:12px; color:var(--txt2)">${c.selectedPhotos && c.selectedPhotos.length > 0 ? c.selectedPhotos.join(', ') : '<em style="color:var(--txt3)">Henüz fotoğraf seçilmedi</em>'}</div>
       <div class="section-title">Çekim Detayları (Müşteri Görünümü)</div>
-      <div class="fr">
-        <div class="fg"><label>Tarih</label><input type="date" id="pm_date" value="${s.date||''}"/></div>
-        <div class="fg"><label>Saat</label><input type="time" id="pm_time" value="${s.time||''}"/></div>
-      </div>
+      <div class="fr"><div class="fg"><label>Tarih</label><input type="date" id="pm_date" value="${s.date||''}"/></div><div class="fg"><label>Saat</label><input type="time" id="pm_time" value="${s.time||''}"/></div></div>
       <div class="fg"><label>Paket Adı</label><input type="text" id="pm_pkg" value="${s.pkg||''}"/></div>
       <div class="fg"><label>Konum</label><input type="text" id="pm_loc" value="${s.loc||''}"/></div>
       <div class="fg"><label>Durum Yazısı (Örn: Planlanıyor)</label><input type="text" id="pm_status" value="${s.status||'Planlanıyor'}"/></div>
-
       <button class="btn btn-p f-sub" onclick="subPanelMgmt('${id}')">Bilgileri Güncelle</button>
     `;
   },
@@ -1187,68 +993,25 @@ profile: () => {
     const o=id?sessions.find(s=>String(s.id)===String(id)):{};
     const cName = o.cid ? cn(o.cid) : '';
     return `
-      <div class="fg">
-        <label>Müşteri (Seç veya Yeni Yaz)</label>
-        <input type="text" id="f_cname" list="dl_clients" placeholder="Müşteri adı..." value="${cName}" autocomplete="off"/>
-        <datalist id="dl_clients">${clients.map(c=>`<option value="${c.name}">`).join('')}</datalist>
-      </div>
-      <div class="fr">
-        <div class="fg"><label>Tarih</label><input type="date" id="f_date" value="${o.date||''}"/></div>
-        <div class="fg"><label>Saat</label><input type="time" id="f_time" value="${o.time||''}"/></div>
-      </div>
+      <div class="fg"><label>Müşteri (Seç veya Yeni Yaz)</label><input type="text" id="f_cname" list="dl_clients" placeholder="Müşteri adı..." value="${cName}" autocomplete="off"/><datalist id="dl_clients">${clients.map(c=>`<option value="${c.name}">`).join('')}</datalist></div>
+      <div class="fr"><div class="fg"><label>Tarih</label><input type="date" id="f_date" value="${o.date||''}"/></div><div class="fg"><label>Saat</label><input type="time" id="f_time" value="${o.time||''}"/></div></div>
       <div class="fg"><label>Telefon (Yeni Müşteri İçin)</label><input type="text" id="f_cphone" placeholder="05xx..."/></div>
-      <div class="fr">
-        <div class="fg"><label>Toplam Tutar (₺)</label><input type="number" id="f_total" value="${o.total||''}"/></div>
-        <div class="fg"><label>${id?'Ödenen Tutar':'Ön Ödeme (Kapora)'} (₺)</label><input type="number" id="f_paid" value="${o.paid||''}"/></div>
-      </div>
+      <div class="fr"><div class="fg"><label>Toplam Tutar (₺)</label><input type="number" id="f_total" value="${o.total||''}"/></div><div class="fg"><label>${id?'Ödenen Tutar':'Ön Ödeme (Kapora)'} (₺)</label><input type="number" id="f_paid" value="${o.paid||''}"/></div></div>
       <div class="fg"><label>Paket</label><input type="text" id="f_pkg" value="${o.pkg||''}"/></div>
       <div class="fg"><label>Konum</label><input type="text" id="f_loc" value="${o.loc||''}"/></div>
       <div class="fg"><label>Açıklama</label><textarea id="f_desc" placeholder="Detaylar...">${o.desc||''}</textarea></div>
       <button class="btn btn-p f-sub" onclick="subSession('${id||0}')">Kaydet</button>
     `;
   },
-client: (id) => {
-    // DÜZELTME: Artık hem veritabanında (clients) hem de Google kişilerinde (gcContacts) arıyoruz
+  client: (id) => {
     const allContacts = [...clients, ...gcContacts];
     const o = id ? allContacts.find(c => String(c.id) === String(id)) : {};
-    
     return `
-      <div class="fr">
-        <div class="fg"><label>Ad Soyad</label>
-          <input type="text" id="f_name" value="${o.name || ''}" placeholder="Ad Soyad"/>
-        </div>
-        <div class="fg"><label>Telefon</label>
-          <input type="text" id="f_phone" value="${o.phone || ''}" placeholder="05xx..."/>
-        </div>
-      </div>
-      
-      <div class="fr">
-        <div class="fg"><label>E-posta</label>
-          <input type="email" id="f_email" value="${o.email || ''}" placeholder="ornek@mail.com"/>
-        </div>
-        <div class="fg"><label>Doğum Günü</label>
-          <input type="text" id="f_birthday" value="${o.birthday || ''}" placeholder="15 Mart 1990"/>
-        </div>
-      </div>
-      
-      <div class="fg">
-        <label>🏷️ Özel İndirim (Örn: %10, ₺500)</label>
-        <input type="text" id="f_discount" value="${o.discount || ''}" 
-               placeholder="Sadakat indirimi %10" 
-               style="background:linear-gradient(135deg,#fffbeb,#fef3c7); border-color:#fbbf24"/>
-      </div>
-      
-      <div class="fg">
-        <label>📝 Not / Açıklama</label>
-        <textarea id="f_notes" placeholder="Müşteri notu, tercihler... ">${o.notes || ''}</textarea>
-      </div>
-      
-      <div class="fg">
-        <label>🏷️ Etiketler (virgülle ayırın)</label>
-        <input type="text" id="f_labels" value="${(o.gcLabels || []).join(', ')}" 
-               placeholder="VIP Müşteri, Düğün Paketi, Kurumsal"/>
-      </div>
-      
+      <div class="fr"><div class="fg"><label>Ad Soyad</label><input type="text" id="f_name" value="${o.name || ''}" placeholder="Ad Soyad"/></div><div class="fg"><label>Telefon</label><input type="text" id="f_phone" value="${o.phone || ''}" placeholder="05xx..."/></div></div>
+      <div class="fr"><div class="fg"><label>E-posta</label><input type="email" id="f_email" value="${o.email || ''}" placeholder="ornek@mail.com"/></div><div class="fg"><label>Doğum Günü</label><input type="text" id="f_birthday" value="${o.birthday || ''}" placeholder="15 Mart 1990"/></div></div>
+      <div class="fg"><label>🏷️ Özel İndirim (Örn: %10, ₺500)</label><input type="text" id="f_discount" value="${o.discount || ''}" placeholder="Sadakat indirimi %10" style="background:linear-gradient(135deg,#fffbeb,#fef3c7); border-color:#fbbf24"/></div>
+      <div class="fg"><label>📝 Not / Açıklama</label><textarea id="f_notes" placeholder="Müşteri notu, tercihler... ">${o.notes || ''}</textarea></div>
+      <div class="fg"><label>🏷️ Etiketler (virgülle ayırın)</label><input type="text" id="f_labels" value="${(o.gcLabels || []).join(', ')}" placeholder="VIP Müşteri, Düğün Paketi, Kurumsal"/></div>
       <button class="btn btn-p f-sub" onclick="subClient('${id || 0}')">Kaydet</button>
     `;
   },
@@ -1260,55 +1023,29 @@ client: (id) => {
 
 // SUBMITS
 window.subAuth = async function(id) {
-  // 1. Kişiyi önce yerel veritabanında ara
   let c = clients.find(x => String(x.id) === String(id));
-
-  // 2. Eğer yerelde yoksa (sadece Google'dan geliyorsa)
   if (!c) {
     const gc = gcContacts.find(x => String(x.id) === String(id));
-    if (gc) {
-      // Google kişisini yerel veritabanına klonla (Çünkü şifreyi Google'da saklayamayız)
-      c = { ...gc };
-      clients.push(c);
-    } else {
-      showToast('Müşteri bulunamadı!', 'error');
-      return;
-    }
+    if (gc) { c = { ...gc }; clients.push(c); } 
+    else { showToast('Müşteri bulunamadı!', 'error'); return; }
   }
-
-  // 3. Kullanıcı adı ve şifreyi ata
   c.username = v('f_user'); 
   c.password = v('f_pass');
-
-  // 4. Kaydet
-  const isNew = !c._fbId; // Yeni eklendiyse true olacak
+  const isNew = !c._fbId; 
   await persistOne('clients', c, isNew); 
-  
   closeModal(); 
   showToast('Giriş bilgileri kaydedildi ✓', 'success');
-  
-  // Tabloyu güncelle
   renderAuthGrid(document.getElementById('authSearch').value);
 }
 
-// ÇEKİM EKLEME / GÜNCELLEME FONKSİYONU
 window.subSession = async function(id) {
-  // DÜZELTME 1: id '0' olarak geliyorsa, bunu null (yeni kayıt) olarak kabul et.
   const safeId = (id && String(id) !== '0') ? String(id) : null;
-  
   const cName = v('f_cname');
   if(!cName) { showToast('Müşteri adı gerekli!','error'); return; }
-  
-  const date = v('f_date');
-  const total = Number(v('f_total'));
-  const paid = Number(v('f_paid'));
-  const desc = v('f_desc');
-  const pkg = v('f_pkg');
-  
+  const date = v('f_date'), total = Number(v('f_total')), paid = Number(v('f_paid')), desc = v('f_desc'), pkg = v('f_pkg');
   let cid;
   const existingClient = clients.find(c => c.name.toLowerCase() === cName.toLowerCase());
   
-  // 1. Müşteri Kontrol / Oluşturma
   if (existingClient) { 
       cid = existingClient.id;
       if(!safeId) {
@@ -1328,103 +1065,44 @@ window.subSession = async function(id) {
     total: total, paid: paid, pkg: pkg, loc: v('f_loc'), desc: desc, status: 'upcoming'
   };
 
-  // 2. Session Kaydetme
   if(safeId){ 
       const i = sessions.findIndex(x => String(x.id) === safeId); 
-      if(i !== -1) {
-          sessions[i] = {...sessions[i],...obj}; 
-          await persistOne('sessions', sessions[i]); 
-      }
+      if(i !== -1) { sessions[i] = {...sessions[i],...obj}; await persistOne('sessions', sessions[i]); }
   } else { 
-    sessions.push(obj); 
-    await persistOne('sessions', obj, true); 
-    
-    // A. Otomatik Gelir Ekleme
+    sessions.push(obj); await persistOne('sessions', obj, true); 
     if(paid > 0) {
       const inc = { id: String(uid()), date: date, desc: `${cName} - Kapora / Ön Ödeme`, amt: paid, store: 'corlu' }; 
       incomes.push(inc); await persistOne('incomes', inc, true);
     }
-
-    // B. Otomatik Sözleşme Oluşturma
     const cont = {
       id: String(uid()), cid: cid, date: date, total: total, paid: paid, status: 'pending',
       terms: `Hizmet: ${pkg} \nLokasyon: ${v('f_loc')} \nNotlar: ${desc}`
     };
     contracts.push(cont); await persistOne('contracts', cont, true);
   }
-  
-  closeModal(); 
-  
-  // DÜZELTME 2: 'sessions' yerine o an aktif olan sekmeyi (cur) yenile
-  // Böylece Ana Özet'teyken eklersen Ana Özet yenilenir, Çekimler'deyken Çekimler yenilenir.
-  render(cur); 
+  closeModal(); render(cur); 
 }
 
-// MÜŞTERİ EKLEME / GÜNCELLEME FONKSİYONU
 window.subClient = async function(id) {
-  // Aynı '0' kontrolü düzeltmesini buraya da uyguladık.
   const safeId = (id && String(id) !== '0') ? String(id) : null;
   const labelsRaw = v('f_labels');
   const gcLabels = labelsRaw ? labelsRaw.split(',').map(l => l.trim()).filter(Boolean) : [];
 
   const obj = {
     name: v('f_name'), phone: v('f_phone'), email: v('f_email'),
-    birthday: v('f_birthday'), discount: v('f_discount'),
-    notes: v('f_notes'), gcLabels
+    birthday: v('f_birthday'), discount: v('f_discount'), notes: v('f_notes'), gcLabels
   };
 
-  const isGoogleUpdate = safeId && safeId.startsWith('gc_');
-  const isNewRecord = !safeId;
-
-  // GOOGLE BAĞLIYSA:
-  if (gcAccessToken && (isGoogleUpdate || isNewRecord)) {
-    // ... (Mevcut Google API kodun aynı kalacak, burayı değiştirmene gerek yok)
-  }
-
-  // GOOGLE BAĞLI DEĞİLSE:
-  obj.id = safeId || String(uid());
-  if (safeId && !safeId.startsWith('gc_')) {
-    const i = clients.findIndex(x => String(x.id) === safeId);
-    if(i !== -1) {
-        clients[i] = {...clients[i], ...obj};
-        await persistOne('clients', clients[i]);
-    }
-  } else if(!safeId) {
-    clients.push(obj);
-    await persistOne('clients', obj, true);
-  }
-
-  closeModal();
-  render(cur); 
-};
-
-window.subClient = async function(id) {
-  const safeId = id ? String(id) : 0;
-  const labelsRaw = v('f_labels');
-  const gcLabels = labelsRaw ? labelsRaw.split(',').map(l => l.trim()).filter(Boolean) : [];
-
-  const obj = {
-    name: v('f_name'), phone: v('f_phone'), email: v('f_email'),
-    birthday: v('f_birthday'), discount: v('f_discount'),
-    notes: v('f_notes'), gcLabels
-  };
-
-  // 1. EĞER GOOGLE BAĞLIYSA: Google'a Kaydet / Güncelle
   const isGoogleUpdate = safeId && safeId.startsWith('gc_');
   const isNewRecord = !safeId;
 
   if (gcAccessToken && (isGoogleUpdate || isNewRecord)) {
     showToast('Google Rehbere kaydediliyor...', '');
     try {
-      
-      // --- YENİ EKLENEN KISIM: ETİKETLERİ GOOGLE FORMATINA ÇEVİR ---
       let membershipArray = [];
       gcLabels.forEach(labelName => {
-          // gcGroupMap (sözlük) içinde bu isme sahip bir etiket var mı kontrol et
           let groupId = Object.keys(gcGroupMap).find(key => gcGroupMap[key].toLowerCase() === labelName.toLowerCase());
-          if (groupId) {
-              membershipArray.push({ contactGroupMembership: { contactGroupResourceName: 'contactGroups/' + groupId } });
-          }
+          if (groupId) membershipArray.push({ contactGroupMembership: { contactGroupResourceName: 'contactGroups/' + groupId } });
       });
 
       const personBody = {
@@ -1434,12 +1112,8 @@ window.subClient = async function(id) {
         biographies: obj.notes || obj.discount ? [{ value: (obj.notes + (obj.discount ? ' | ' + obj.discount : '')).trim() }] : []
       };
 
-      // Eğer eşleşen etiket bulunduysa pakete dahil et
-      if (membershipArray.length > 0) {
-          personBody.memberships = membershipArray;
-      }
-      // -------------------------------------------------------------
-
+      if (membershipArray.length > 0) personBody.memberships = membershipArray;
+      
       let url = 'https://people.googleapis.com/v1/people:createContact';
       let method = 'POST';
 
@@ -1447,67 +1121,39 @@ window.subClient = async function(id) {
         const existingGc = gcContacts.find(c => c.id === safeId);
         if(existingGc) {
             personBody.etag = existingGc._etag; 
-            // DİKKAT: updatePersonFields içine 'memberships' eklendi!
             url = `https://people.googleapis.com/v1/${existingGc._resourceName}:updateContact?updatePersonFields=names,phoneNumbers,emailAddresses,biographies,memberships`;
             method = 'PATCH';
         }
       }
 
-      const res = await fetch(url, {
-        method,
-        headers: { 'Authorization': `Bearer ${gcAccessToken}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify(personBody)
-      });
-
+      const res = await fetch(url, { method, headers: { 'Authorization': `Bearer ${gcAccessToken}`, 'Content-Type': 'application/json' }, body: JSON.stringify(personBody) });
       if(!res.ok) throw new Error('Google API Hatası');
 
-      showToast('Google Kişiler güncellendi ✓', 'success');
-      closeModal();
-      
-      // Listeyi güncel verilerle arka planda yenile
-      await fetchGoogleContacts(null, true); 
-      return;
-    } catch(e) {
-      showToast('Google\'a kaydedilemedi!', 'error');
-      console.error(e);
-      return;
-    }
+      showToast('Google Kişiler güncellendi ✓', 'success'); closeModal(); await fetchGoogleContacts(null, true); return;
+    } catch(e) { showToast('Google\'a kaydedilemedi!', 'error'); console.error(e); return; }
   }
 
-  // 2. GOOGLE BAĞLI DEĞİLSE: Yerel Veritabanına (Firebase/Local) Kaydet
   obj.id = safeId || String(uid());
   if (safeId && !safeId.startsWith('gc_')) {
     const i = clients.findIndex(x => String(x.id) === safeId);
-    clients[i] = {...clients[i], ...obj};
-    await persistOne('clients', clients[i]);
-  } else if(!safeId) {
-    clients.push(obj);
-    await persistOne('clients', obj, true);
-  }
-
-  closeModal();
-  render('clients');
+    if(i !== -1) { clients[i] = {...clients[i], ...obj}; await persistOne('clients', clients[i]); }
+  } else if(!safeId) { clients.push(obj); await persistOne('clients', obj, true); }
+  closeModal(); render(cur); 
 };
 
-// PRINT FUNCTION
 window.openPrintContract = function(id) {
   const c = contracts.find(x => String(x.id) === String(id));
-  if (!c) return; // Kayıt bulunamazsa durdur
+  if (!c) return; 
 
   const client = clients.find(x => String(x.id) === String(c.cid)) || {};
   const remaining = (c.total || 0) - (c.paid || 0);
-  
-  // Hizmet detayı boşsa ".replace" fonksiyonunun hata verip ekranı boşaltmasını engeller
   const termsText = c.terms ? c.terms.replace(/\n/g, '<br>') : 'Detay belirtilmemiş.';
 
   const content = `
     <div class="print-row"><span class="print-label">Müşteri Adı:</span><span class="print-val">${client.name || 'Belirtilmemiş'}</span></div>
     <div class="print-row"><span class="print-label">Telefon:</span><span class="print-val">${client.phone || '-'}</span></div>
     <div class="print-row"><span class="print-label">Tarih:</span><span class="print-val">${fmtDate(c.date)}</span></div>
-    <div class="print-box">
-      <div class="print-title">Hizmet Detayları</div>
-      <p>${termsText}</p>
-    </div>
+    <div class="print-box"><div class="print-title">Hizmet Detayları</div><p>${termsText}</p></div>
     <div class="print-box">
       <div class="print-title">Ödeme Tablosu</div>
       <div class="print-row"><span class="print-label">Toplam Tutar:</span><span class="print-val">₺${fm(c.total || 0)}</span></div>
@@ -1516,78 +1162,45 @@ window.openPrintContract = function(id) {
     </div>
     <div style="font-size:12px; text-align:justify; margin-top:20px;">
       İşbu sözleşme taraflar arasında yukarıda belirtilen şartlar dahilinde düzenlenmiştir.
-      Hizmet alan kişi, çekim tarihinden en geç 3 gün öncesine kadar iptal hakkına sahiptir.
-      Kapora iadesi mücbir sebepler dışında yapılmamaktadır.
+      Hizmet alan kişi, çekim tarihinden en geç 3 gün öncesine kadar iptal hakkına sahiptir. Kapora iadesi mücbir sebepler dışında yapılmamaktadır.
     </div>
-    <div class="print-signatures">
-      <div class="sig-box">PASOVART Yetkilisi<br><br><br>İmza</div>
-      <div class="sig-box">Müşteri<br><br><br>İmza</div>
-    </div>
+    <div class="print-signatures"><div class="sig-box">PASOVART Yetkilisi<br><br><br>İmza</div><div class="sig-box">Müşteri<br><br><br>İmza</div></div>
   `;
-  
   document.getElementById('printContent').innerHTML = content;
-  
-  // ÇÖZÜM: Yazdırma alanını geçici olarak görünür yap
   const printArea = document.getElementById('printArea');
   printArea.classList.add('active');
-  
-  // Tarayıcının içeriği HTML'e basması için çok kısa bir süre (100ms) bekleyip yazdırıyoruz
-  setTimeout(() => {
-    window.print();
-    // Yazdırma işlemi bittikten/kapatıldıktan sonra paneli bozmaması için tekrar gizle
-    printArea.classList.remove('active');
-  }, 100);
+  setTimeout(() => { window.print(); printArea.classList.remove('active'); }, 100);
 }
 
-async function persistOne(col, obj, isNew = false) {
-  if(useFirebase) { if(isNew||!obj._fbId) await fbAdd(col,obj); else await fbUpdate(col,obj); } else { sv(); }
-}
+async function persistOne(col, obj, isNew = false) { if(useFirebase) { if(isNew||!obj._fbId) await fbAdd(col,obj); else await fbUpdate(col,obj); } else { sv(); } }
 window.showToast = function(msg,type){const t=document.getElementById('toast');t.textContent=msg;t.className='toast on '+type;setTimeout(()=>t.classList.remove('on'),2400);}
 
-
-// ═══════════════════════════════════════════════════════════════════
-// GOOGLE CONTACTS ENTEGRASYONU
-// ═══════════════════════════════════════════════════════════════════
-
-// 1. OAuth ile giriş yap ve token al
+// GOOGLE CONTACTS & EXCEL
 window.connectGoogleContacts = function() {
-  if (!window.google) {
-    showToast('Google GSI yüklenmedi, sayfayı yenileyin.', 'error');
-    return;
-  }
-  
+  if (!window.google) { showToast('Google GSI yüklenmedi, sayfayı yenileyin.', 'error'); return; }
   const client = google.accounts.oauth2.initTokenClient({
     client_id: GOOGLE_CLIENT_ID,
     scope: GOOGLE_SCOPES,
     callback: async (response) => {
-      if (response.error) {
-        showToast('Google bağlantısı başarısız: ' + response.error, 'error');
-        return;
-      }
+      if (response.error) { showToast('Google bağlantısı başarısız: ' + response.error, 'error'); return; }
       gcAccessToken = response.access_token;
       localStorage.setItem('gc_token', gcAccessToken); 
       showToast('Google Bağlandı ✓', 'success');
       
       await fetchGoogleContacts();
-      await fetchExcelData(); // <--- İŞTE EKSİK OLAN SATIR BU!
+      await fetchExcelData(); 
+      await fetchQuotesData();
     }
   });
-  
   client.requestAccessToken();
 };
 
-// 2. Tüm kişileri çek (sayfalama dahil - Otomatik yükleme destekli)
 window.fetchGoogleContacts = async function(pageToken = null, isAutoLoad = false) {
   if (!gcAccessToken) return;
-  
   if(!pageToken && !isAutoLoad) showToast('Google Kişileriniz yükleniyor...', '');
-  
   try {
-    // 1. ÖNCE ETİKETLERİN GERÇEK İSİMLERİNİ ÇEK (Sözlüğü Doldur)
     if (Object.keys(gcGroupMap).length === 0) {
-        const grpRes = await fetch('https://people.googleapis.com/v1/contactGroups', {
-            headers: { Authorization: `Bearer ${gcAccessToken}` }
-        });
+        const grpRes = await fetch('https://people.googleapis.com/v1/contactGroups', { headers: { Authorization: `Bearer ${gcAccessToken}` } });
         if (grpRes.ok) {
             const grpData = await grpRes.json();
             (grpData.contactGroups || []).forEach(g => {
@@ -1597,13 +1210,8 @@ window.fetchGoogleContacts = async function(pageToken = null, isAutoLoad = false
         }
     }
 
-    // 2. KİŞİLERİ ÇEK
     let url = `https://people.googleapis.com/v1/people/me/connections?personFields=names,phoneNumbers,emailAddresses,birthdays,biographies,memberships,photos&pageSize=200` + (pageToken ? `&pageToken=${pageToken}` : '');
-    
-    const resp = await fetch(url, {
-      headers: { Authorization: `Bearer ${gcAccessToken}` }
-    });
-    
+    const resp = await fetch(url, { headers: { Authorization: `Bearer ${gcAccessToken}` } });
     if (!resp.ok) {
       if (resp.status === 401) {
         gcAccessToken = null; localStorage.removeItem('gc_token');
@@ -1620,764 +1228,305 @@ window.fetchGoogleContacts = async function(pageToken = null, isAutoLoad = false
     if (!pageToken) gcContacts = [];
     gcContacts = [...gcContacts, ...newContacts];
     
-    if (data.nextPageToken) {
-      await fetchGoogleContacts(data.nextPageToken, isAutoLoad);
-    } else {
-      if(!isAutoLoad) showToast(`${gcContacts.length} kişi Google'dan listeye eklendi`, 'success');
+    if (data.nextPageToken) { await fetchGoogleContacts(data.nextPageToken, isAutoLoad); } 
+    else {
+      if(!isAutoLoad) showToast(`${gcContacts.length} kişi Google'dan eklendi`, 'success');
       renderClientGrid(document.getElementById('clientSearch')?.value || '');
     }
-  } catch(e) {
-    if(!isAutoLoad) showToast('Hata: ' + e.message, 'error');
-  }
+  } catch(e) { if(!isAutoLoad) showToast('Hata: ' + e.message, 'error'); }
 };
 
-
-
-
-  
-
-// 3. Ham People API verisini PASOVART formatına çevir
 function parseGContact(person) {
   const name = (person.names?.[0]?.displayName) || '';
   const phone = (person.phoneNumbers?.[0]?.canonicalForm || person.phoneNumbers?.[0]?.value || '');
   const email = person.emailAddresses?.[0]?.value || '';
-  
-  // Doğum günü
   let birthday = '';
   const bd = person.birthdays?.[0]?.date;
   if (bd) {
     const months = ['','Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
     birthday = `${bd.day || ''} ${months[bd.month] || ''} ${bd.year || ''}`.trim();
   }
-  
   const notes = person.biographies?.[0]?.value || '';
-  
-  // YENİ ETİKET ÇEVİRİCİ: Şifreli ID yerine VIP gibi gerçek ismi yaz, myContacts'ı gizle
-  const labels = (person.memberships || [])
-    .map(m => {
+  const labels = (person.memberships || []).map(m => {
         const gId = (m.contactGroupMembership?.contactGroupId || '').replace('contactGroups/', '');
-        return gcGroupMap[gId] || gId; // Eğer sözlükte isim varsa onu, yoksa ID'yi kullan
-    })
-    .filter(l => l && l !== 'myContacts'); // 'myContacts' (Kişilerim) yazısını kaldır
-  
+        return gcGroupMap[gId] || gId; 
+    }).filter(l => l && l !== 'myContacts'); 
   const discountMatch = notes.match(/(%\d+|₺\d+[\s]?indirim|\d+%)/i);
   const discount = discountMatch ? discountMatch[0] : '';
-
-  // Profil Fotoğrafı
   let photoUrl = '';
-  if (person.photos && person.photos[0] && !person.photos[0].default) {
-      photoUrl = person.photos[0].url;
-  }
+  if (person.photos && person.photos[0] && !person.photos[0].default) { photoUrl = person.photos[0].url; }
   
   return {
     id: 'gc_' + (person.resourceName || '').replace('people/', ''),
-    _resourceName: person.resourceName,
-    _etag: person.etag,
-    name, phone, email, birthday, notes, gcLabels: labels, discount,
-    photoUrl,
-    type: 'Google Contacts',
-    _fromGoogle: true
+    _resourceName: person.resourceName, _etag: person.etag,
+    name, phone, email, birthday, notes, gcLabels: labels, discount, photoUrl, type: 'Google Contacts', _fromGoogle: true
   };
 }
 
-// 4. Seçim modalını aç (Google kişileri listele)
-window.openGoogleContactsModal = function() {
-  if (gcContacts.length === 0) {
-    showToast('Kişi bulunamadı.', 'error'); return;
-  }
-  
-  gcImportModalOpen = true;
-  document.getElementById('moTitle').textContent = `Google Contacts (${gcContacts.length} kişi)`;
-  
-  let html = `
-    <div style="margin-bottom:12px; position:relative">
-      <input type="text" id="gc_search" placeholder="Google kişilerinde ara..."
-        onkeyup="filterGcContacts(this.value)"
-        style="width:100%; padding:10px 10px 10px 36px; border-radius:10px; border:1.5px solid var(--bdr2); 
-               outline:none; font:14px var(--fn); background:#fafafa"/>
-      <svg style="position:absolute;left:11px;top:50%;transform:translateY(-50%)" width="15" height="15" 
-           viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2">
-        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-      </svg>
-    </div>
-    <div style="max-height:380px;overflow-y:auto" id="gc_list">
-  `;
-  
-  html += renderGcList(gcContacts);
-  html += `</div>
-    <div style="margin-top:15px;display:flex;gap:8px;border-top:1px solid #f1f5f9;padding-top:12px">
-      <button class="btn btn-p" onclick="importAllGc()" style="flex:1">
-        Tüm Kişileri Ekle (${gcContacts.length})
-      </button>
-      <button class="btn btn-g" onclick="closeModal()">Kapat</button>
-    </div>`;
-  
-  document.getElementById('moBody').innerHTML = html;
-  document.getElementById('mo').classList.add('on');
-};
-
-// 5. Google kişi listesini HTML'e çevir
-function renderGcList(contacts) {
-  if (contacts.length === 0) return '<div style="text-align:center;color:var(--txt3);padding:20px">Sonuç yok</div>';
-  
-  return contacts.map(c => {
-    const alreadyAdded = clients.some(cl => 
-      cl.name.toLowerCase() === c.name.toLowerCase() || 
-      (c.phone && cl.phone === c.phone)
-    );
-    const initials = c.name.split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase();
-    
-    return `
-      <div style="display:flex;align-items:flex-start;gap:11px;padding:10px;border-bottom:1px solid #f1f5f9;border-radius:8px">
-        <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#dbeafe,#bfdbfe);
-                    display:flex;align-items:center;justify-content:center;color:#1e40af;font-weight:700;font-size:13px;flex-shrink:0">
-          ${initials || '?'}
-        </div>
-        <div style="flex:1;min-width:0">
-          <div style="font-weight:700;font-size:14px;color:var(--txt)">${c.name || '(İsimsiz)'}</div>
-          <div style="font-size:11px;color:var(--txt2);margin-top:2px">
-            ${c.phone ? '📞 ' + c.phone : ''} 
-            ${c.email ? ' · ✉️ ' + c.email : ''}
-          </div>
-          ${c.birthday ? `<div class="gc-bday">🎂 ${c.birthday}</div>` : ''}
-          ${c.discount ? `<div class="gc-discount">🏷️ ${c.discount}</div>` : ''}
-          ${c.notes ? `<div class="gc-note">📝 ${c.notes.substring(0, 80)}${c.notes.length > 80 ? '…' : ''}</div>` : ''}
-        </div>
-        <div style="flex-shrink:0">
-          ${alreadyAdded 
-            ? '<span style="font-size:11px;color:var(--grn);font-weight:600">✓ Mevcut</span>' 
-            : `<button class="btn btn-p btn-sm" onclick="importOneGc('${encodeURIComponent(JSON.stringify(c))}')">+ Ekle</button>`
-          }
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-
-
-
-let excelContacts = []; // Excel'den gelen müşterileri tutacağımız liste
+let excelContacts = []; 
 
 window.fetchExcelData = async function() {
-  if (!gcAccessToken) {
-    showToast('Lütfen önce Google ile bağlanın.', 'error');
-    return;
-  }
+  if (!gcAccessToken) return;
+  const SPREADSHEET_ID = '1k8v7QP0wXnPe0BPBRw-6rfzERQROEm0P3a35dfk0cvw'; 
+  const RANGE = 'Sayfa1!C2:I'; 
+  try {
+    const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}`, {
+      headers: { 'Authorization': `Bearer ${gcAccessToken}`, 'Accept': 'application/json' }
+    });
+    if (!response.ok) throw new Error('API Hatası');
+    const data = await response.json();
+    if (data.values && data.values.length > 0) {
+      excelContacts = data.values.map((row, index) => {
+        const kayitNo = row[3] || ''; const sube = row[5] || ''; const notlar = row[6] || '';
+        const labels = [];
+        if (sube) labels.push(sube + ' Şubesi');
+        if (kayitNo) labels.push('Kayıt: ' + kayitNo);
+        return {
+          id: 'ex_' + (kayitNo ? kayitNo : index), name: row[0] || '', phone: row[1] || '', notes: notlar, gcLabels: labels, type: 'Google Sheets', _fromExcel: true
+        };
+      }).filter(c => c.name.trim() !== '');
+      renderClientGrid(document.getElementById('clientSearch')?.value || '');
+    }
+  } catch (error) { console.error('Excel çekme hatası:', error); }
+};
 
-
-
-  // EXCEL TEKLİFLERİ ALTYAPISI
+// EXCEL TEKLİFLERİ
 let excelQuotes = [];
-
 window.fetchQuotesData = async function() {
-    if (!gcAccessToken) return;
-
-    // Tekliflerin olduğu Excel dosyasının ID'si (Aynı dosya olduğunu varsaydım, farklıysa burayı değiştir)
+    if (!gcAccessToken) { showToast('Lütfen önce Google ile bağlanın.', 'error'); return; }
     const SPREADSHEET_ID = '1k8v7QP0wXnPe0BPBRw-6rfzERQROEm0P3a35dfk0cvw';
-
+    showToast('Teklifler aranıyor...', '');
     try {
-        // 1. Dosyadaki tüm sekmelerin (sayfaların) adlarını çek
-        const metaRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}?fields=sheets.properties.title&access_token=${gcAccessToken}`);
+        const metaRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}?fields=sheets.properties.title`, {
+            headers: { 'Authorization': `Bearer ${gcAccessToken}`, 'Accept': 'application/json' }
+        });
         if (!metaRes.ok) return;
         const metaData = await metaRes.json();
+        
+        const quoteSheetNames = metaData.sheets.map(s => s.properties.title).filter(title => /^\d{10,}$/.test(title)); 
+        if(quoteSheetNames.length === 0) { showToast('Teklif sekmesi bulunamadı', 'error'); return; }
 
-        // 2. Sadece ismi "16042026162141" gibi uzun rakamlardan oluşan teklif sekmelerini filtrele
-        const quoteSheetNames = metaData.sheets
-            .map(s => s.properties.title)
-            .filter(title => /^\d{10,}$/.test(title)); // 10 haneden uzun rakamlar
-
-        if(quoteSheetNames.length === 0) return;
-
-        // 3. Bu sekmelerdeki verileri tek seferde (batchGet) çek
         const ranges = quoteSheetNames.map(name => encodeURIComponent(`${name}!A1:F40`)).join('&ranges=');
-        const batchRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values:batchGet?ranges=${ranges}&access_token=${gcAccessToken}`);
+        const batchRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values:batchGet?ranges=${ranges}`, {
+            headers: { 'Authorization': `Bearer ${gcAccessToken}`, 'Accept': 'application/json' }
+        });
         const batchData = await batchRes.json();
 
         if(batchData.valueRanges) {
             excelQuotes = batchData.valueRanges.map(rangeData => {
                 const sheetName = rangeData.range.split('!')[0].replace(/'/g, ''); 
                 const rows = rangeData.values || [];
-
-                // Excel'in neresinde olursa olsun yazıyı bulup yanındaki veriyi çeken akıllı arama motoru
                 const findVal = (label) => {
                     for(let r of rows) {
                         for(let c=0; c<r.length; c++) {
-                            if(r[c] && typeof r[c] === 'string' && r[c].includes(label)) {
-                                return r[c+1] || r[c+2] || ''; // Yanındaki veya bir yanındaki hücre
-                            }
+                            if(r[c] && typeof r[c] === 'string' && r[c].includes(label)) return r[c+1] || r[c+2] || ''; 
                         }
                     }
                     return '';
                 };
-
                 return {
-                    id: sheetName,
-                    name: findVal('Ad - Soyad'),
-                    phone: findVal('Telefon'),
-                    date: findVal('Çekim Tarihi'),
-                    time: findVal('Çekim Saati'),
-                    loc: findVal('Çekim Konumu'),
-                    deposit: findVal('Kapora'),
-                    type: findVal('Etkinlik Türü'),
-                    total: findVal('Alt toplam') || findVal('Genel Toplam') || '0',
-                    rawRows: rows
+                    id: sheetName, name: findVal('Ad - Soyad'), phone: findVal('Telefon'), date: findVal('Çekim Tarihi'),
+                    time: findVal('Çekim Saati'), loc: findVal('Çekim Konumu'), deposit: findVal('Kapora'), type: findVal('Etkinlik Türü'),
+                    total: findVal('Alt toplam') || findVal('Genel Toplam') || '0', rawRows: rows
                 };
-            }).filter(q => q.name !== ''); // Sadece içi dolu olanları al
-            
-            render('quotes'); // Listeyi güncelle
+            }).filter(q => q.name !== ''); 
+            showToast(`${excelQuotes.length} teklif çekildi ✓`, 'success');
+            render('quotes'); 
         }
-    } catch(e) {
-        console.error("Teklif çekme hatası:", e);
-    }
+    } catch(e) { console.error("Teklif çekme hatası:", e); showToast('Teklifler çekilemedi.', 'error'); }
 };
 
-// TEKLİFLER SAYFASI TASARIMI (UI)
 function rQuotes() {
     return `
-    <div class="ph">
-        <h2>📑 Gelen Teklifler (Excel)</h2>
-        <button class="btn btn-google" onclick="fetchQuotesData()" style="background:#10b981; color:#fff; border-radius:10px; border:none; padding:8px 15px; font-weight:bold; cursor:pointer;">🔄 Sayfaları Tara ve Güncelle</button>
-    </div>
-    <div class="card card-p">
-        <div class="tbl-wrap"><table>
-            <thead><tr><th>Teklif Kodu</th><th>Müşteri Bilgisi</th><th>Etkinlik & Konum</th><th>Tarih / Saat</th><th>İşlem</th></tr></thead>
-            <tbody>
-                ${excelQuotes.length === 0 ? '<tr><td colspan="5" style="text-align:center;color:var(--txt3);padding:20px">Henüz Excel\'den çekilmiş teklif yok. "Sayfaları Tara" butonuna basın.</td></tr>' :
-                excelQuotes.map(q => `
-                <tr>
-                    <td style="font-weight:700; color:var(--acc)">#${q.id}</td>
-                    <td>
-                        <div style="font-weight:600">${q.name}</div>
-                        <div style="font-size:11px;color:var(--txt2)">${q.phone || 'Tel Yok'}</div>
-                    </td>
-                    <td>
-                        <div>${q.type || 'Belirtilmemiş'}</div>
-                        <div style="font-size:11px;color:var(--txt2)">${q.loc}</div>
-                    </td>
-                    <td><span class="badge b-pending">${q.date} - ${q.time}</span></td>
-                    <td>
-                        <button class="btn btn-e btn-sm" onclick="openMo('quoteDetail', '${q.id}')">${I.eye} Detay & Dönüştür</button>
-                    </td>
-                </tr>
-                `).join('')}
-            </tbody>
-        </table></div>
-    </div>`;
+    <div class="ph"><h2>📑 Gelen Teklifler (Excel)</h2><button class="btn btn-google" onclick="fetchQuotesData()" style="background:#10b981; color:#fff; border-radius:10px; border:none; padding:8px 15px; font-weight:bold; cursor:pointer;">🔄 Sayfaları Tara ve Güncelle</button></div>
+    <div class="card card-p"><div class="tbl-wrap"><table><thead><tr><th>Teklif Kodu</th><th>Müşteri Bilgisi</th><th>Etkinlik & Konum</th><th>Tarih / Saat</th><th>İşlem</th></tr></thead>
+    <tbody>
+        ${excelQuotes.length === 0 ? '<tr><td colspan="5" style="text-align:center;color:var(--txt3);padding:20px">Henüz Excel\'den çekilmiş teklif yok. "Sayfaları Tara" butonuna basın.</td></tr>' :
+        excelQuotes.map(q => `<tr><td style="font-weight:700; color:var(--acc)">#${q.id}</td><td><div style="font-weight:600">${q.name}</div><div style="font-size:11px;color:var(--txt2)">${q.phone || 'Tel Yok'}</div></td><td><div>${q.type || 'Belirtilmemiş'}</div><div style="font-size:11px;color:var(--txt2)">${q.loc}</div></td><td><span class="badge b-pending">${q.date} - ${q.time}</span></td><td><button class="btn btn-e btn-sm" onclick="openMo('quoteDetail', '${q.id}')">${I.eye} Detay & Dönüştür</button></td></tr>`).join('')}
+    </tbody></table></div></div>`;
 }
 
-// SÖZLEŞMEYE DÖNÜŞTÜRME İŞLEMİ (Otomasyon)
 window.convertQuoteToContract = async function(id) {
     const q = excelQuotes.find(x => x.id === String(id));
     if(!q) return;
 
-    // Excel'deki "₺15.000,00" gibi formatları saf sayıya çeviriyoruz
     const parseMoney = (str) => Number(String(str).replace(/[^0-9,-]+/g,"").replace(',','.')) || 0;
-    const depositAmt = parseMoney(q.deposit);
-    let totalAmt = parseMoney(q.total);
-
-    // Müşteri veritabanında var mı kontrol et, yoksa yarat
+    const depositAmt = parseMoney(q.deposit); let totalAmt = parseMoney(q.total);
     let client = clients.find(c => c.name.toLowerCase() === q.name.toLowerCase() || (c.phone && c.phone === q.phone));
     
     if(!client) {
         client = { id: String(uid()), name: q.name, phone: q.phone, type: 'Genel', total: totalAmt, paid: depositAmt };
-        await persistOne('clients', client, true);
-        clients.push(client);
+        await persistOne('clients', client, true); clients.push(client);
     } else {
-        client.total = (client.total || 0) + totalAmt;
-        client.paid = (client.paid || 0) + depositAmt;
+        client.total = (client.total || 0) + totalAmt; client.paid = (client.paid || 0) + depositAmt;
         await persistOne('clients', client);
     }
 
-    // Çekim (Session) Oluştur
     const sess = {
-        id: String(uid()), cid: client.id, date: q.date || new Date().toISOString().split('T')[0], 
-        time: q.time, total: totalAmt, paid: depositAmt, pkg: q.type || 'Özel Teklif', 
-        loc: q.loc, desc: `Excel Teklif Kodu: ${q.id} üzerinden otomatik oluşturuldu.`, status: 'upcoming'
+        id: String(uid()), cid: client.id, date: q.date || new Date().toISOString().split('T')[0], time: q.time, 
+        total: totalAmt, paid: depositAmt, pkg: q.type || 'Özel Teklif', loc: q.loc, desc: `Excel Teklif Kodu: ${q.id} üzerinden otomatik oluşturuldu.`, status: 'upcoming'
     };
-    sessions.push(sess);
-    await persistOne('sessions', sess, true);
+    sessions.push(sess); await persistOne('sessions', sess, true);
 
-    // Sözleşme Oluştur
     const cont = {
         id: String(uid()), cid: client.id, date: sess.date, total: totalAmt, paid: depositAmt, status: 'pending',
         terms: `Teklif Onay Kodu: ${q.id}\nHizmet: ${sess.pkg}\nLokasyon: ${sess.loc}\nTarih/Saat: ${q.date} ${q.time}`
     };
-    contracts.push(cont);
-    await persistOne('contracts', cont, true);
+    contracts.push(cont); await persistOne('contracts', cont, true);
 
-    // Kapora varsa Kasaya (Gelir) İşle
     if(depositAmt > 0) {
         const inc = { id: String(uid()), date: sess.date, desc: `${q.name} - Teklif ${q.id} Kapora Onayı`, amt: depositAmt, store: 'corlu' };
-        incomes.push(inc);
-        await persistOne('incomes', inc, true);
+        incomes.push(inc); await persistOne('incomes', inc, true);
     }
-
-    closeModal();
-    showToast('Teklif Onaylandı! Müşteri, Çekim ve Sözleşme eklendi ✓', 'success');
-    go('contracts'); // İşlem bitince direk Sözleşmeler sayfasına yolla
-};
-
-  // Senin görseldeki doğru ID'n eklendi
-  const SPREADSHEET_ID = '1k8v7QP0wXnPe0BPBRw-6rfzERQROEm0P3a35dfk0cvw'; 
-  const RANGE = 'Sayfa1!C2:I'; 
-
-  showToast('Excel verileri aranıyor...', '');
-
-  try {
-    // DİKKAT: Hatanın çözümü buradaki v4 kısmında!
-    const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}`, {
-      headers: { 
-        'Authorization': `Bearer ${gcAccessToken}`,
-        'Accept': 'application/json'
-      }
-    });
-
-    if (!response.ok) throw new Error('API Hatası: ' + response.status);
-
-    const data = await response.json();
-    
-    if (data.values && data.values.length > 0) {
-      excelContacts = data.values.map((row, index) => {
-        const kayitNo = row[3] || ''; // F Sütunu
-        const sube = row[5] || '';    // H Sütunu
-        const notlar = row[6] || '';  // I Sütunu
-        
-        // Şube bilgisi ve Kayıt No etiket olarak ekleniyor
-        const labels = [];
-        if (sube) labels.push(sube + ' Şubesi');
-        if (kayitNo) labels.push('Kayıt: ' + kayitNo);
-
-        return {
-          id: 'ex_' + (kayitNo ? kayitNo : index), 
-          name: row[0] || '',      // C Sütunu
-          phone: row[1] || '',     // D Sütunu
-          notes: notlar,
-          gcLabels: labels, 
-          type: 'Google Sheets',
-          _fromExcel: true
-        };
-      }).filter(c => c.name.trim() !== ''); // İsmi boş olanları atla
-      
-      showToast(`${excelContacts.length} kayıt Excel'den çekildi ✓`, 'success');
-      
-      // Müşteri listesini yenile
-      renderClientGrid(document.getElementById('clientSearch')?.value || '');
-    } else {
-      showToast('Excel dosyasında veri bulunamadı.', 'error');
-    }
-  } catch (error) {
-    console.error('Excel çekme hatası:', error);
-    showToast('Excel dosyasına ulaşılamadı. Lütfen tekrar deneyin.', 'error');
-  }
+    closeModal(); showToast('Teklif Onaylandı!', 'success'); go('contracts'); 
 };
 
 
-  
-// 6. Arama filtresi
-window.filterGcContacts = function(q) {
-  const filtered = q 
-    ? gcContacts.filter(c => 
-        c.name.toLowerCase().includes(q.toLowerCase()) || 
-        c.phone.includes(q) ||
-        c.email.toLowerCase().includes(q.toLowerCase())
-      )
-    : gcContacts;
-  
-  const list = document.getElementById('gc_list');
-  if (list) list.innerHTML = renderGcList(filtered);
-};
-
-// 7. Tek kişi ekle
-window.importOneGc = async function(encoded) {
-  const c = JSON.parse(decodeURIComponent(encoded));
-  if (!c.name) { showToast('İsim yok, eklenemedi.', 'error'); return; }
-  
-  const newClient = {
-    id: String(Date.now()) + Math.random().toString().slice(2,7),
-    name: c.name,
-    phone: c.phone || '',
-    email: c.email || '',
-    birthday: c.birthday || '',
-    notes: c.notes || '',
-    discount: c.discount || '',
-    gcLabels: c.labels || [],
-    total: 0,
-    paid: 0,
-    type: 'Google Contacts'
-  };
-  
-  clients.push(newClient);
-  await persistOne('clients', newClient, true);
-  
-  showToast(c.name + ' eklendi ✓', 'success');
-  
-  // Listedeki butonu "✓ Mevcut" olarak güncelle (Modalı kapatmadan)
-  const q = document.getElementById('gc_search')?.value || '';
-  filterGcContacts(q);
-};
-
-// 8. Tüm kişileri toplu ekle (zaten olanları atla)
-window.importAllGc = async function() {
-  const toAdd = gcContacts.filter(c => 
-    c.name &&
-    !clients.some(cl => cl.name.toLowerCase() === c.name.toLowerCase() || 
-                        (c.phone && cl.phone === c.phone))
-  );
-  
-  if (toAdd.length === 0) { showToast('Tüm kişiler zaten panelde mevcut.', 'success'); return; }
-  
-  if (!confirm(`${toAdd.length} yeni kişi eklenecek. Devam?`)) return;
-  
-  showToast('Yükleniyor… sayfayı kapatmayın!', '');
-  
-  for (const c of toAdd) {
-    const newClient = {
-      id: String(Date.now()) + Math.random().toString().slice(2,7),
-      name: c.name, phone: c.phone || '', email: c.email || '',
-      birthday: c.birthday || '', notes: c.notes || '', discount: c.discount || '',
-      gcLabels: c.labels || [], total: 0, paid: 0, type: 'Google Contacts'
-    };
-    clients.push(newClient);
-    await persistOne('clients', newClient, true);
-  }
-  
-  closeModal();
-  showToast(`${toAdd.length} kişi başarıyla eklendi!`, 'success');
-  render('clients');
-};
-
-// 9. Sayfa yüklenince kaydedilmiş token'ı kontrol et ve OTOMATİK ÇEK
-const savedGcToken = localStorage.getItem('gc_token');
-if (savedGcToken) {
-  gcAccessToken = savedGcToken;
-  // Sayfa açılışında arka planda sessizce (hata vermeden) kişileri getir
-  fetchGoogleContacts(null, true); 
-  fetchExcelData(); // <--- SAYFA YENİLENİNCE EXCELİ DE ÇEKMESİ İÇİN BUNU EKLEDİK
-}
-
-
-
-// --- MÜŞTERİ LİSTELEME MANTIĞI (FİLTRE + SIRALAMA + GOOGLE) ---
 function renderClientGrid(query = '') {
     const grid = document.getElementById('clientGrid');
     if (!grid) return;
-
     query = query.toLowerCase();
-
-    // 1. DİNAMİK BİRLEŞTİRME: Veritabanı (clients) + Google Contacts (gcContacts)
-let mergedContacts = [...clients, ...gcContacts, ...excelContacts];
-
-    // Google kişilerini listeye ekle (Eğer veritabanında aynı kişi zaten yoksa)
+    let mergedContacts = [...clients, ...gcContacts, ...excelContacts];
     gcContacts.forEach(gc => {
-        const alreadyExists = mergedContacts.some(c => 
-            c.name.toLowerCase() === gc.name.toLowerCase() || 
-            (gc.phone && c.phone === gc.phone)
-        );
-        if (!alreadyExists) {
-            mergedContacts.push(gc);
-        }
+        const alreadyExists = mergedContacts.some(c => c.name.toLowerCase() === gc.name.toLowerCase() || (gc.phone && c.phone === gc.phone) );
+        if (!alreadyExists) mergedContacts.push(gc);
     });
-
-    // 2. Alfabetik Sıralama (Türkçe Karakter Uyumlu)
     let filtered = mergedContacts.sort((a, b) => a.name.localeCompare(b.name, 'tr'));
-
-    // 3. Arama Filtresi
-    if (query) {
-        filtered = filtered.filter(c => 
-            (c.name && c.name.toLowerCase().includes(query)) || 
-            (c.phone && c.phone.includes(query))
-        );
-    }
-
-    // Toplam sayıyı güncelle
+    if (query) filtered = filtered.filter(c => (c.name && c.name.toLowerCase().includes(query)) || (c.phone && c.phone.includes(query)) );
+    
     const countSpan = document.getElementById('totalClientCount');
     if(countSpan) countSpan.textContent = filtered.length;
-
-    // 4. Performans için limit (Pagination)
+    
     const showList = filtered.slice(0, renderLimit);
-
-   // HTML Oluştur
     grid.innerHTML = showList.map(c => `
       <div class="card cl-card">
         <div class="cl-head">
-          ${c.photoUrl 
-            ? `<img src="${c.photoUrl}" style="width:43px;height:43px;border-radius:12px;object-fit:cover;flex-shrink:0;box-shadow:0 2px 5px rgba(0,0,0,0.08)" alt="${c.name}"/>` 
-            : `<div class="cl-ava" style="background:${getRandomColor(c.name)}">${c.name.charAt(0).toUpperCase()}</div>`
-          }
+          ${c.photoUrl ? `<img src="${c.photoUrl}" style="width:43px;height:43px;border-radius:12px;object-fit:cover;flex-shrink:0;box-shadow:0 2px 5px rgba(0,0,0,0.08)" alt="${c.name}"/>` : `<div class="cl-ava" style="background:${getRandomColor(c.name)}">${c.name.charAt(0).toUpperCase()}</div>`}
           <div style="flex:1; margin-left:12px; overflow:hidden">
-            <div style="font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">
-              ${c.name}
-              ${c.type === 'Google Contacts' ? 
-                '<span style="font-size:9px;background:#e8f0fe;color:#1a73e8;padding:1px 5px;border-radius:8px;margin-left:5px;font-weight:600" title="Google Contacts">G</span>' : ''}
-            </div>
+            <div style="font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">${c.name} ${c.type === 'Google Contacts' ? '<span style="font-size:9px;background:#e8f0fe;color:#1a73e8;padding:1px 5px;border-radius:8px;margin-left:5px;font-weight:600" title="Google Contacts">G</span>' : ''}</div>
             <div style="font-size:12px; color:var(--txt2)">${c.phone || 'Tel yok'}</div>
             ${c.email ? `<div style="font-size:11px; color:var(--txt3)">${c.email}</div>` : ''}
             ${c.birthday ? `<div class="gc-bday">🎂 ${c.birthday}</div>` : ''}
             ${c.discount ? `<div class="gc-discount">🏷️ ${c.discount}</div>` : ''}
-            ${c.notes ? `
-              <div class="gc-note" style="margin-top:5px">
-                ${c.notes.length > 70 ? c.notes.substring(0,70)+'…' : c.notes}
-              </div>` : ''}
-            ${c.gcLabels && c.gcLabels.length > 0 ? 
-              `<div class="tags" style="margin-top:5px">
-                ${c.gcLabels.map(l => `<span class="gc-tag">${l}</span>`).join('')}
-               </div>` : ''}
+            ${c.notes ? `<div class="gc-note" style="margin-top:5px">${c.notes.length > 70 ? c.notes.substring(0,70)+'…' : c.notes}</div>` : ''}
+            ${c.gcLabels && c.gcLabels.length > 0 ? `<div class="tags" style="margin-top:5px">${c.gcLabels.map(l => `<span class="gc-tag">${l}</span>`).join('')}</div>` : ''}
           </div>
-          <div style="display:flex; gap:5px; flex-shrink:0; align-items:flex-start;">
-             <button class="btn btn-e btn-sm" onclick="openMo('client','${c.id}')">${I.edit}</button>
-             <button class="btn btn-d btn-sm" onclick="del('client','${c.id}')">${I.trash}</button>
-          </div>
+          <div style="display:flex; gap:5px; flex-shrink:0; align-items:flex-start;"><button class="btn btn-e btn-sm" onclick="openMo('client','${c.id}')">${I.edit}</button><button class="btn btn-d btn-sm" onclick="del('client','${c.id}')">${I.trash}</button></div>
         </div>
       </div>
     `).join('');
-
-    // "Daha Fazla Göster" butonunu yönet
+    
     const loadBtn = document.getElementById('loadMoreBtn');
-    if(loadBtn) {
-        loadBtn.style.display = (filtered.length > renderLimit) ? 'block' : 'none';
-    }
+    if(loadBtn) loadBtn.style.display = (filtered.length > renderLimit) ? 'block' : 'none';
 }
 
-// --- MÜŞTERİ GİRİŞLERİ (AUTH) LİSTELEME MANTIĞI (YENİ) ---
 window.renderAuthGrid = function(query = '') {
     const tbody = document.getElementById('authTableBody');
     if(!tbody) return;
-
     query = query.toLowerCase();
-
-    // 1. DİNAMİK BİRLEŞTİRME (Müşteriler sayfasındaki gibi)
     let mergedContacts = [...clients];
     gcContacts.forEach(gc => {
-        const alreadyExists = mergedContacts.some(c => 
-            c.name.toLowerCase() === gc.name.toLowerCase() || 
-            (gc.phone && c.phone === gc.phone)
-        );
-        if (!alreadyExists) {
-            mergedContacts.push(gc);
-        }
+        const alreadyExists = mergedContacts.some(c => c.name.toLowerCase() === gc.name.toLowerCase() || (gc.phone && c.phone === gc.phone) );
+        if (!alreadyExists) mergedContacts.push(gc);
     });
-    
-    // 2. Filtrele
-    let filtered = mergedContacts.filter(c => c.name.toLowerCase().includes(query));
-    
-    // 3. Sırala (A-Z)
-    filtered.sort((a,b) => a.name.localeCompare(b.name, 'tr'));
-
-    // 4. Dilimle (Pagination)
+    let filtered = mergedContacts.filter(c => c.name.toLowerCase().includes(query)).sort((a,b) => a.name.localeCompare(b.name, 'tr'));
     const showList = filtered.slice(0, authLimit);
-
-    // 5. HTML Bas
-    tbody.innerHTML = showList.map(c => `
-        <tr>
-            <td style="font-weight:600">
-                ${c.name}
-                ${c.type === 'Google Contacts' ? '<span style="font-size:9px;background:#e8f0fe;color:#1a73e8;padding:1px 5px;border-radius:8px;margin-left:5px;font-weight:600" title="Google Contacts">G</span>' : ''}
-            </td>
-            <td>${c.username || '<em style="color:#94a3b8">Yok</em>'}</td>
-            <td>${c.username ? '<span class="badge b-active">Aktif</span>' : '<span class="badge b-pending">Pasif</span>'}</td>
-            <td><button class="btn btn-e btn-sm" onclick="openMo('auth','${c.id}')">${I.key} Düzenle</button></td>
-        </tr>
-    `).join('');
-
-    // Daha Fazla butonu kontrolü
+    tbody.innerHTML = showList.map(c => `<tr><td style="font-weight:600">${c.name} ${c.type === 'Google Contacts' ? '<span style="font-size:9px;background:#e8f0fe;color:#1a73e8;padding:1px 5px;border-radius:8px;margin-left:5px;font-weight:600" title="Google Contacts">G</span>' : ''}</td><td>${c.username || '<em style="color:#94a3b8">Yok</em>'}</td><td>${c.username ? '<span class="badge b-active">Aktif</span>' : '<span class="badge b-pending">Pasif</span>'}</td><td><button class="btn btn-e btn-sm" onclick="openMo('auth','${c.id}')">${I.key} Düzenle</button></td></tr>`).join('');
     const btn = document.getElementById('authLoadMoreBtn');
     if(btn) btn.style.display = (filtered.length > authLimit) ? 'block' : 'none';
 }
+window.loadMoreAuth = function() { authLimit += 50; renderAuthGrid(document.getElementById('authSearch').value); }
+window.loadMoreClients = function() { renderLimit += 50; renderClientGrid(document.getElementById('clientSearch').value); }
+function getRandomColor(name) { const colors = ['#eff6ff', '#f0fdf4', '#fef2f2', '#fffbeb', '#f5f3ff']; let hash = 0; for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash); return colors[Math.abs(hash) % colors.length]; }
 
-// Limit arttırma (Auth)
-window.loadMoreAuth = function() {
-    authLimit += 50;
-    renderAuthGrid(document.getElementById('authSearch').value);
-}
-
-// Limit arttırma (Client)
-window.loadMoreClients = function() {
-    renderLimit += 50;
-    const q = document.getElementById('clientSearch').value;
-    renderClientGrid(q);
-}
-
-// Rastgele avatar rengi (Görsellik için)
-function getRandomColor(name) {
-    const colors = ['#eff6ff', '#f0fdf4', '#fef2f2', '#fffbeb', '#f5f3ff'];
-    let hash = 0;
-    for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
-    return colors[Math.abs(hash) % colors.length];
-}
-
-
-
-// Global'e aktar (Module fix)
 window.renderClientGrid = renderClientGrid;
-window.renderAuthGrid = renderAuthGrid; 
-window.loadMoreAuth = loadMoreAuth;     
-window.loadMoreClients = loadMoreClients;
 
 window.updateAdminPassword = async function() {
-  const oldP = v('prof_old_pass');
-  const newP = v('prof_new_pass');
-  const newP2 = v('prof_new_pass2');
-
-  // Veritabanındaki aktif kullanıcıyı bul
+  const oldP = v('prof_old_pass'), newP = v('prof_new_pass'), newP2 = v('prof_new_pass2');
   let dbUser = adminUsers.find(u => u.username === currentUser.username);
-
-  if (!dbUser || dbUser.pass !== oldP) {
-    showToast('Mevcut şifreniz hatalı!', 'error'); return;
-  }
-  if (newP !== newP2) {
-    showToast('Yeni şifreler birbiriyle eşleşmiyor!', 'error'); return;
-  }
-  if (newP.length < 5) {
-    showToast('Yeni şifre en az 5 karakter olmalı!', 'error'); return;
-  }
-
-  // Veriyi güncelle ve cPanel'e kaydet
-  dbUser.pass = newP;
-  await fbUpdate('users', dbUser);
-
-  showToast('Şifreniz başarıyla değiştirildi ✓', 'success');
-  closeModal();
+  if (!dbUser || dbUser.pass !== oldP) { showToast('Mevcut şifreniz hatalı!', 'error'); return; }
+  if (newP !== newP2) { showToast('Yeni şifreler birbiriyle eşleşmiyor!', 'error'); return; }
+  if (newP.length < 5) { showToast('Yeni şifre en az 5 karakter olmalı!', 'error'); return; }
+  dbUser.pass = newP; await fbUpdate('users', dbUser);
+  showToast('Şifreniz başarıyla değiştirildi ✓', 'success'); closeModal();
 }
 
-window.logoutAdmin = function() {
-  localStorage.removeItem('pf_currentUser');
-  location.reload(); // Sayfayı yenileyip giriş ekranına atar
-}
+window.logoutAdmin = function() { localStorage.removeItem('pf_currentUser'); location.reload(); }
 
-
-
-  // GÖREV KAYDETME
 window.subTask = async function(id) {
     const safeId = (id && String(id) !== '0') ? String(id) : null;
-    const obj = {
-        id: safeId || String(uid()), title: v('f_title'), desc: v('f_desc'),
-        due: v('f_due'), status: v('f_stat') || 'todo'
-    };
-
-    if (safeId) {
-        const i = tasks.findIndex(x => String(x.id) === safeId);
-        if (i !== -1) tasks[i] = { ...tasks[i], ...obj };
-    } else { tasks.push(obj); }
-
-    await persistOne('tasks', obj, !safeId);
-    closeModal(); render(cur);
+    const obj = { id: safeId || String(uid()), title: v('f_title'), desc: v('f_desc'), due: v('f_due'), status: v('f_stat') || 'todo' };
+    if (safeId) { const i = tasks.findIndex(x => String(x.id) === safeId); if (i !== -1) tasks[i] = { ...tasks[i], ...obj }; } 
+    else { tasks.push(obj); }
+    await persistOne('tasks', obj, !safeId); closeModal(); render(cur);
 }
 
-// GELİR / GİDER KAYDETME
 window.subExpInc = async function(col, id) {
     const safeId = (id && String(id) !== '0') ? String(id) : null;
-    const obj = {
-        id: safeId || String(uid()), date: v('f_date'), desc: v('f_desc'),
-        amt: Number(v('f_amt')), store: v('f_store') || 'corlu'
-    };
-
+    const obj = { id: safeId || String(uid()), date: v('f_date'), desc: v('f_desc'), amt: Number(v('f_amt')), store: v('f_store') || 'corlu' };
     const targetArr = col === 'incomes' ? incomes : expenses;
-
-    if (safeId) {
-        const i = targetArr.findIndex(x => String(x.id) === safeId);
-        if (i !== -1) targetArr[i] = { ...targetArr[i], ...obj };
-    } else { targetArr.push(obj); }
-
-    await persistOne(col, obj, !safeId);
-    closeModal(); render(cur);
+    if (safeId) { const i = targetArr.findIndex(x => String(x.id) === safeId); if (i !== -1) targetArr[i] = { ...targetArr[i], ...obj }; } 
+    else { targetArr.push(obj); }
+    await persistOne(col, obj, !safeId); closeModal(); render(cur);
 }
 
-// PANEL YÖNETİMİ BİLGİLERİNİ GÜNCELLEME
 window.subPanelMgmt = async function(id) {
     const c = clients.find(x => String(x.id) === String(id));
     if(!c) return;
-
-    c.total = Number(v('pm_total')); c.paid = Number(v('pm_paid'));
-    c.stage = v('pm_stage'); c.driveFolder = v('pm_drive');
-
-    // Müşterinin session verisini de güncelle
+    c.total = Number(v('pm_total')); c.paid = Number(v('pm_paid')); c.stage = v('pm_stage'); c.driveFolder = v('pm_drive');
     const sId = sessions.find(s => String(s.cid) === String(id))?.id;
     if(sId) {
         const i = sessions.findIndex(x => String(x.id) === String(sId));
-        if(i !== -1) {
-            sessions[i].date = v('pm_date'); sessions[i].time = v('pm_time');
-            sessions[i].pkg = v('pm_pkg'); sessions[i].loc = v('pm_loc');
-            sessions[i].status = v('pm_status');
-            await persistOne('sessions', sessions[i]);
-        }
+        if(i !== -1) { sessions[i].date = v('pm_date'); sessions[i].time = v('pm_time'); sessions[i].pkg = v('pm_pkg'); sessions[i].loc = v('pm_loc'); sessions[i].status = v('pm_status'); await persistOne('sessions', sessions[i]); }
     }
-
-    await persistOne('clients', c);
-    closeModal(); showToast('Panel bilgileri güncellendi ✓', 'success'); render(cur);
+    await persistOne('clients', c); closeModal(); showToast('Panel bilgileri güncellendi ✓', 'success'); render(cur);
 }
 
-
-
-
-// Seçilen Avatarı İşle ve cPanel'e Kaydet
 window.handleAvatarUpload = function(event) {
     const file = event.target.files[0];
     if (!file) return;
-
     const reader = new FileReader();
     reader.onload = function(e) {
         const img = new Image();
         img.onload = async function() {
-            // Veritabanı şişmesin diye resmi maksimum 150x150 piksele küçültüyoruz
             const canvas = document.createElement('canvas');
-            const MAX_SIZE = 150;
-            let width = img.width;
-            let height = img.height;
-
-            if (width > height) {
-                if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; }
-            } else {
-                if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; }
-            }
+            const MAX_SIZE = 150; let width = img.width; let height = img.height;
+            if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } } 
+            else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
             canvas.width = width; canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-            
-            // Resmi metne (Base64) çevir
+            const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
             const base64Avatar = canvas.toDataURL('image/jpeg', 0.8);
-
-            // Modaldaki ve Header'daki resmi anında güncelle
+            
             document.getElementById('profModalAvatar').innerHTML = `<img src="${base64Avatar}"/>`;
             updateHeaderAvatar(base64Avatar, currentUser.name);
-
-            // Veritabanına Kaydet
-            currentUser.avatar = base64Avatar;
-            localStorage.setItem('pf_currentUser', JSON.stringify(currentUser));
             
+            currentUser.avatar = base64Avatar; localStorage.setItem('pf_currentUser', JSON.stringify(currentUser));
             let dbUser = adminUsers.find(u => u.username === currentUser.username);
-            if (dbUser) {
-                dbUser.avatar = base64Avatar;
-                await fbUpdate('users', dbUser);
-                showToast('Profil fotoğrafı başarıyla güncellendi ✓', 'success');
-            }
+            if (dbUser) { dbUser.avatar = base64Avatar; await fbUpdate('users', dbUser); showToast('Profil fotoğrafı güncellendi ✓', 'success'); }
         }
         img.src = e.target.result;
     }
     reader.readAsDataURL(file);
 }
 
-// Üst Menüdeki Avatarı Güncelleme Fonksiyonu
 window.updateHeaderAvatar = function(avatarUrl, name) {
     const hdrAv = document.getElementById('headerAvatar');
     if(hdrAv) {
-        if(avatarUrl) {
-            hdrAv.innerHTML = `<img src="${avatarUrl}"/>`;
-        } else {
-            hdrAv.innerHTML = name ? name.charAt(0).toUpperCase() : 'F';
-        }
+        if(avatarUrl) { hdrAv.innerHTML = `<img src="${avatarUrl}"/>`; } 
+        else { hdrAv.innerHTML = name ? name.charAt(0).toUpperCase() : 'F'; }
     }
 }
 
-// Sayfa ilk yüklendiğinde ve giriş yapıldığında avatarı çekmek için 
-// initFirebase() fonksiyonunun İÇİNE (en altına) şu satırı eklemelisin:
-// updateHeaderAvatar(currentUser.avatar, currentUser.name);
+// 9. Sayfa yüklenince kaydedilmiş token'ı kontrol et ve OTOMATİK ÇEK
+const savedGcToken = localStorage.getItem('gc_token');
+if (savedGcToken) {
+  gcAccessToken = savedGcToken;
+  fetchGoogleContacts(null, true); 
+  fetchExcelData();
+  fetchQuotesData();
+}
 
-  
-  
 initFirebase();
-
-  
 </script>
 </body>
 </html>
