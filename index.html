@@ -396,7 +396,7 @@ const firebaseConfig = {
 
 // ─── GOOGLE CONTACTS YAPILANDIRMASI ───────────────────────────────
 const GOOGLE_CLIENT_ID = '438367434556-c6tjeghvqo4rrdn4t9te7d9c3rrs6j32.apps.googleusercontent.com';
-const GOOGLE_SCOPES = 'https://www.googleapis.com/auth/contacts'; // .readonly kısmını sildik!
+const GOOGLE_SCOPES = 'https://www.googleapis.com/auth/contacts https://www.googleapis.com/auth/spreadsheets.readonly';
 let gcAccessToken = null;
 let gcContacts = [];
 let gcGroupMap = {}; // YENİ EKLENEN: Etiket çeviri sözlüğü
@@ -1541,6 +1541,11 @@ window.fetchGoogleContacts = async function(pageToken = null, isAutoLoad = false
   }
 };
 
+
+
+
+  
+
 // 3. Ham People API verisini PASOVART formatına çevir
 function parseGContact(person) {
   const name = (person.names?.[0]?.displayName) || '';
@@ -1659,6 +1664,71 @@ function renderGcList(contacts) {
   }).join('');
 }
 
+
+
+
+let excelContacts = []; // Excel'den gelen müşterileri tutacağımız liste
+
+window.fetchExcelData = async function() {
+  if (!gcAccessToken) {
+    showToast('Lütfen önce Google ile bağlanın.', 'error');
+    return;
+  }
+
+  // BURAYA DİKKAT: Kendi Excel dosyanın ID'sini yazmalısın
+  const SPREADSHEET_ID = 'DOSYA_ID_BURAYA_GELECEK'; 
+  
+  // Excel içindeki sekmenin adı "Sayfa1" değilse (örn: "Müşteriler" ise) burayı güncelle:
+  const RANGE = 'Sayfa1!C2:I'; 
+
+  showToast('Excel verileri aranıyor...', '');
+
+  try {
+    const response = await fetch(`https://sheets.googleapis.com/v1/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}`, {
+      headers: { Authorization: `Bearer ${gcAccessToken}` }
+    });
+
+    if (!response.ok) throw new Error('API Hatası');
+
+    const data = await response.json();
+    
+    if (data.values && data.values.length > 0) {
+      excelContacts = data.values.map((row, index) => {
+        const kayitNo = row[3] || '';
+        const sube = row[5] || '';
+        const notlar = row[6] || '';
+        
+        // Şube bilgisi varsa bunu bir etiket (VIP, Düğün vs. gibi) olarak ekliyoruz
+        const labels = [];
+        if (sube) labels.push(sube + ' Şubesi');
+        if (kayitNo) labels.push('Kayıt: ' + kayitNo);
+
+        return {
+          id: 'ex_' + (kayitNo ? kayitNo : index), // Kayıt no varsa ID olarak kullan
+          name: row[0] || '',      
+          phone: row[1] || '',     
+          notes: notlar,
+          gcLabels: labels, // Etiketler kısmında şube ve kayıt no renkli gözükecek
+          type: 'Google Sheets',
+          _fromExcel: true
+        };
+      }).filter(c => c.name.trim() !== ''); // Sadece ismi boş olmayan satırları al
+      
+      showToast(`${excelContacts.length} kayıt Excel'den çekildi ✓`, 'success');
+      
+      // Müşteri listesini yenile
+      renderClientGrid(document.getElementById('clientSearch')?.value || '');
+    } else {
+      showToast('Excel dosyasında veri bulunamadı.', 'error');
+    }
+  } catch (error) {
+    console.error('Excel çekme hatası:', error);
+    showToast('Excel dosyasına ulaşılamadı. ID ve Yetkileri kontrol edin.', 'error');
+  }
+};
+
+
+  
 // 6. Arama filtresi
 window.filterGcContacts = function(q) {
   const filtered = q 
@@ -1750,7 +1820,7 @@ function renderClientGrid(query = '') {
     query = query.toLowerCase();
 
     // 1. DİNAMİK BİRLEŞTİRME: Veritabanı (clients) + Google Contacts (gcContacts)
-    let mergedContacts = [...clients];
+let mergedContacts = [...clients, ...gcContacts, ...excelContacts];
 
     // Google kişilerini listeye ekle (Eğer veritabanında aynı kişi zaten yoksa)
     gcContacts.forEach(gc => {
