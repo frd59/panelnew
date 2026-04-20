@@ -1019,8 +1019,49 @@ const moForms={
   task:(id)=>{ const o=id?tasks.find(t=>String(t.id)===String(id)):{}; return `<div class="fg"><label>Başlık</label><input type="text" id="f_title" value="${o.title||''}"/></div><div class="fg"><label>Açıklama</label><textarea id="f_desc">${o.desc||''}</textarea></div><div class="fg"><label>Son Tarih</label><input type="date" id="f_due" value="${o.due||''}"/></div>${id?`<div class="fg"><label>Durum</label><select id="f_stat"><option value="todo" ${o.status=='todo'?'selected':''}>Yapılacak</option><option value="inprogress" ${o.status=='inprogress'?'selected':''}>Sürüyor</option><option value="done" ${o.status=='done'?'selected':''}>Bitti</option></select></div>`:''}<button class="btn btn-p f-sub" onclick="subTask('${id||0}')">Kaydet</button>`; },
   contract:()=>{ return ``; }, 
   expense:(id)=>{ const o=id?expenses.find(x=>String(x.id)===String(id)):{}; return `<div class="fg"><label>Tarih</label><input type="date" id="f_date" value="${o.date||''}"/></div><div class="fg"><label>Açıklama</label><input type="text" id="f_desc" value="${o.desc||''}"/></div><div class="fr"><div class="fg"><label>Tutar</label><input type="number" id="f_amt" value="${o.amt||''}"/></div><div class="fg"><label>Şube</label><select id="f_store"><option value="">Genel</option><option value="corlu" ${o.store=='corlu'?'selected':''}>Çorlu</option><option value="ergene" ${o.store=='ergene'?'selected':''}>Ergene</option></select></div></div><button class="btn btn-p f-sub" onclick="subExpInc('expenses','${id||0}')">Kaydet</button>`; },
-  income:(id)=>{ const o=id?incomes.find(x=>String(x.id)===String(id)):{}; return `<div class="fg"><label>Tarih</label><input type="date" id="f_date" value="${o.date||''}"/></div><div class="fg"><label>Açıklama</label><input type="text" id="f_desc" value="${o.desc||''}"/></div><div class="fr"><div class="fg"><label>Tutar</label><input type="number" id="f_amt" value="${o.amt||''}"/></div><div class="fg"><label>Şube</label><select id="f_store"><option value="">Genel</option><option value="corlu" ${o.store=='corlu'?'selected':''}>Çorlu</option><option value="ergene" ${o.store=='ergene'?'selected':''}>Ergene</option></select></div></div><button class="btn btn-p f-sub" onclick="subExpInc('incomes','${id||0}')">Kaydet</button>`; }
-};
+ income: (id) => { 
+      const o = id ? incomes.find(x => String(x.id) === String(id)) : {}; 
+      
+      let clientSelectHtml = '';
+      if (!id) {
+          // Sadece yeni gelir eklerken müşteri seçimi göster
+          const clientOptions = clients.sort((a,b) => a.name.localeCompare(b.name)).map(c => 
+              `<option value="${c.id}">${c.name} (${c.phone || '-'})</option>`
+          ).join('');
+          
+          clientSelectHtml = `
+          <div class="fg">
+              <label>Bağlantılı Müşteri (Ara Ödeme/Tahsilat)</label>
+              <select id="f_inc_client" onchange="loadClientSessionsForIncome(this.value)">
+                  <option value="">-- Müşteri Seçin (Bağımsız Gelir ise boş bırakın) --</option>
+                  ${clientOptions}
+              </select>
+          </div>
+          <div class="fg" id="f_inc_session_wrap" style="display:none; background:#f8fafc; padding:10px; border-radius:10px; border:1px solid var(--bdr);">
+              <label>Kayıtlı İşlem / Çekim</label>
+              <select id="f_inc_session" onchange="autoFillIncomeDesc()"></select>
+          </div>
+          `;
+      }
+
+      return `
+          ${clientSelectHtml}
+          <div class="fr">
+              <div class="fg"><label>Tarih</label><input type="date" id="f_date" value="${o.date || new Date().toISOString().split('T')[0]}"/></div>
+              <div class="fg"><label>Tutar (₺)</label><input type="number" id="f_amt" value="${o.amt || ''}"/></div>
+          </div>
+          <div class="fg"><label>Açıklama</label><input type="text" id="f_desc" value="${o.desc || ''}" placeholder="Örn: Fotoğraf Çekimi Ara Ödemesi..."/></div>
+          <div class="fg">
+              <label>Şube</label>
+              <select id="f_store">
+                  <option value="">Genel</option>
+                  <option value="corlu" ${o.store == 'corlu' ? 'selected' : ''}>Çorlu</option>
+                  <option value="ergene" ${o.store == 'ergene' ? 'selected' : ''}>Ergene</option>
+              </select>
+          </div>
+          <button class="btn btn-p f-sub" onclick="subExpInc('incomes','${id || 0}')">${id ? 'Geliri Güncelle' : 'Kaydet ve Bakiyeden Düş'}</button>
+      `; 
+  },
 
 // SUBMITS
 window.subAuth = async function(id) {
@@ -1487,51 +1528,73 @@ window.subTask = async function(id) {
 
 window.subExpInc = async function(col, id) {
     const safeId = (id && String(id) !== '0') ? String(id) : null;
-    const obj = { id: safeId || String(uid()), date: v('f_date'), desc: v('f_desc'), amt: Number(v('f_amt')), store: v('f_store') || 'corlu' };
-    const targetArr = col === 'incomes' ? incomes : expenses;
-    if (safeId) { const i = targetArr.findIndex(x => String(x.id) === safeId); if (i !== -1) targetArr[i] = { ...targetArr[i], ...obj }; } 
-    else { targetArr.push(obj); }
-    await persistOne(col, obj, !safeId); closeModal(); render(cur);
-}
+    
+    const date = v('f_date');
+    const desc = v('f_desc');
+    const amt = Number(v('f_amt'));
+    const store = v('f_store') || 'corlu';
 
-window.subPanelMgmt = async function(id) {
-    const c = clients.find(x => String(x.id) === String(id));
-    if(!c) return;
+    const obj = { id: safeId || String(uid()), date: date, desc: desc, amt: amt, store: store };
     
-    c.total = Number(v('pm_total')); 
-    c.paid = Number(v('pm_paid')); 
-    c.stage = v('pm_stage'); 
-    c.driveFolder = v('pm_drive');
-    
-    // DÜZELTME: Çekimi bul veya müşteri için yeni çekim kaydı oluştur
-    let s = sessions.find(sess => String(sess.cid) === String(id));
-    if(s) {
-        s.date = v('pm_date'); 
-        s.time = v('pm_time'); 
-        s.pkg = v('pm_pkg'); 
-        s.loc = v('pm_loc'); 
-        s.status = v('pm_status'); 
-        await persistOne('sessions', s); 
-    } else {
-        // Eğer müşteriye ait hiç çekim yoksa yeni oluştur
-        const newSess = {
-            id: String(uid()), 
-            cid: id, 
-            date: v('pm_date'), 
-            time: v('pm_time'),
-            pkg: v('pm_pkg'), 
-            loc: v('pm_loc'), 
-            status: v('pm_status') || 'upcoming',
-            total: c.total, 
-            paid: c.paid
-        };
-        sessions.push(newSess);
-        await persistOne('sessions', newSess, true);
+    // Müşteri ve İşlem seçimi yakalama (Sadece yeni gelir eklerken var)
+    const cSel = document.getElementById('f_inc_client');
+    const sSel = document.getElementById('f_inc_session');
+    const cid = cSel ? cSel.value : null;
+    const sid = sSel ? sSel.value : null;
+
+    const targetArr = col === 'incomes' ? incomes : expenses;
+    if (safeId) { 
+        const i = targetArr.findIndex(x => String(x.id) === safeId); 
+        if (i !== -1) targetArr[i] = { ...targetArr[i], ...obj }; 
+    } else { 
+        if (cid) obj.cid = cid;
+        targetArr.push(obj); 
     }
     
-    await persistOne('clients', c); 
+    await persistOne(col, obj, !safeId); 
+
+    // EĞER YENİ BİR GELİRSE VE MÜŞTERİ SEÇİLMİŞSE BAKİYELERİ OTOMATİK DÜŞ
+    if (col === 'incomes' && !safeId && cid) {
+        // 1. Müşteri Genel Ödenen (Paid) Bakiyesini Güncelle
+        const client = clients.find(c => String(c.id) === String(cid));
+        if (client) {
+            client.paid = (Number(client.paid) || 0) + amt;
+            await persistOne('clients', client);
+        }
+
+        // 2. Çekim (Session) ve Sözleşme Bakiyesini Güncelle
+        let sessionToUpdate = null;
+        if (sid) {
+            sessionToUpdate = sessions.find(s => String(s.id) === String(sid));
+        } else {
+            sessionToUpdate = sessions.find(s => String(s.cid) === String(cid)); // Spesifik seçilmediyse ilkini bul
+        }
+
+        if (sessionToUpdate) {
+            sessionToUpdate.paid = (Number(sessionToUpdate.paid) || 0) + amt;
+            await persistOne('sessions', sessionToUpdate);
+
+            // İlgili sözleşmeyi de bul ve güncelle
+            const contract = contracts.find(c => String(c.cid) === String(cid) && c.date === sessionToUpdate.date);
+            if (contract) {
+                contract.paid = (Number(contract.paid) || 0) + amt;
+                await persistOne('contracts', contract);
+            } else {
+                 const anyContract = contracts.find(c => String(c.cid) === String(cid));
+                 if(anyContract) {
+                     anyContract.paid = (Number(anyContract.paid) || 0) + amt;
+                     await persistOne('contracts', anyContract);
+                 }
+            }
+        }
+    }
+
     closeModal(); 
-    showToast('Panel bilgileri güncellendi ✓', 'success'); 
+    if (cid && col === 'incomes' && !safeId) {
+        showToast('Tahsilat eklendi ve müşteri borcundan düşüldü ✓', 'success');
+    } else {
+        showToast('Kaydedildi ✓', 'success');
+    }
     render(cur);
 }
 window.handleAvatarUpload = function(event) {
@@ -1579,6 +1642,53 @@ if (savedGcToken) {
 }
 
 initFirebase();
+
+window.loadClientSessionsForIncome = function(cid) {
+    const wrap = document.getElementById('f_inc_session_wrap');
+    const sel = document.getElementById('f_inc_session');
+    
+    if (!cid) { 
+        wrap.style.display = 'none'; sel.innerHTML = ''; 
+        autoFillIncomeDesc(); return; 
+    }
+    
+    const clientSessions = sessions.filter(s => String(s.cid) === String(cid));
+    if (clientSessions.length === 0) {
+        wrap.style.display = 'none'; sel.innerHTML = ''; 
+        autoFillIncomeDesc(); return;
+    }
+    
+    wrap.style.display = 'block';
+    sel.innerHTML = '<option value="">-- Tüm İşlemlere Say (Genel) --</option>' + clientSessions.map(s => {
+        const debt = Number(s.total) - Number(s.paid);
+        return `<option value="${s.id}" data-pkg="${s.pkg}">Tarih: ${fmtDate(s.date)} | ${s.pkg} (Kalan: ₺${debt})</option>`;
+    }).join('');
+    
+    autoFillIncomeDesc();
+}
+
+window.autoFillIncomeDesc = function() {
+    const cSel = document.getElementById('f_inc_client');
+    const sSel = document.getElementById('f_inc_session');
+    const descInput = document.getElementById('f_desc');
+    
+    if (!cSel || !cSel.value) {
+        descInput.value = '';
+        return;
+    }
+    
+    const clientText = cSel.options[cSel.selectedIndex].text; // Örn: Ali Veli (05...)
+    let desc = `${clientText} - Ara Ödeme / Tahsilat`;
+    
+    if (sSel && sSel.value) {
+        const pkg = sSel.options[sSel.selectedIndex].getAttribute('data-pkg');
+        desc = `${clientText} - ${pkg} Ödemesi`;
+    }
+    
+    descInput.value = desc;
+}
+
+  
 </script>
 </body>
 </html>
