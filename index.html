@@ -621,15 +621,26 @@ function rDash() {
       return acc + (t - p);
   }, 0);
 
-  const up=sessions.filter(s=>s.status==='upcoming').sort((a,b)=>new Date(a.date)-new Date(b.date));
-  
+  // --- DÜZELTME BURADA ---
+  // Sadece tarihi bugünden büyük/eşit olanları alıyoruz ki eski tarihli çekimler listeyi doldurmasın.
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  const up = sessions.filter(s => {
+      if (!s.date) return false;
+      const sDate = new Date(s.date);
+      // Bugünden itibaren olanları al, bitmişleri (done) gizle.
+      return sDate >= today && s.status !== 'done'; 
+  }).sort((a,b) => new Date(a.date) - new Date(b.date));
+  // -----------------------
+
   return `<div class="stat-grid">
     <div class="card stat"><div class="stat-ico" style="background:#ecfdf5"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div><div><div class="stat-lbl">Toplam Gelir (Kasa)</div><div class="stat-val" style="color:#10b981">₺${fm(inc)}</div></div></div>
     <div class="card stat"><div class="stat-ico" style="background:#fef2f2"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div><div><div class="stat-lbl">Toplam Gider</div><div class="stat-val" style="color:#ef4444">₺${fm(exp)}</div></div></div>
     <div class="card stat clickable" onclick="openReceivablesList()" style="cursor:pointer"><div class="stat-ico" style="background:#eff6ff"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M12 2v20M2 12h20" stroke-opacity="0"/><path d="M17 9V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M9 9h.01"/><path d="M12 15v3m0 0l-3-3m3 3l3-3"/><path d="M22 17v2a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></div><div><div class="stat-lbl">Alınacak Ödemeler</div><div class="stat-val" style="color:#3b82f6">₺${fm(receivables)}</div></div></div>
   </div>
   <div class="card card-p"><div class="ph" style="margin-bottom:14px"><h3 style="font-size:16px;font-weight:700">📸 Yaklaşan Çekimler</h3></div>
-  ${up.slice(0,5).map(s=>{
+  ${up.length === 0 ? '<div style="font-size:13px; color:var(--txt3); padding:10px 0;">Yaklaşan çekim bulunmuyor.</div>' : up.slice(0,5).map(s=>{
     const dObj = new Date(s.date);
     const day = dObj.getDate();
     const fullDate = fmtDate(s.date);
@@ -1107,9 +1118,13 @@ window.subSession = async function(id) {
     total: total, paid: paid, pkg: pkg, loc: v('f_loc'), desc: desc, status: 'upcoming'
   };
 
-  if(safeId){ 
+  iif(safeId){ 
       const i = sessions.findIndex(x => String(x.id) === safeId); 
-      if(i !== -1) { sessions[i] = {...sessions[i],...obj}; await persistOne('sessions', sessions[i]); }
+      if(i !== -1) { 
+          obj.status = sessions[i].status || 'upcoming'; // Mevcut durumu koru
+          sessions[i] = {...sessions[i],...obj}; 
+          await persistOne('sessions', sessions[i]); 
+      }
   } else { 
     sessions.push(obj); await persistOne('sessions', obj, true); 
     if(paid > 0) {
