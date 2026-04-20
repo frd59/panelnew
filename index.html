@@ -1060,9 +1060,9 @@ const moForms={
               </select>
           </div>
           <button class="btn btn-p f-sub" onclick="subExpInc('incomes','${id || 0}')">${id ? 'Geliri Güncelle' : 'Kaydet ve Bakiyeden Düş'}</button>
-      `; 
-  },
-
+`; 
+  }
+}; // <--- İŞTE BURASI EKSİKTİ (moForms objesinin kapanış parantezi)
 // SUBMITS
 window.subAuth = async function(id) {
   let c = clients.find(x => String(x.id) === String(id));
