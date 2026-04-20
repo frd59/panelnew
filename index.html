@@ -1118,7 +1118,7 @@ window.subSession = async function(id) {
     total: total, paid: paid, pkg: pkg, loc: v('f_loc'), desc: desc, status: 'upcoming'
   };
 
-  iif(safeId){ 
+  if(safeId){ 
       const i = sessions.findIndex(x => String(x.id) === safeId); 
       if(i !== -1) { 
           obj.status = sessions[i].status || 'upcoming'; // Mevcut durumu koru
