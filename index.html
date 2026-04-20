@@ -968,9 +968,10 @@ const moForms={
       <button class="btn btn-d f-sub" onclick="logoutAdmin()">Çıkış Yap</button>
     `;
   },
-  panelMgmt:(id)=>{
+ panelMgmt:(id)=>{
     const c = clients.find(x=>String(x.id)===String(id));
-    const s = c.session || {}; 
+    // DÜZELTME: c.session yerine sessions array'inden cid ile eşleştiriyoruz
+    const s = sessions.find(x => String(x.cid) === String(id)) || {}; 
     return `
       <div class="fg"><label>Müşteri</label><input type="text" value="${c.name}" disabled style="background:#e2e8f0; font-weight:bold"/></div>
       <div class="section-title">Finansal Durum</div>
@@ -1496,15 +1497,43 @@ window.subExpInc = async function(col, id) {
 window.subPanelMgmt = async function(id) {
     const c = clients.find(x => String(x.id) === String(id));
     if(!c) return;
-    c.total = Number(v('pm_total')); c.paid = Number(v('pm_paid')); c.stage = v('pm_stage'); c.driveFolder = v('pm_drive');
-    const sId = sessions.find(s => String(s.cid) === String(id))?.id;
-    if(sId) {
-        const i = sessions.findIndex(x => String(x.id) === String(sId));
-        if(i !== -1) { sessions[i].date = v('pm_date'); sessions[i].time = v('pm_time'); sessions[i].pkg = v('pm_pkg'); sessions[i].loc = v('pm_loc'); sessions[i].status = v('pm_status'); await persistOne('sessions', sessions[i]); }
+    
+    c.total = Number(v('pm_total')); 
+    c.paid = Number(v('pm_paid')); 
+    c.stage = v('pm_stage'); 
+    c.driveFolder = v('pm_drive');
+    
+    // DÜZELTME: Çekimi bul veya müşteri için yeni çekim kaydı oluştur
+    let s = sessions.find(sess => String(sess.cid) === String(id));
+    if(s) {
+        s.date = v('pm_date'); 
+        s.time = v('pm_time'); 
+        s.pkg = v('pm_pkg'); 
+        s.loc = v('pm_loc'); 
+        s.status = v('pm_status'); 
+        await persistOne('sessions', s); 
+    } else {
+        // Eğer müşteriye ait hiç çekim yoksa yeni oluştur
+        const newSess = {
+            id: String(uid()), 
+            cid: id, 
+            date: v('pm_date'), 
+            time: v('pm_time'),
+            pkg: v('pm_pkg'), 
+            loc: v('pm_loc'), 
+            status: v('pm_status') || 'upcoming',
+            total: c.total, 
+            paid: c.paid
+        };
+        sessions.push(newSess);
+        await persistOne('sessions', newSess, true);
     }
-    await persistOne('clients', c); closeModal(); showToast('Panel bilgileri güncellendi ✓', 'success'); render(cur);
+    
+    await persistOne('clients', c); 
+    closeModal(); 
+    showToast('Panel bilgileri güncellendi ✓', 'success'); 
+    render(cur);
 }
-
 window.handleAvatarUpload = function(event) {
     const file = event.target.files[0];
     if (!file) return;
